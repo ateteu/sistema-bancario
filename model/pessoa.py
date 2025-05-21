@@ -3,7 +3,7 @@ from utils import validadores
 
 class Pessoa(ABC):
     """
-    Representa um pessoa.
+    Representa uma pessoa.
 
     Attributes:
         _nome (str): Nome completo da pessoa.
