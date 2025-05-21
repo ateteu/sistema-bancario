@@ -10,18 +10,22 @@ class Cliente:
         _endereco (str): Endereço completo do cliente, preenchido a partir do CEP e número.
     """
 
-    def __init__(self, nome: str, cpf: str, cep: str, numero_casa: str, endereco: str) -> None:
+    def __init__(self, nome: str, senha: str, email: str, cpf: str, cep: str, numero_casa: str, endereco: str) -> None:
         """
         Inicializa um novo cliente com os dados fornecidos.
 
         Args:
             nome (str): Nome completo do cliente.
+            senha (str): Senha de acesso ao sistema.
+            email (str): Email do cliente.
             cpf (str): CPF do cliente (único e imutável).
             cep (str): CEP da residência.
             numero_casa (str): Número da casa.
             endereco (str): Endereço completo (resolvido a partir do CEP e número).
         """
         self._nome = nome
+        self._senha = senha
+        self._email = email
         self._cpf = cpf
         self._cep = cep
         self._numero_casa = numero_casa
@@ -44,6 +48,52 @@ class Cliente:
             novo_nome (str): Novo nome a ser atribuído.
         """
         self._nome = novo_nome
+
+    def verificar_senha(self, senha_digitada: str) -> bool:
+        """
+        Verifica se a senha informada é correta.
+
+        Args:
+            senha_digitada (str): Senha digitada para verificação.
+
+        Returns:
+            bool: True se a senha estiver correta, False caso contrário.
+        """
+        return self._senha == senha_digitada
+
+    def alterar_senha(self, senha_antiga: str, nova_senha: str) -> bool:
+        """
+        Altera a senha do cliente se a senha antiga estiver correta.
+
+        Args:
+            senha_antiga (str): Senha atual.
+            nova_senha (str): Nova senha desejada.
+
+        Returns:
+            bool: True se a alteração foi feita, False caso contrário.
+        """
+        if self.verificar_senha(senha_antiga):
+            self._senha = nova_senha
+            return True
+        return False
+
+    def get_email(self) -> str:
+        """
+        Retorna o e-mail do cliente.
+
+        Returns:
+            str: Email do cliente.
+        """
+        return self._email
+
+    def set_email(self, novo_email: str) -> None:
+        """
+        Altera o e-mail do cliente.
+        
+        Args:
+            novo_email (str): Novo email a ser atribuído.
+        """
+        self._email = novo_email
 
     def get_cpf(self) -> str:
         """
