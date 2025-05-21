@@ -1,3 +1,5 @@
+from utils import validadores
+
 class Cliente:
     """
     Representa um cliente do sistema bancário.
@@ -46,7 +48,11 @@ class Cliente:
 
         Args:
             novo_nome (str): Novo nome a ser atribuído.
+        
+        Raises:
+            ValueError: Se o nome for inválido.
         """
+        validadores.validar_nome(novo_nome)
         self._nome = novo_nome
 
     def verificar_senha(self, senha_digitada: str) -> bool:
@@ -71,8 +77,12 @@ class Cliente:
 
         Returns:
             bool: True se a alteração foi feita, False caso contrário.
+        
+        Raises:
+            ValueError: Se a nova senha não for válida.
         """
         if self.verificar_senha(senha_antiga):
+            validadores.validar_senha(nova_senha)
             self._senha = nova_senha
             return True
         return False
@@ -92,7 +102,11 @@ class Cliente:
         
         Args:
             novo_email (str): Novo email a ser atribuído.
+        
+        Raises:
+            ValueError: Se o e-mail for inválido.
         """
+        validadores.validar_email(novo_email)
         self._email = novo_email
 
     def get_cpf(self) -> str:
@@ -119,7 +133,11 @@ class Cliente:
 
         Args:
             novo_cep (str): Novo CEP a ser atribuído.
+        
+        Raises:
+            ValueError: Se o CEP for inválido.
         """
+        validadores.validar_cep(novo_cep)
         self._cep = novo_cep
 
     def get_numero_casa(self) -> str:
@@ -137,7 +155,11 @@ class Cliente:
 
         Args:
             novo_numero (str): Novo número da casa.
+        
+        Raises:
+            ValueError: Se o número da casa for inválido.
         """
+        validadores.validar_numero_casa(novo_numero)
         self._numero_casa = novo_numero
 
     def get_endereco(self) -> str:
