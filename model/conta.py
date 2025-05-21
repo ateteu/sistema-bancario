@@ -2,26 +2,23 @@ from abc import ABC, abstractmethod
 
 class Conta(ABC):
     """
-    Representa uma conta bancária associada a um cliente.
+    Representa uma conta bancária.
 
     Attributes:
         _numero_conta (str): Número único da conta.
-        _cpf_cliente (str): CPF do cliente dono da conta.
         _saldo (float): Saldo atual da conta.
         _historico (list[str]): Lista de operações realizadas.
         _ativa (bool): Indica se a conta está ativa.
     """
 
-    def __init__(self, numero: str, cpf: str):
+    def __init__(self, numero: str):
         """
         Inicializa uma nova conta com saldo zerado.
 
         Args:
-            numero (str): Número da conta.
-            cpf (str): CPF do cliente dono da conta.
+            numero (str): Número único da conta.
         """
         self._numero_conta = numero
-        self._cpf_cliente = cpf
         self._saldo = 0.0
         self._historico = []
         self._ativa = True
@@ -84,15 +81,6 @@ class Conta(ABC):
             str: Número da conta.
         """
         return self._numero_conta
-
-    def get_cpf_cliente(self) -> str:
-        """
-        Retorna o CPF do cliente dono da conta.
-
-        Returns:
-            str: CPF do cliente.
-        """
-        return self._cpf_cliente
 
     def _registrar_operacao(self, descricao: str) -> None:
         """
