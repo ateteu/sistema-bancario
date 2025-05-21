@@ -6,10 +6,12 @@ class Cliente:
 
     Attributes:
         _nome (str): Nome completo do cliente.
+        _senha (str): Senha de acesso ao sistema.
+        _email (str): Email do cliente.
         _cpf (str): CPF do cliente (único e imutável).
         _cep (str): CEP da residência do cliente.
         _numero_casa (str): Número da casa do cliente.
-        _endereco (str): Endereço completo do cliente, preenchido a partir do CEP e número.
+        _endereco (str): Endereço completo do cliente (viaCEP API).
     """
 
     def __init__(self, nome: str, senha: str, email: str, cpf: str, cep: str, numero_casa: str, endereco: str) -> None:
