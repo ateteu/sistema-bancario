@@ -24,8 +24,8 @@ class ContaCorrente(Conta):
         if not self._ativa or not destino._ativa or valor <= 0 or valor > self._saldo:
             return False
 
-        self._saldo -= valor
-        destino._saldo += valor
+        self._set_saldo(self.get_saldo() - valor)
+        destino._set_saldo(destino.get_saldo() + valor)
 
         self._registrar_operacao(f'Transferência de R$ {valor:.2f} para conta {destino.get_numero_conta()}')
         destino._registrar_operacao(f'Recebido R$ {valor:.2f} da conta {self.get_numero_conta()}')
