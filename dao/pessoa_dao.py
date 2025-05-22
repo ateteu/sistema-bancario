@@ -3,8 +3,7 @@ from model.pessoa_fisica import PessoaFisica
 from dao.dao import DAO
 from utils.constantes import (
     ARQUIVO_PESSOAS,
-    TIPO_PFISICA,
-    TIPO_PJURIDICA
+    TIPO_PFISICA
 )
 
 class PessoaDAO(DAO):
@@ -41,8 +40,9 @@ class PessoaDAO(DAO):
         
         pessoa._set_endereco = endereco
 
+        # Possível implementar PJ futuramente (elif tipo == TIPO_PJURIDICA)
         if tipo == TIPO_PFISICA:
-            data_nascimento = dados.get("data_nascimento", "")
+            data_nascimento = dados.get("data_nascimento", "Desconhecido")
             pessoa = PessoaFisica(numero_documento, nome, email, cep, numero_endereco, data_nascimento)
         else:
             raise ValueError(f"Tipo de Pessoa desconhecido: {tipo}")
