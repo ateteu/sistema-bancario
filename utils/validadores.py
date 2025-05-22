@@ -1,4 +1,6 @@
 import re
+import datetime
+from utils.constantes import IDADE_MINIMA
 
 def limpar_numeros(texto: str) -> str:
     """
@@ -127,3 +129,26 @@ def validar_senha(senha: str) -> None:
         raise ValueError(
             "A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula, um número e um caractere especial."
         )
+
+def validar_data_nascimento(data: datetime, idade_minima: int = IDADE_MINIMA) -> None:
+    """
+    Valida uma data de nascimento.
+
+    Verifica se a data não é futura e se a pessoa tem a idade mínima.
+
+    Args:
+        data (datetime): Data de nascimento a validar.
+        idade_minima (int, opcional): Idade mínima exigida.
+
+    Raises:
+        ValueError: Se a data for no futuro ou a idade for inferior à mínima.
+    """
+    hoje = datetime.today()
+
+    if data > hoje:
+        raise ValueError("A data de nascimento não pode estar no futuro.")
+
+    idade = hoje.year - data.year - ((hoje.month, hoje.day) < (data.month, data.day))
+
+    if idade < idade_minima:
+        raise ValueError(f"A pessoa deve ter pelo menos {idade_minima} anos.")

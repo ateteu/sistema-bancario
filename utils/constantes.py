@@ -1,3 +1,6 @@
+# Constantes gerais
+IDADE_MINIMA = 18
+
 # Constantes para a classe Conta
 LIMITE_TRANSFERENCIA_CPOUPANCA = 1000.0
 RENDIMENTO_MENSAL_CPOUPANCA    = 0.005
