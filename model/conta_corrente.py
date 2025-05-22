@@ -27,8 +27,8 @@ class ContaCorrente(Conta):
         self._saldo -= valor
         destino._saldo += valor
 
-        self._registrar_operacao(f'Transferência de R$ {valor:.2f} para conta {destino.get_numero()}')
-        destino._registrar_operacao(f'Recebido R$ {valor:.2f} da conta {self.get_numero()}')
+        self._registrar_operacao(f'Transferência de R$ {valor:.2f} para conta {destino.get_numero_conta()}')
+        destino._registrar_operacao(f'Recebido R$ {valor:.2f} da conta {self.get_numero_conta()}')
         return True
 
     def atualizacao_mensal(self) -> None:
@@ -36,5 +36,5 @@ class ContaCorrente(Conta):
         Aplica a atualização mensal da conta corrente,
         cobrando uma taxa de manutenção fixa.
         """
-        self._saldo -= self.TAXA_MANUTENCAO_CCORRENTE
-        self._registrar_operacao(f"Atualização mensal: taxa de manutenção de R$ {self.TAXA_MANUTENCAO_CCORRENTE:.2f} cobrada")
+        self._saldo -= TAXA_MANUTENCAO_CCORRENTE
+        self._registrar_operacao(f"Atualização mensal: taxa de manutenção de R$ {TAXA_MANUTENCAO_CCORRENTE:.2f} cobrada")

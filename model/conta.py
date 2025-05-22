@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from utils.helpers import data_hora_atual_str
 
 class Conta(ABC):
     """
@@ -48,12 +49,21 @@ class Conta(ABC):
         """
         pass
 
-    def encerrar(self) -> None:
+    def encerrar_conta(self) -> None:
         """
         Encerra a conta, tornando-a inativa.
         """
         self._ativa = False
         self._registrar_operacao("Conta encerrada")
+
+    def _set_estado_da_conta(self, novo_estado: bool) -> None:
+        """
+        Define o estado de ativação da conta. Obs: A operação não é registrada!
+
+        Args:
+            novo_estado (bool): True para conta ativa, False para inativa.
+        """
+        self._ativa = novo_estado
 
     def get_saldo(self) -> float:
         """
@@ -64,6 +74,15 @@ class Conta(ABC):
         """
         return self._saldo
 
+    def _set_saldo(self, novo_saldo: float) -> None:
+        """
+        Define o saldo da conta. Obs: A operação não é registrada!
+
+        Args:
+            novo_saldo (float): Novo valor de saldo.
+        """
+        self._saldo = novo_saldo
+
     def get_historico(self) -> list[str]:
         """
         Retorna o histórico de transações da conta.
@@ -72,6 +91,15 @@ class Conta(ABC):
             list[str]: Lista de descrições de transações.
         """
         return self._historico.copy()
+
+    def _set_historico(self, novo_historico: list[str]) -> None:
+        """
+        Substitui o histórico da conta. Obs: A operação não é registrada!
+
+        Args:
+            novo_historico (list[str]): Lista de novas descrições de transações.
+        """
+        self._historico = novo_historico
 
     def get_numero_conta(self) -> str:
         """
@@ -84,12 +112,13 @@ class Conta(ABC):
 
     def _registrar_operacao(self, descricao: str) -> None:
         """
-        Registra uma operação no histórico da conta.
+        Adiciona um registro da operação no histórico da conta, com data e hora.
 
         Args:
             descricao (str): Descrição da operação.
         """
-        self._historico.append(descricao)
+        registro = f"[{data_hora_atual_str()}] {descricao}"
+        self._historico.append(registro)
 
     def __str__(self) -> str:
         """
@@ -98,4 +127,4 @@ class Conta(ABC):
         Returns:
             str: Representação da conta.
         """
-        return f"Conta {self._numero_conta} | Saldo: R$ {self._saldo:.2f}"
+        return f"Conta {self.get_numero_conta()} | Saldo: R$ {self.get_saldo():.2f}"
