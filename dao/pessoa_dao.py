@@ -47,7 +47,6 @@ class PessoaDAO(DAO):
         else:
             raise ValueError(f"Tipo de Pessoa desconhecido: {tipo}")
         return pessoa
-        
     
     def to_dict(self, pessoa: Pessoa) -> dict:
         """
