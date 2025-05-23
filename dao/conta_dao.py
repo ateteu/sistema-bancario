@@ -1,7 +1,6 @@
 from typing import Optional, List
 from model.conta import Conta
-from model.conta_poupanca import ContaPoupanca
-from model.conta_corrente import ContaCorrente
+from mapper.conta_mapper import ContaMapper
 from dao.dao import DAO
 from utils.constantes import ( 
     ARQUIVO_CONTAS, 
@@ -23,37 +22,23 @@ class ContaDAO(DAO):
 
     def from_dict(self, dados: dict) -> Conta:
         """
-        Cria uma instância de Conta a partir de um dicionário.
+        Cria uma instância de Conta a partir de um dicionário, usando o mapper de conta.
 
         Args:
             dados (dict): Dicionário contendo os dados da conta e seu tipo.
 
         Returns:
             Conta: Instância de ContaCorrente ou ContaPoupanca.
+        
+        Raises:
+            ValueError: Se o valor de algum atributo for inválido (ex: saldo).
+            TypeError: Se algum atributo for incompatível (ex: histórico).
         """
-        tipo      = dados.get("tipo")
-        numero    = dados["numero"]
-        saldo     = dados.get("saldo", 0.0)
-        historico = dados.get("historico", [])
-        ativa     = dados.get("ativa", True)
-
-        # Cria uma instância da subclasse correta
-        if tipo == TIPO_CCORRENTE:
-            conta = ContaCorrente(numero)
-        elif tipo == TIPO_CPOUPANCA:
-            conta = ContaPoupanca(numero)
-        else:
-            raise ValueError(f"Tipo de conta desconhecido: {tipo}")
-
-        # Reconstrói os atributos comuns
-        conta._set_saldo(saldo)
-        conta._set_historico(historico)
-        conta._set_estado_da_conta(ativa)
-        return conta
+        return ContaMapper.from_dict(dados)
 
     def to_dict(self, conta: Conta) -> dict:
         """
-        Converte uma instância de Conta em dicionário.
+        Converte uma instância de Conta em dicionário, usando o mapper de conta.
 
         Args:
             conta (Conta): Objeto de uma subclasse de Conta.
@@ -61,13 +46,7 @@ class ContaDAO(DAO):
         Returns:
             dict: Dicionário com os dados da conta (e o tipo (subclasse) de Conta incluído!).
         """
-        return {
-            "numero": conta.get_numero_conta(),
-            "saldo": conta.get_saldo(),
-            "historico": conta.get_historico(),
-            "ativa": conta._ativa,
-            "tipo": TIPO_CCORRENTE if isinstance(conta, ContaCorrente) else TIPO_CPOUPANCA
-        }
+        return ContaMapper.to_dict(conta)
 
     def tipo_de_id(self) -> str:
         """
