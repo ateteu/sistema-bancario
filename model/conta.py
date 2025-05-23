@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from utils.helpers import data_hora_atual_str
 from utils.validadores import Validar
+from utils.constantes import LIMITE_TRANSFERENCIA_CCORRENTE
+from model.exceptions import ContaInativaError
 
 class Conta(ABC):
     """
@@ -26,22 +28,6 @@ class Conta(ABC):
         self._ativa = True
 
     @abstractmethod
-    def transferir(self, destino: 'Conta', valor: float) -> bool:
-        """
-        Transfere um valor para outra conta.
-
-        Este método deve ser implementado pelas subclasses.
-
-        Args:
-            destino (Conta): Conta de destino.
-            valor (float): Valor a ser transferido.
-
-        Returns:
-            bool: True se a transferência foi realizada com sucesso.
-        """
-        pass
-
-    @abstractmethod
     def atualizacao_mensal(self) -> None:
         """
         Aplica regras específicas de atualização mensal.
@@ -49,6 +35,56 @@ class Conta(ABC):
         Este método deve ser implementado pelas subclasses.
         """
         pass
+
+    @property
+    def limite_transferencia(self) -> float:
+        """
+        Retorna o valor máximo permitido para transferência.
+        Subclasses podem sobrescrever esta propriedade para impor limites específicos.
+
+        Returns:
+            float: Valor máximo que pode ser transferido.
+        """
+        return float(LIMITE_TRANSFERENCIA_CCORRENTE)
+
+    def transferir(self, destino: 'Conta', valor: float) -> None:
+        """
+        Transfere um valor para outra conta, seguindo o fluxo:
+            1. Verifica contas ativas
+            2. Verifica valor positivo
+            3. Verifica saldo
+            4. Verifica limite específico
+            5. Executa débito/crédito e registra operação
+
+        Args:
+            destino (Conta): Conta de destino.
+            valor (float): Valor a ser transferido.
+        
+        Raises:
+            ContaInativaError: Se a conta origem ou destino estiver inativa.
+            ValueError: Se o valor for inválido, se o saldo for insuficiente ou se o valor exceder o limite permitido.
+        """
+        if not self._ativa:
+            raise ContaInativaError(self.get_numero_conta())
+        if not destino._ativa:
+            raise ContaInativaError(destino.get_numero_conta())
+        if valor <= 0:
+            raise ValueError("O valor da transferência deve ser positivo.")
+        if valor > self._saldo:
+            raise ValueError("Saldo insuficiente para a transferência.")
+        if valor > self.limite_transferencia:
+            raise ValueError(
+                f"O valor da transferência excede o limite de R$ {self.limite_transferencia:.2f}."
+            )
+
+        self._set_saldo(self._saldo - valor)
+        destino._set_saldo(destino._saldo + valor)
+        self._registrar_operacao(
+            f"Transferência de R$ {valor:.2f} para conta {destino.get_numero_conta()}"
+        )
+        destino._registrar_operacao(
+            f"Recebido R$ {valor:.2f} da conta {self.get_numero_conta()}"
+        )
 
     def encerrar_conta(self) -> None:
         """

@@ -6,41 +6,11 @@ from utils.constantes import (
 
 class ContaCorrente(Conta):
     """
-    Representa uma conta corrente com transferência ilimitada,
+    Representa uma conta corrente com limite de transferência superior,
     sem rendimento mensal e com taxa de manutenção mensal.
 
     Herda atributos e métodos padrão de Conta.
     """
-
-    def transferir(self, destino: 'Conta', valor: float) -> None:
-        """
-        Transfere um valor para outra conta sem limite de valor.
-
-        Args:
-            destino (Conta): Conta de destino.
-            valor (float): Valor a ser transferido.
-
-        Returns:
-            bool: True se a transferência foi realizada com sucesso.
-        
-        Raises:
-            ContaInativaError: Se esta conta ou a conta de destino estiver inativa.
-            ValueError: Se o valor a ser transferido for inválido ou o saldo for insuficiente.
-        """
-        if not self._ativa:
-            raise ContaInativaError(self.get_numero_conta())
-        if not destino._ativa:
-            raise ContaInativaError(destino.get_numero_conta())
-        if valor <= 0:
-            raise ValueError("O valor da transferência deve ser positivo.")
-        if valor > self._saldo:
-            raise ValueError("Saldo insuficiente para a transferência.")
-
-        self._set_saldo(self.get_saldo() - valor)
-        destino._set_saldo(destino.get_saldo() + valor)
-
-        self._registrar_operacao(f'Transferência de R$ {valor:.2f} para conta {destino.get_numero_conta()}')
-        destino._registrar_operacao(f'Recebido R$ {valor:.2f} da conta {self.get_numero_conta()}')
 
     def atualizacao_mensal(self) -> None:
         """
