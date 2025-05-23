@@ -57,6 +57,15 @@ class Conta(ABC):
         self._ativa = False
         self._registrar_operacao("Conta encerrada")
 
+    def get_estado_da_conta(self) -> bool:
+        """
+        Retorna o estado atual da conta, ativo (True) ou inativo (False).
+
+        Returns:
+            bool: Estado da conta.
+        """
+        return self._ativa
+
     def _set_estado_da_conta(self, novo_estado: bool) -> None:
         """
         Define o estado de ativação da conta. Obs: A operação não é registrada!
