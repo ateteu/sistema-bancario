@@ -12,9 +12,10 @@ class Pessoa(ABC):
         _cep (str): CEP da residência da pessoa.
         _numero_endereco (str): Número do endereço da pessoa.
         _endereco (str): Endereço completo da pessoa (viaCEP API).
+        _telefone (str): Telefone da pessoa.
     """
 
-    def __init__(self, nome: str, email: str, numero_documento: str, cep: str, numero_endereco: str, endereco: str) -> None:
+    def __init__(self, nome: str, email: str, numero_documento: str, cep: str, numero_endereco: str, endereco: str, telefone: str) -> None:
         """
         Inicializa um novo pessoa com os dados fornecidos.
 
@@ -25,6 +26,7 @@ class Pessoa(ABC):
             cep (str): CEP da residência.
             numero_endereco (str): Número do endereço.
             endereco (str): Endereço completo (resolvido a partir do CEP e número).
+            telefone (str): Telefone da pessoa.
         """
         self._nome = nome
         self._email = email
@@ -32,6 +34,7 @@ class Pessoa(ABC):
         self._cep = cep
         self._numero_endereco = numero_endereco
         self._endereco = endereco
+        self._telefone = telefone
 
     @abstractmethod
     def __str__(self) -> str:
@@ -155,3 +158,25 @@ class Pessoa(ABC):
             novo_endereco (str): Novo endereço completo a ser atribuído.
         """
         self._endereco = novo_endereco
+
+    def get_telefone(self) -> str:
+        """
+        Retorna o número de telefone da pessoa.
+
+        Returns:
+            str: Número de telefone.
+        """
+        return self._telefone
+
+    def set_telefone(self, novo_telefone: str) -> None:
+        """
+        Altera o número de telefone da pessoa.
+
+        Args:
+            novo_telefone (str): Novo número de telefone a ser atribuído.
+
+        Raises:
+            ValueError: Se o número de telefone for inválido.
+        """
+        Validar.telefone(novo_telefone)
+        self._telefone = novo_telefone

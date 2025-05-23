@@ -1,10 +1,7 @@
-from model.pessoa import Pessoa
-from model.pessoa_fisica import PessoaFisica
 from dao.dao import DAO
-from utils.constantes import (
-    ARQUIVO_PESSOAS,
-    TIPO_PFISICA
-)
+from model.pessoa import Pessoa
+from mapper.pessoa_mapper import PessoaMapper
+from utils.constantes import ARQUIVO_PESSOAS
 
 class PessoaDAO(DAO):
     """
@@ -22,58 +19,33 @@ class PessoaDAO(DAO):
 
     def from_dict(self, dados: dict) -> Pessoa:
         """
-        Cria uma instância de Pessoa (PF/PJ) a partir de um dicionário.
+        Constrói um objeto Pessoa (ou subclasse) a partir de um dicionário.
 
         Args:
             dados (dict): Dicionário com os dados da pessoa.
 
         Returns:
-            Pessoa: Instância da subclasse de Pessoa reconstruída.
-        """
-        tipo             = dados.get("tipo")
-        numero_documento = dados["numero_documento"]
-        nome             = dados.get("nome", "Desconhecido")
-        email            = dados.get("email", "Desconhecido")
-        cep              = dados.get("cep", "Desconhecido")
-        numero_endereco  = dados.get("numero_endereco", "Desconhecido")
-        endereco         = dados.get("endereco", "Desconhecido")
-        
-        pessoa._set_endereco = endereco
+            Pessoa: Instância de Pessoa ou subclasse correspondente.
 
-        # Possível implementar PJ futuramente (elif tipo == TIPO_PJURIDICA)
-        if tipo == TIPO_PFISICA:
-            data_nascimento = dados.get("data_nascimento", "Desconhecido")
-            pessoa = PessoaFisica(numero_documento, nome, email, cep, numero_endereco, data_nascimento)
-        else:
-            raise ValueError(f"Tipo de Pessoa desconhecido: {tipo}")
-        return pessoa
-    
+        Raises:
+            ValueError: Se o tipo de pessoa no dicionário for desconhecido.
+        """
+        return PessoaMapper.from_dict(dados)
+
     def to_dict(self, pessoa: Pessoa) -> dict:
         """
-        Converte uma instância de Pessoa em dicionário.
+        Converte um objeto Pessoa (ou subclasse) em um dicionário serializável.
 
         Args:
             pessoa (Pessoa): Objeto Pessoa a ser convertido.
 
         Returns:
-            dict: Dicionário com os dados da pessoa.
+            dict: Representação em dicionário da pessoa.
+
+        Raises:
+            ValueError: Se a subclasse de Pessoa não for suportada.
         """
-        dados = {
-            "numero_documento" : pessoa.get_numero_documento(),
-            "nome"             : pessoa.get_nome(),
-            "email"            : pessoa.get_email(),
-            "cep"              : pessoa.get_cep(),
-            "numero_endereco"  : pessoa.get_numero_endereco(),
-            "endereco"         : pessoa.get_endereco(),
-        }
-
-        if isinstance(pessoa, PessoaFisica):
-            dados["tipo"] = TIPO_PFISICA
-            dados["data_nascimento"] = pessoa.get_data_nascimento()
-        else:
-            raise ValueError("Subclasse de Pessoa não suportada")
-
-        return dados
+        return PessoaMapper.to_dict(pessoa)
 
     def tipo_de_id(self) -> str:
         """

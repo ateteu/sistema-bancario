@@ -8,7 +8,7 @@ class PessoaFisica(Pessoa):
     Representa uma pessoa física, com data de nascimento e representação textual por CPF.
     """
 
-    def __init__(self, nome: str, email: str, numero_documento: str, cep: str, numero_endereco: str, endereco: str, data_nascimento: str):
+    def __init__(self, nome: str, email: str, numero_documento: str, cep: str, numero_endereco: str, endereco: str, telefone: str, data_nascimento: str):
         """
         Inicializa uma pessoa física.
         Obs: Data de nascimento é recebido como str, mas armazenado no objeto como datetime.
@@ -20,9 +20,10 @@ class PessoaFisica(Pessoa):
             cep (str): CEP da residência.
             numero_endereco (str): Número do endereço.
             endereco (str): Endereço completo (resolvido a partir do CEP e número).
+            telefone (str): Telefone da pessoa.
             data_nascimento (str): Data de nascimento no formato "dd/mm/aaaa".
         """
-        super().__init__(nome, email, numero_documento, cep, numero_endereco, endereco)
+        super().__init__(nome, email, numero_documento, cep, numero_endereco, telefone, endereco)
         data_convertida = datetime.strptime(data_nascimento, "%d/%m/%Y")
         self._data_nascimento = data_convertida # Armazenado como datetime
 

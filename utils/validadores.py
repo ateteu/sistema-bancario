@@ -58,6 +58,29 @@ class Validar():
             raise ValueError("Email inválido.")
 
     @staticmethod
+    def telefone(telefone: str) -> None:
+        """
+        Valida o número de telefone brasileiro.
+
+        Args:
+            telefone (str): Número de telefone com ou sem formatação.
+
+        Raises:
+            ValueError: Se o telefone for inválido.
+        """
+        numeros = Validar._limpar_numeros(telefone)
+        if len(numeros) == 10:
+            # fixo: DDD + número (ex: 3133345678)
+            if not re.match(r'^[1-9]{2}[2-5]\d{7}$', numeros):
+                raise ValueError("Telefone fixo inválido.")
+        elif len(numeros) == 11:
+            # celular: DDD + 9 + número (ex: 31999999999)
+            if not re.match(r'^[1-9]{2}9\d{8}$', numeros):
+                raise ValueError("Telefone celular inválido.")
+        else:
+            raise ValueError("Número de telefone deve conter 10 ou 11 dígitos.") 
+
+    @staticmethod
     def cpf(cpf: str) -> None:
         """
         Valida o CPF, removendo caracteres não numéricos antes da validação.
