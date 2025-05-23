@@ -5,8 +5,8 @@ from utils.constantes import (
 
 class ContaCorrente(Conta):
     """
-    Representa uma conta corrente com transferência ilimitada
-    e sem aplicação de rendimento mensal.
+    Representa uma conta corrente com transferência ilimitada,
+    sem rendimento mensal e com taxa de manutenção mensal.
     """
 
     def transferir(self, destino: 'Conta', valor: float) -> bool:
@@ -19,6 +19,9 @@ class ContaCorrente(Conta):
 
         Returns:
             bool: True se a transferência foi realizada com sucesso.
+        
+        Raises:
+            ValueError: Se o saldo atualizado for inválido ao tentar ser definido.
         """
         
         if not self._ativa or not destino._ativa or valor <= 0 or valor > self._saldo:
@@ -33,8 +36,14 @@ class ContaCorrente(Conta):
 
     def atualizacao_mensal(self) -> None:
         """
-        Aplica a atualização mensal da conta corrente,
-        cobrando uma taxa de manutenção fixa.
+        Aplica a atualização mensal da conta corrente, cobrando uma taxa de manutenção fixa.
+
+        A taxa é subtraída do saldo atual e o novo saldo é atualizado. A operação é registrada no histórico da conta.
+
+        Raises:
+            ValueError: Se o novo saldo calculado for inválido ao tentar ser definido.
         """
-        self._saldo -= TAXA_MANUTENCAO_CCORRENTE
+        saldo_atual = self.get_saldo()
+        novo_saldo = saldo_atual - TAXA_MANUTENCAO_CCORRENTE
+        self._set_saldo(novo_saldo)
         self._registrar_operacao(f"Atualização mensal: taxa de manutenção de R$ {TAXA_MANUTENCAO_CCORRENTE:.2f} cobrada")

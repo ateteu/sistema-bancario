@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from utils.helpers import data_hora_atual_str
+from utils.validadores import Validar
 
 class Conta(ABC):
     """
@@ -62,7 +63,11 @@ class Conta(ABC):
 
         Args:
             novo_estado (bool): True para conta ativa, False para inativa.
+        
+        Raises:
+            TypeError: Se o estado da conta for inválido.
         """
+        Validar.estado_da_conta(novo_estado)
         self._ativa = novo_estado
 
     def get_saldo(self) -> float:
@@ -76,11 +81,19 @@ class Conta(ABC):
 
     def _set_saldo(self, novo_saldo: float) -> None:
         """
-        Define o saldo da conta. Obs: A operação não é registrada!
+        Define o saldo da conta, após validação, que é feita para
+        garantir que o saldo está correto (para o caso de alteração ou corrompimento 
+        do arquivo contas.json).
+
+        Obs: A operação não é registrada!
 
         Args:
             novo_saldo (float): Novo valor de saldo.
+        
+        Raises:
+            ValueError ou TypeError: Se o saldo for inválido.
         """
+        Validar.saldo(novo_saldo)
         self._saldo = novo_saldo
 
     def get_historico(self) -> list[str]:
@@ -92,14 +105,18 @@ class Conta(ABC):
         """
         return self._historico.copy()
 
-    def _set_historico(self, novo_historico: list[str]) -> None:
+    def _set_historico(self, historico: list[str]) -> None:
         """
         Substitui o histórico da conta. Obs: A operação não é registrada!
 
         Args:
             novo_historico (list[str]): Lista de novas descrições de transações.
+        
+        Raises:
+            TypeError: Se o histórico for inválido.
         """
-        self._historico = novo_historico
+        Validar.historico(historico)
+        self._historico = historico
 
     def get_numero_conta(self) -> str:
         """

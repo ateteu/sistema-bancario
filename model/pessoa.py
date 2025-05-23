@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from utils import validadores
+from utils.validadores import Validar
 
 class Pessoa(ABC):
     """
@@ -60,7 +60,7 @@ class Pessoa(ABC):
         Raises:
             ValueError: Se o nome for inválido.
         """
-        validadores.validar_nome(novo_nome)
+        Validar.nome(novo_nome)
         self._nome = novo_nome
 
     def get_email(self) -> str:
@@ -82,7 +82,7 @@ class Pessoa(ABC):
         Raises:
             ValueError: Se o e-mail for inválido.
         """
-        validadores.validar_email(novo_email)
+        Validar.email(novo_email)
         self._email = novo_email
 
     def get_numero_documento(self) -> str:
@@ -113,7 +113,7 @@ class Pessoa(ABC):
         Raises:
             ValueError: Se o CEP for inválido.
         """
-        validadores.validar_cep(novo_cep)
+        Validar.cep(novo_cep)
         self._cep = novo_cep
 
     def get_numero_endereco(self) -> str:
@@ -135,7 +135,7 @@ class Pessoa(ABC):
         Raises:
             ValueError: Se o Número do endereço for inválido.
         """
-        validadores.validar_numero_endereco(novo_numero)
+        Validar.numero_endereco(novo_numero)
         self._numero_endereco = novo_numero
 
     def get_endereco(self) -> str:

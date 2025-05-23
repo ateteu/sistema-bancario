@@ -20,6 +20,9 @@ class ContaPoupanca(Conta):
 
         Returns:
             bool: True se a transferência foi realizada com sucesso.
+        
+        Raises:
+            ValueError: Se o saldo atualizado for inválido ao tentar ser definido.
         """
 
         # Não permite transações acima do limite
@@ -36,8 +39,16 @@ class ContaPoupanca(Conta):
 
     def atualizacao_mensal(self) -> None:
         """
-        Aplica rendimento mensal sobre o saldo da conta poupança.
+        Aplica o rendimento mensal ao saldo da conta e registra a operação no histórico.
+
+        O rendimento é calculado multiplicando o saldo atual pela constante RENDIMENTO_MENSAL_CPOUPANCA,
+        e o saldo é atualizado com esse valor.
+
+        Raises:
+            ValueError: Se o saldo atualizado for inválido ao tentar ser definido.
         """
-        rendimento = self._saldo * RENDIMENTO_MENSAL_CPOUPANCA
-        self._saldo += rendimento
+        saldo_atual = self.get_saldo()
+        rendimento = saldo_atual * RENDIMENTO_MENSAL_CPOUPANCA
+        novo_saldo = saldo_atual + rendimento
+        self._set_saldo(novo_saldo)
         self._registrar_operacao(f"Atualização mensal: rendimento de R$ {rendimento:.2f} aplicado.")

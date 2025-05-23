@@ -1,6 +1,7 @@
 from typing import List
 from model.pessoa import Pessoa
 from model.conta import Conta
+from utils.validadores import Validar
 
 class Cliente:
     """
@@ -19,7 +20,7 @@ class Cliente:
         Args:
             pessoa (Pessoa): Objeto Pessoa contendo os dados do cliente.
             senha (str): Senha de acesso do cliente.
-            contas (List[Conta], optional): Lista inicial de contas do cliente. Defaults to None.
+            contas (List[Conta], optional): Lista inicial de contas do cliente. Default é None.
         """
         self._pessoa = pessoa
         self._senha = senha
@@ -53,25 +54,23 @@ class Cliente:
             senha_digitada (str): Senha digitada para verificação.
 
         Returns:
-            bool: True se a senha estiver correta, False caso contrário.
+            bool: True se a senha digitada estiver correta, False caso contrário.
         """
         return self._senha == senha_digitada
 
-    def set_senha(self, senha_antiga: str, nova_senha: str) -> bool:
+    def set_senha(self, senha_atual: str, nova_senha: str) -> None:
         """
         Altera a senha do cliente se a senha antiga estiver correta.
 
         Args:
-            senha_antiga (str): Senha atual.
+            senha_atual (str): Senha atual.
             nova_senha (str): Nova senha desejada.
 
-        Returns:
-            bool: True se a alteração foi realizada com sucesso, False caso contrário.
-
         Raises:
-            ValueError: Se a nova senha não for válida.
+            ValueError: Se a senha atual estiver incorreta ou a nova senha pretendida for inválida.
         """
-        if self.verificar_senha(senha_antiga):
-            self._senha = nova_senha
-            return True
-        return False
+        if not self.verificar_senha(senha_atual):
+            raise ValueError("Senha atual incorreta. Por favor, verifique se foi digitada corretamente.")
+        
+        Validar.senha(nova_senha) # Valida força da nova senha
+        self._senha = nova_senha

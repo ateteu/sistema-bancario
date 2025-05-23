@@ -1,7 +1,7 @@
 from datetime import datetime
 from model.pessoa import Pessoa
-from utils.validadores import validar_data_nascimento
-from utils.helpers import converter_str_para_datetime
+from utils.validadores import Validar
+#from utils.helpers import converter_str_para_datetime
 
 class PessoaFisica(Pessoa):
     """
@@ -11,6 +11,7 @@ class PessoaFisica(Pessoa):
     def __init__(self, nome: str, email: str, numero_documento: str, cep: str, numero_endereco: str, endereco: str, data_nascimento: str):
         """
         Inicializa uma pessoa física.
+        Obs: Data de nascimento é recebido como str, mas armazenado no objeto como datetime.
 
         Args:
             nome (str): Nome completo da pessoa.
@@ -22,7 +23,8 @@ class PessoaFisica(Pessoa):
             data_nascimento (str): Data de nascimento no formato "dd/mm/aaaa".
         """
         super().__init__(nome, email, numero_documento, cep, numero_endereco, endereco)
-        self._data_nascimento = datetime.strptime(data_nascimento, "%d/%m/%Y") # Armazenado como datetime
+        data_convertida = datetime.strptime(data_nascimento, "%d/%m/%Y")
+        self._data_nascimento = data_convertida # Armazenado como datetime
 
     def __str__(self) -> str:
         """
@@ -42,16 +44,16 @@ class PessoaFisica(Pessoa):
         """
         return self._data_nascimento
 
-    def set_data_nascimento(self, nova_data: str) -> None:
+    def set_data_nascimento(self, data_nascimento: str) -> None:
         """
         Define a data de nascimento da pessoa física, após validação.
 
         Args:
-            nova_data (str): Data de nascimento no formato "dd/mm/aaaa".
+            data_nascimento (str): Data de nascimento no formato "dd/mm/aaaa".
 
         Raises:
             ValueError: Se a data for inválida.
         """
-        # Verificar isso aqui!
-        validar_data_nascimento(nova_data)
-        self._data_nascimento = datetime.strptime(nova_data, "%d/%m/%Y")
+        data_convertida = datetime.strptime(data_nascimento, "%d/%m/%Y")
+        Validar.data_nascimento(data_convertida)
+        self._data_nascimento = datetime.strptime(data_convertida, "%d/%m/%Y")
