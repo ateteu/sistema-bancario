@@ -1,11 +1,25 @@
 import requests
+from utils.validadores import Validar
 
 def buscar_endereco_por_cep(cep: str, numero: str) -> str:
-    cep = ''.join(filter(str.isdigit, cep))
+    """
+    Consulta o endereço completo a partir de um CEP e número do imóvel,
+    utilizando a API pública ViaCEP.
 
-    # Validação de segurança do CEP
-    if len(cep) != 8:
-        raise ValueError("CEP inválido. Deve conter 8 dígitos numéricos.")
+    Args:
+        cep (str): CEP brasileiro, com ou sem formatação (serão considerados apenas os dígitos).
+        numero (str): Número do imóvel a ser incluído na composição do endereço.
+
+    Returns:
+        str: Endereço formatado no padrão: "logradouro, número - bairro, localidade - UF, CEP".
+
+    Raises:
+        ValueError: Se o CEP for inválido ou não encontrado.
+        ValueError: Se o número do endereço for inválido.
+        ValueError: Se houver erro na consulta.
+    """
+    Validar.cep(cep)
+    Validar.numero_endereco(numero)
 
     url = f"https://viacep.com.br/ws/{cep}/json/"
     response = requests.get(url)
@@ -15,7 +29,7 @@ def buscar_endereco_por_cep(cep: str, numero: str) -> str:
 
     data = response.json()
     if "erro" in data:
-        raise ValueError("CEP não encontrado.")
+        raise ValueError("CEP não encontrado. Verifique se está digitado corretamente.")
 
     logradouro = data["logradouro"]
     bairro     = data["bairro"]

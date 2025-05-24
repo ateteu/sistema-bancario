@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from utils.validadores import Validar
+from utils.api_endereco import buscar_endereco_por_cep
 
 class Pessoa(ABC):
     """
@@ -11,13 +12,14 @@ class Pessoa(ABC):
         _numero_documento (str): Número de documento da pessoa (único e imutável).
         _cep (str): CEP da residência da pessoa.
         _numero_endereco (str): Número do endereço da pessoa.
-        _endereco (str): Endereço completo da pessoa (viaCEP API).
+        _endereco (str): Endereço completo da pessoa (obtido pela API viaCEP).
         _telefone (str): Telefone da pessoa.
     """
 
-    def __init__(self, nome: str, email: str, numero_documento: str, cep: str, numero_endereco: str, endereco: str, telefone: str) -> None:
+    def __init__(self, nome: str, email: str, numero_documento: str, cep: str, numero_endereco: str, telefone: str) -> None:
         """
-        Inicializa um novo pessoa com os dados fornecidos.
+        Inicializa um novo pessoa com os dados fornecidos, caso não hajam problemas na validação dos dados.
+        Obs: não valida endereço retornado pela API.
 
         Args:
             nome (str): Nome completo da pessoa.
@@ -25,16 +27,26 @@ class Pessoa(ABC):
             numero_documento (str): Número de documento da pessoa (único e imutável).
             cep (str): CEP da residência.
             numero_endereco (str): Número do endereço.
-            endereco (str): Endereço completo (resolvido a partir do CEP e número).
             telefone (str): Telefone da pessoa.
+        Raises:
+            ValueError: Se algum dos dados fornecidos for inválido (ex: email, telefone, CEP, etc).
+            ValueError: Se houver erro ao usar a API (viaCEP) para atualizar o endereço.
         """
+        Validar.nome(nome)
+        Validar.email(email)
+        Validar.numero_documento(numero_documento)
+        Validar.cep(cep)
+        Validar.numero_endereco(numero_endereco)
+        Validar.telefone(telefone)
+
         self._nome = nome
         self._email = email
         self._numero_documento = numero_documento
         self._cep = cep
         self._numero_endereco = numero_endereco
-        self._endereco = endereco
         self._telefone = telefone
+
+        self._atualizar_endereco()
 
     @abstractmethod
     def __str__(self) -> str:
@@ -150,14 +162,19 @@ class Pessoa(ABC):
         """
         return self._endereco
 
-    def set_endereco(self, novo_endereco: str) -> None:
+    def _atualizar_endereco(self) -> None:
         """
-        Altera o endereço completo da pessoa.
+        Atualiza o atributo de endereço com base no CEP e número do endereço da instância.
 
-        Args:
-            novo_endereco (str): Novo endereço completo a ser atribuído.
+        Realiza uma consulta à API ViaCEP utilizando o CEP e o número do imóvel já definidos
+        para obter e atualizar o endereço completo no formato adequado.
+
+        Raises:
+            ValueError: Se o CEP for inválido ou não encontrado.
+            ValueError: Se o número do endereço for inválido.
+            ValueError: Se houver erro na consulta.
         """
-        self._endereco = novo_endereco
+        self._endereco = buscar_endereco_por_cep(self._cep, self._numero_endereco)
 
     def get_telefone(self) -> str:
         """
