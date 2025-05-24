@@ -58,7 +58,7 @@ class Cliente:
         """
         return self._senha == senha_digitada
 
-    def set_senha(self, senha_atual: str, nova_senha: str) -> None:
+    def alterar_senha(self, senha_atual: str, nova_senha: str) -> None:
         """
         Altera a senha do cliente se a senha antiga estiver correta.
 
