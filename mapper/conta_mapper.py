@@ -1,7 +1,7 @@
 from model.conta import Conta
 from model.conta_corrente import ContaCorrente
 from model.conta_poupanca import ContaPoupanca
-from utils.constantes import TIPO_CCORRENTE, TIPO_CPOUPANCA
+from utils.constantes import TIPO_CCORRENTE, TIPO_CPOUPANCA, NUMERO_CONTA_PARA_ERRO
 
 class ContaMapper:
     """
@@ -24,27 +24,27 @@ class ContaMapper:
             Conta: Instância de ContaCorrente ou ContaPoupanca.
         
         Raises:
-            ValueError: Se o valor de algum atributo for inválido (ex: saldo).
             TypeError: Se algum atributo for incompatível (ex: histórico).
+            ValueError: Se o valor de algum atributo for inválido (ex: saldo).
+            ValueError: Se os campos obrigatórios 'tipo' ou 'numero' estiverem ausentes no JSON.
         """
-        tipo      = dados.get("tipo")
-        numero    = dados["numero"]
+        try:
+            tipo = dados["tipo"]
+            numero = dados["numero"]
+        except KeyError as e:
+            raise ValueError(f"Campo obrigatório ausente: {e.args[0]}")
+        
         saldo     = dados.get("saldo", 0.0)
         historico = dados.get("historico", [])
         ativa     = dados.get("ativa", True)
-
-        # Cria uma instância da subclasse correta
+        
         if tipo == TIPO_CCORRENTE:
-            conta = ContaCorrente(numero)
+            conta = ContaCorrente(numero, saldo, historico, ativa)
         elif tipo == TIPO_CPOUPANCA:
-            conta = ContaPoupanca(numero)
+            conta = ContaPoupanca(numero, saldo, historico, ativa)
         else:
             raise ValueError(f"Tipo de conta desconhecido: {tipo}")
 
-        # Reconstrói os atributos comuns
-        conta._set_saldo(saldo)
-        conta._set_historico(historico)
-        conta._set_estado_da_conta(ativa)
         return conta
 
     @staticmethod

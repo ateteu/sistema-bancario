@@ -15,17 +15,30 @@ class Conta(ABC):
         _ativa (bool): Indica se a conta está ativa.
     """
 
-    def __init__(self, numero: str):
+    def __init__(self, numero: str, saldo: float = 0.0, historico: list[str] = None, ativa: bool = True) -> None:
         """
-        Inicializa uma nova conta com saldo zerado.
+        Inicializa uma conta bancária com todos os dados necessários.
 
         Args:
-            numero (str): Número único da conta.
+            numero (str): Número da conta.
+            saldo (float): Saldo da conta. Padrão: 0.0.
+            historico (list[str], opcional): Lista de transações. Padrão: [] (lista vazia).
+            ativa (bool): Estado da conta. Padrão: True.
+
+        Raises:
+            ValueError/TypeError: Se algum parâmetro for inválido.
         """
+        historico = historico or []
+
+        Validar.numero_conta(numero)
+        Validar.saldo(saldo)
+        Validar.historico(historico)
+        Validar.estado_da_conta(ativa)
+
         self._numero_conta = numero
-        self._saldo = 0.0
-        self._historico = []
-        self._ativa = True
+        self._saldo = saldo
+        self._historico = historico
+        self._ativa = ativa
 
     @abstractmethod
     def atualizacao_mensal(self) -> None:
@@ -89,6 +102,7 @@ class Conta(ABC):
     def encerrar_conta(self) -> None:
         """
         Encerra a conta, tornando-a inativa.
+        Faz o registro de encerramento e adiciona no histórico.
         """
         self._ativa = False
         self._registrar_operacao("Conta encerrada")
@@ -126,9 +140,8 @@ class Conta(ABC):
 
     def _set_saldo(self, novo_saldo: float) -> None:
         """
-        Define o saldo da conta, após validação, que é feita para
-        garantir que o saldo está correto (para o caso de alteração ou corrompimento 
-        do arquivo contas.json).
+        Define o saldo da conta, após validação.
+        O método é utilizado apenas internamente e não deve ser usado fora da classe.
 
         Obs: A operação não é registrada!
 
