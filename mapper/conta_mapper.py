@@ -34,6 +34,8 @@ class ContaMapper:
         except KeyError as e:
             raise ValueError(f"Campo obrigatório ausente: {e.args[0]}")
         
+        # Se não houverem os campos saldo, histórico ou ativa, usa os valores padrão
+        # Ex: conta fica ativa por padrão, se não houver o campo "ativa" no BD
         saldo     = dados.get("saldo", 0.0)
         historico = dados.get("historico", [])
         ativa     = dados.get("ativa", True)
