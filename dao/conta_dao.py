@@ -2,11 +2,7 @@ from typing import Optional, List
 from model.conta import Conta
 from mapper.conta_mapper import ContaMapper
 from dao.dao import DAO
-from utils.constantes import ( 
-    ARQUIVO_CONTAS, 
-    TIPO_CCORRENTE, 
-    TIPO_CPOUPANCA 
-)
+from utils.constantes import ARQUIVO_CONTAS
 
 class ContaDAO(DAO):
     """
@@ -56,27 +52,3 @@ class ContaDAO(DAO):
             str: 'numero_conta'
         """
         return "numero_conta"
-
-    def buscar_conta_por_numero(self, numero: str) -> Optional[Conta]:
-        """
-        Busca uma conta pelo número da conta.
-
-        Args:
-            numero (str): Número da conta.
-
-        Returns:
-            Optional[Conta]: Conta encontrada ou None.
-        """
-        return self.buscar_por_id(numero)
-
-    def lista_contas_do_cliente(self, cliente_id: str) -> List[Conta]:
-        """
-        Busca todas as contas associadas a um cliente.
-
-        Args:
-            cliente_id (str): Identificador único do cliente.
-
-        Returns:
-            List[Conta]: Lista de contas pertencentes ao cliente.
-        """
-        return [conta for conta in self.listar_todos_objetos() if conta.cliente_id == cliente_id]
