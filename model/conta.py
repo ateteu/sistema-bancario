@@ -136,7 +136,8 @@ class Conta(ABC):
             novo_saldo (float): Novo valor de saldo.
         
         Raises:
-            ValueError ou TypeError: Se o saldo for inválido.
+            ValueError: Se o saldo for inválido.
+            TypeError: Se o tipo for incorreto.
         """
         Validar.saldo(novo_saldo)
         self._saldo = novo_saldo
