@@ -102,6 +102,26 @@ class Validar():
         # Aqui pode-se implementar a validação dos dígitos verificadores do CPF
 
     @staticmethod
+    def numero_documento(numero_documento: str) -> None:
+        """
+        Valida se o número de documento é válido (CPF ou CNPJ).
+        Aceita strings com ou sem pontos/traços.
+
+        Args:
+            numero_documento (str): Número de documento a ser validado.
+        
+        Raises:
+            ValueError: Se não contiver apenas números ou não tiver 11 (CPF) ou 14 (CNPJ) dígitos.
+        """
+        numero_documento_limpo = Validar._limpar_numeros(numero_documento)
+
+        if not numero_documento_limpo.isdigit():
+            raise ValueError("Número de documento deve conter apenas dígitos.")
+        
+        if len(numero_documento_limpo) not in (11, 14):
+            raise ValueError("Número de documento deve ter 11 dígitos (CPF) ou 14 (CNPJ).")
+
+    @staticmethod
     def cep(cep: str) -> None:
         """
         Valida o CEP, removendo caracteres não numéricos antes da validação.
