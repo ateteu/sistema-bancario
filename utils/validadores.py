@@ -66,41 +66,25 @@ class Validar():
             telefone (str): Número de telefone com ou sem formatação.
 
         Raises:
+            ValueError: Se o telefone estiver vazio.
             ValueError: Se o telefone for inválido.
+            ValueError: Se o telefone não tiver a quantia certa de dígitos.
         """
-        numeros = Validar._limpar_numeros(telefone)
-        if len(numeros) == 10:
+        telefone_limpo = Validar._limpar_numeros(telefone)
+
+        if not telefone_limpo:
+            raise ValueError("O telefone não pode estar em branco.")
+        elif len(telefone_limpo) == 10:
             # fixo: DDD + número (ex: 3133345678)
-            if not re.match(r'^[1-9]{2}[2-5]\d{7}$', numeros):
+            if not re.match(r'^[1-9]{2}[2-5]\d{7}$', telefone_limpo):
                 raise ValueError("Telefone fixo inválido.")
-        elif len(numeros) == 11:
+        elif len(telefone_limpo) == 11:
             # celular: DDD + 9 + número (ex: 31999999999)
-            if not re.match(r'^[1-9]{2}9\d{8}$', numeros):
+            if not re.match(r'^[1-9]{2}9\d{8}$', telefone_limpo):
                 raise ValueError("Telefone celular inválido.")
         else:
             raise ValueError("Número de telefone deve conter 10 ou 11 dígitos.") 
-
-    @staticmethod
-    def cpf(cpf: str) -> None:
-        """
-        Valida o CPF, removendo caracteres não numéricos antes da validação.
-
-        Args:
-            cpf (str): CPF a ser validado.
-
-        Raises:
-            ValueError: Se o CPF estiver vazio.
-            ValueError: Se o CPF não conter 11 dígitos numéricos após limpeza.
-        """
-        cpf_limpo = Validar._limpar_numeros(cpf)
-        if not cpf_limpo:
-            raise ValueError("O CPF não pode estar em branco.")
-
-        if len(cpf_limpo) != 11:
-            raise ValueError("CPF inválido. Deve conter 11 dígitos numéricos.")
-
-        # Aqui pode-se implementar a validação dos dígitos verificadores do CPF
-
+    
     @staticmethod
     def numero_documento(numero_documento: str) -> None:
         """
@@ -109,11 +93,16 @@ class Validar():
 
         Args:
             numero_documento (str): Número de documento a ser validado.
-        
+
         Raises:
-            ValueError: Se não contiver apenas números ou não tiver 11 (CPF) ou 14 (CNPJ) dígitos.
+            ValueError: Se o número de documento estiver vazio.
+            ValueError: Se não contiver apenas números.
+            ValueError: Se não tiver 11 (CPF) ou 14 (CNPJ) dígitos.
         """
         numero_documento_limpo = Validar._limpar_numeros(numero_documento)
+
+        if not numero_documento_limpo:
+            raise ValueError("O número de documento não pode estar em branco.")
 
         if not numero_documento_limpo.isdigit():
             raise ValueError("Número de documento deve conter apenas dígitos.")
