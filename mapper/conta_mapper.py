@@ -64,6 +64,6 @@ class ContaMapper:
             "numero"    : conta.get_numero_conta(),
             "saldo"     : conta.get_saldo(),
             "historico" : conta.get_historico(),
-            "ativa"     : conta._ativa,
+            "ativa"     : conta.get_estado_da_conta(),
             "tipo"      : TIPO_CCORRENTE if isinstance(conta, ContaCorrente) else TIPO_CPOUPANCA
         }

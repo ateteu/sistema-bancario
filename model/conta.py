@@ -26,7 +26,8 @@ class Conta(ABC):
             ativa (bool): Estado da conta. Padrão: True.
 
         Raises:
-            ValueError/TypeError: Se algum parâmetro for inválido.
+            ValueError: Se algum parâmetro for inválido.
+            TypeError: Se algum parâmetro for de um tipo incorreto.
         """
         historico = historico or []
 
@@ -116,19 +117,6 @@ class Conta(ABC):
         """
         return self._ativa
 
-    def _set_estado_da_conta(self, novo_estado: bool) -> None:
-        """
-        Define o estado de ativação da conta. Obs: A operação não é registrada!
-
-        Args:
-            novo_estado (bool): True para conta ativa, False para inativa.
-        
-        Raises:
-            TypeError: Se o estado da conta for inválido.
-        """
-        Validar.estado_da_conta(novo_estado)
-        self._ativa = novo_estado
-
     def get_saldo(self) -> float:
         """
         Retorna o saldo atual da conta.
@@ -163,19 +151,6 @@ class Conta(ABC):
             list[str]: Lista de descrições de transações.
         """
         return self._historico.copy()
-
-    def _set_historico(self, historico: list[str]) -> None:
-        """
-        Substitui o histórico da conta. Obs: A operação não é registrada!
-
-        Args:
-            novo_historico (list[str]): Lista de novas descrições de transações.
-        
-        Raises:
-            TypeError: Se o histórico for inválido.
-        """
-        Validar.historico(historico)
-        self._historico = historico
 
     def get_numero_conta(self) -> str:
         """
