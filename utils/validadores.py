@@ -1,6 +1,6 @@
 import re
 import datetime
-from utils.constantes import IDADE_MINIMA
+from utils.constantes import IDADE_MINIMA, TAMANHO_MIN_NUMERO_CONTA
 
 class Validar():
     """
@@ -9,20 +9,7 @@ class Validar():
     Esta classe fornece métodos estáticos para validar diversos tipos de dados,
     como email, senha, data de nascimento, entre outros.
 
-    Exemplos de uso:
-        Validar.email("usuario@email.com")
-        Validar.cpf("12345678900")
-        Validar.data_nascimento(datetime(2000, 5, 20))
-
-    Métodos:
-        email(email: str) -> None
-        cpf(cpf: str) -> None
-        cep(cep: str) -> None
-        nome(nome: str) -> None
-        senha(senha: str) -> None
-        numero_casa(numero: str) -> None
-        data_nascimento(data: datetime, idade_minima: int = IDADE_MINIMA) -> None
-        _limpar_numeros(texto: str) -> str
+    Exemplo de uso: Validar.email("usuario@email.com")
     """
     @staticmethod
     def _limpar_numeros(texto: str) -> str:
@@ -216,54 +203,80 @@ class Validar():
             raise ValueError(f"A pessoa deve ter pelo menos {idade_minima} anos.")
 
     @staticmethod
-    def saldo(valor: float) -> None:
+    def numero_conta(numero_conta: str) -> None:
         """
-        Valida o valor do saldo.
+        Valida o número da conta.
+
+        Verifica se o valor fornecido é uma string composta apenas por dígitos,
+        com comprimento mínimo definido por 'TAMANHO_MIN_NUMERO_CONTA'.
 
         Args:
-            valor (float): Valor a ser validado.
+            numero_conta (str): Número da conta a ser validado.
 
         Raises:
-            ValueError: Se o valor não for um número real válido ou for negativo.
-            TypeError: Se o valor não for numérico.
+            TypeError: Se o número da conta não for uma string.
+            ValueError: Se o número da conta estiver vazio.
+            ValueError: Se o número da conta contiver caracteres não numéricos.
+            ValueError: Se o número da conta for menor que o comprimento mínimo exigido.
         """
-        if not isinstance(valor, (int, float)):
+        if not isinstance(numero_conta, str):
+            raise TypeError("Número da conta deve ser uma string.")
+        if numero_conta == "":
+            raise ValueError("Número da conta não pode ser vazio.")
+        if not numero_conta.isdigit():
+            raise ValueError("Número da conta deve conter apenas dígitos.")
+        if len(numero_conta) < TAMANHO_MIN_NUMERO_CONTA:
+            raise ValueError("Número da conta muito curto.")
+
+    @staticmethod
+    def saldo(saldo: float) -> None:
+        """
+        Valida o saldo da conta.
+
+        Args:
+            saldo (float): Valor a ser validado.
+
+        Raises:
+            ValueError: Se o saldo não for um número real válido ou for negativo.
+            TypeError: Se o saldo não for numérico.
+        """
+        if not isinstance(saldo, (int, float)):
             raise TypeError("O saldo deve ser um número.")
         
-        if not (valor == valor and valor != float("inf") and valor != float("-inf")):
+        if not (saldo == saldo and saldo != float("inf") and saldo != float("-inf")):
             raise ValueError("O saldo não pode ser NaN ou infinito.")
         
-        if valor < 0:
+        if saldo < 0:
             raise ValueError("O saldo não pode ser negativo.")
 
     @staticmethod
-    def estado_da_conta(valor: bool) -> None:
-        """
-        Valida se o estado da conta é um valor booleano.
-
-        Args:
-            valor (bool): Valor booleano que representa o estado da conta.
-
-        Raises:
-            TypeError: Se o valor informado não for do tipo booleano.
-        """
-        if not isinstance(valor, bool):
-            raise TypeError("O estado da conta deve ser um valor booleano.")
-
-    @staticmethod
-    def historico(valor: list) -> None:
+    def historico(historico: list) -> None:
         """
         Valida se o histórico da conta aé uma lista de strings.
 
         Args:
-            valor (list): Lista que representa o histórico a ser validado.
+            historico (list): Lista que representa o histórico a ser validado.
 
         Raises:
-            TypeError: Se o valor não for uma lista.
+            TypeError: Se o histórico não for uma lista.
             TypeError: Se algum item da lista não for uma string.
         """
-        if not isinstance(valor, list):
+        if not isinstance(historico, list):
             raise TypeError("Histórico da conta deve ser uma lista.")
-        for item in valor:
+        for item in historico:
             if not isinstance(item, str):
                 raise TypeError("Cada item do histórico da conta deve ser uma string.")
+
+    @staticmethod
+    def estado_da_conta(estado: bool) -> None:
+        """
+        Valida se o estado da conta é um valor booleano.
+
+        Args:
+            estado (bool): Valor booleano que representa o estado da conta.
+
+        Raises:
+            TypeError: Se o estado informado não for do tipo booleano.
+        """
+        if not isinstance(estado, bool):
+            raise TypeError("O estado da conta deve ser um valor booleano.")
