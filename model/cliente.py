@@ -5,7 +5,8 @@ from utils.validadores import Validar
 
 class Cliente:
     """
-    Representa um cliente do sistema bancário.
+    Representa um cliente do sistema bancário, ou seja, uma Pessoa, 
+    com uma senha de acesso ao sistema e que pode ou não ter contas associadas.
 
     Attributes:
         _pessoa (Pessoa): Objeto que representa os dados pessoais do cliente.
@@ -88,3 +89,13 @@ class Cliente:
         
         Validar.senha(nova_senha) # Valida força da nova senha
         self._senha = nova_senha
+
+    def possui_conta(self) -> bool:
+        """
+        Verifica se o cliente possui uma ou mais contas associadas.
+
+        Returns:
+            bool: True se possuir pelo menos uma conta, False caso contrário.
+        """
+        return bool(self._contas)
+    
