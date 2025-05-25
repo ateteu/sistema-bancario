@@ -16,15 +16,29 @@ class Cliente:
     def __init__(self, pessoa: Pessoa, senha: str, contas: List[Conta] = None) -> None:
         """
         Inicializa um novo cliente com os dados fornecidos.
+        Obs: A senha não é validada nesse construtor!
 
         Args:
             pessoa (Pessoa): Objeto Pessoa contendo os dados do cliente.
             senha (str): Senha de acesso do cliente.
-            contas (List[Conta], optional): Lista inicial de contas do cliente. Default é None.
+            contas (List[Conta], optional): Lista inicial de contas associadas ao cliente. 
+                Caso não seja fornecida, será considerada uma lista vazia.
+
+        Raises:
+            TypeError: Se 'pessoa' não for uma instância de Pessoa.
+            TypeError: Se algum item de 'contas' não for uma instância de Conta.
         """
+        if not isinstance(pessoa, Pessoa):
+            raise TypeError("O parâmetro 'pessoa' deve ser um objeto da classe Pessoa.")
+        
+        if contas is None:
+            contas = []
+        elif not all(isinstance(c, Conta) for c in contas):
+            raise TypeError("Todos os itens em 'contas' devem ser objetos da classe Conta.")
+        
         self._pessoa = pessoa
-        self._senha = senha
-        self._contas = contas if contas is not None else []
+        self._senha  = senha
+        self._contas = contas
 
     @property
     def pessoa(self) -> Pessoa:
