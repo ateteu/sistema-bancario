@@ -1,7 +1,7 @@
 from typing import List
 from model.pessoa import Pessoa
 from model.conta import Conta
-from utils.validadores import Validar
+from utils.validadores.validar_cliente import ValidarCliente as Validar
 
 class Cliente:
     """
