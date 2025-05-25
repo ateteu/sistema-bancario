@@ -1,6 +1,6 @@
 from datetime import datetime
 from model.pessoa import Pessoa
-from utils.validadores import Validar
+from utils.validadores.validar_pessoa_fisica import ValidarPessoaFisica as Validar
 #from utils.helpers import converter_str_para_datetime
 
 class PessoaFisica(Pessoa):
@@ -8,7 +8,7 @@ class PessoaFisica(Pessoa):
     Representa uma pessoa física, com data de nascimento e representação textual por CPF.
     """
 
-    def __init__(self, nome: str, email: str, numero_documento: str, cep: str, numero_endereco: str, telefone: str, data_nascimento: str):
+    def __init__(self, nome: str, email: str, numero_documento: str, cep: str, numero_endereco: str, telefone: str, data_nascimento: str|datetime):
         """
         Inicializa uma pessoa física.
         Obs: Data de nascimento é recebido como str, mas armazenado no objeto como datetime.
@@ -20,17 +20,15 @@ class PessoaFisica(Pessoa):
             cep (str): CEP da residência.
             numero_endereco (str): Número do endereço.
             telefone (str): Telefone da pessoa.
-            data_nascimento (str): Data de nascimento no formato "dd/mm/aaaa".
+            data_nascimento (str|datetime): Data de nascimento no formato "dd/mm/aaaa" se for str ou
+            no formato datetime.
 
         Raises:
             ValueError: Se algum dos dados fornecidos for inválido (ex: data de nascimento, email, etc).
             ValueError: Se houver erro ao usar a API (viaCEP) para atualizar o endereço.
         """
         super().__init__(nome, email, numero_documento, cep, numero_endereco, telefone)
-
-        data_convertida = datetime.strptime(data_nascimento, "%d/%m/%Y")
-        Validar.data_nascimento(data_convertida)
-        self._data_nascimento = data_convertida # Armazenado como datetime
+        self._data_nascimento = Validar.data_nascimento(data_nascimento)
 
     def __str__(self) -> str:
         """
