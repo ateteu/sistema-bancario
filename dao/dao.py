@@ -52,7 +52,7 @@ class DAO(ABC):
         """
         pass
 
-    def _carregar_dados(self) -> List[dict]:
+    def _ler_dados_do_json(self) -> List[dict]:
         """
         Carrega os dados do arquivo JSON.
 
@@ -85,7 +85,7 @@ class DAO(ABC):
         Returns:
             List: Lista de objetos da entidade.
         """
-        dados = self._carregar_dados()
+        dados = self._ler_dados_do_json()
         return [self.from_dict(item) for item in dados]
 
     def buscar_por_id(self, id_valor) -> Optional[Any]:
@@ -98,7 +98,7 @@ class DAO(ABC):
         Returns:
             Objeto da entidade se encontrado, None caso contrário.
         """
-        dados = self._carregar_dados()
+        dados = self._ler_dados_do_json()
         for item in dados:
             if item.get(self.tipo_de_id()) == id_valor:
                 return self.from_dict(item)
@@ -111,7 +111,7 @@ class DAO(ABC):
         Args:
             obj: Objeto da entidade a ser adicionado.
         """
-        dados = self._carregar_dados()
+        dados = self._ler_dados_do_json()
         dados.append(self.to_dict(obj))
         self._salvar_no_arquivo_json(dados)
 
@@ -125,7 +125,7 @@ class DAO(ABC):
         Returns:
             bool: True se atualização foi realizada, False se objeto não encontrado.
         """
-        dados = self._carregar_dados()
+        dados = self._ler_dados_do_json()
         id_valor = getattr(obj, self.tipo_de_id())
         for i, item in enumerate(dados):
             if item.get(self.tipo_de_id()) == id_valor:
@@ -144,7 +144,7 @@ class DAO(ABC):
         Returns:
             bool: True se remoção foi realizada, False se objeto não encontrado.
         """
-        dados = self._carregar_dados()
+        dados = self._ler_dados_do_json()
         novo_dados = [item for item in dados if item.get(self.tipo_de_id()) != id_valor]
         if len(novo_dados) == len(dados):
             return False
