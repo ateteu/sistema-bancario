@@ -32,7 +32,7 @@ class Conta(ABC):
         historico = historico or []
 
         Validar.numero_conta(numero)
-        Validar.saldo(saldo)
+        Validar.saldo_livre(saldo)
         Validar.historico(historico)
         Validar.estado_da_conta(ativa)
 
@@ -126,7 +126,7 @@ class Conta(ABC):
         """
         return self._saldo
 
-    def _set_saldo(self, novo_saldo: float) -> None:
+    def _set_saldo(self, novo_saldo: float, permitir_negativo: bool = False) -> None:
         """
         Define o saldo da conta, após validação.
         O método é utilizado apenas internamente e não deve ser usado fora da classe.
@@ -135,12 +135,16 @@ class Conta(ABC):
 
         Args:
             novo_saldo (float): Novo valor de saldo.
-        
+            permitir_negativo (bool): Se True, permite saldos negativos (default: False)
+            
         Raises:
             ValueError: Se o saldo for inválido.
             TypeError: Se o tipo for incorreto.
         """
-        Validar.saldo(novo_saldo)
+        if permitir_negativo:
+            Validar.saldo_livre(novo_saldo)
+        else:
+            Validar.saldo_positivo_ou_zero(novo_saldo)
         self._saldo = novo_saldo
 
     def get_historico(self) -> list[str]:

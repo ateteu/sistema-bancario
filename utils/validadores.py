@@ -229,25 +229,58 @@ class Validar():
             raise ValueError("Número da conta muito curto.")
 
     @staticmethod
-    def saldo(saldo: float) -> None:
+    def _verificacoes_basicas_saldo(saldo: float) -> None:
         """
-        Valida o saldo da conta.
+        Verifica se o saldo é um número real válido e finito.
 
         Args:
             saldo (float): Valor a ser validado.
 
         Raises:
-            ValueError: Se o saldo não for um número real válido ou for negativo.
-            TypeError: Se o saldo não for numérico.
+            TypeError: Se o saldo não for um número.
+            ValueError: Se o saldo for NaN (não é um número) ou infinito.
         """
         if not isinstance(saldo, (int, float)):
             raise TypeError("O saldo deve ser um número.")
-        
         if not (saldo == saldo and saldo != float("inf") and saldo != float("-inf")):
             raise ValueError("O saldo não pode ser NaN ou infinito.")
-        
+
+    @staticmethod
+    def saldo_positivo_ou_zero(saldo: float) -> None:
+        """
+        Valida que o saldo é numérico, finito e não-negativo.
+
+        Essa validação é usada em operações que não permitem saldo negativo,
+        como transferências bancárias.
+
+        Args:
+            saldo (float): Valor a ser validado.
+
+        Raises:
+            TypeError: Se o saldo não for um número.
+            ValueError: Se o saldo for NaN ou infinito.
+            ValueError: Se o saldo for negativo.
+        """
+        Validar._verificacoes_basicas_saldo(saldo)
         if saldo < 0:
             raise ValueError("O saldo não pode ser negativo.")
+
+    @staticmethod
+    def saldo_livre(saldo: float) -> None:
+        """
+        Valida que o saldo é numérico e finito, permitindo valores negativos.
+
+        Essa validação é usada em situações onde saldos negativos são aceitáveis,
+        como atualizações mensais de cobrança.
+
+        Args:
+            saldo (float): Valor a ser validado.
+
+        Raises:
+            TypeError: Se o saldo não for um número.
+            ValueError: Se o saldo for NaN ou infinito.
+        """
+        Validar._verificacoes_basicas_saldo(saldo)
 
     @staticmethod
     def historico(historico: list) -> None:
