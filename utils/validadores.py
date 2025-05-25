@@ -1,5 +1,5 @@
 import re
-import datetime
+from datetime import datetime
 from utils.constantes import IDADE_MINIMA, TAMANHO_MIN_NUMERO_CONTA
 
 class Validar():
@@ -285,7 +285,7 @@ class Validar():
     @staticmethod
     def historico(historico: list) -> None:
         """
-        Valida se o histórico da conta aé uma lista de strings.
+        Valida se o histórico da conta é uma lista de strings.
 
         Args:
             historico (list): Lista que representa o histórico a ser validado.
