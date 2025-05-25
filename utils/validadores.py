@@ -36,7 +36,7 @@ class Validar():
             ValueError: Se o email estiver vazio.
             ValueError: Se o email não corresponder ao formato esperado.
         """
-        if not email or email.strip() == "":
+        if not email.strip():
             raise ValueError("O email não pode estar em branco.")
 
         # Regex simples para validar email
@@ -147,12 +147,12 @@ class Validar():
             ValueError: Se o nome estiver vazio.
             ValueError: Se o nome contiver caracteres inválidos.
         """
-        if not nome or nome.strip() == "":
+        if not nome.strip():
             raise ValueError("O nome não pode estar em branco.")
 
         padrao = r'^[A-Za-zÀ-ÿ\s]+$'  # aceita letras (inclusive acentuadas) e espaços
         if not re.match(padrao, nome):
-            raise ValueError("Nome inválido. Deve conter apenas letras e espaços.")
+            raise ValueError("Nome inválido. Use apenas letras e espaços, sem números ou símbolos.")
 
     @staticmethod
     def senha(senha: str) -> None:
