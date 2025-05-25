@@ -1,14 +1,13 @@
 from datetime import datetime
 from model.pessoa import Pessoa
 from utils.validadores.validar_pessoa_fisica import ValidarPessoaFisica as Validar
-#from utils.helpers import converter_str_para_datetime
 
 class PessoaFisica(Pessoa):
     """
     Representa uma pessoa física, com data de nascimento e representação textual por CPF.
     """
 
-    def __init__(self, nome: str, email: str, numero_documento: str, cep: str, numero_endereco: str, telefone: str, data_nascimento: str|datetime):
+    def __init__(self, nome: str, email: str, cpf: str, cep: str, numero_endereco: str, telefone: str, data_nascimento: str|datetime):
         """
         Inicializa uma pessoa física.
         Obs: Data de nascimento é recebido como str, mas armazenado no objeto como datetime.
@@ -16,20 +15,22 @@ class PessoaFisica(Pessoa):
         Args:
             nome (str): Nome completo da pessoa.
             email (str): Email da pessoa.
-            numero_documento (str): Número de documento da pessoa (único e imutável).
+            cpf (str): Número de documento da pessoa (único e imutável).
             cep (str): CEP da residência.
             numero_endereco (str): Número do endereço.
             telefone (str): Telefone da pessoa.
-            data_nascimento (str|datetime): Data de nascimento no formato "dd/mm/aaaa" se for str ou
-            no formato datetime.
+            data_nascimento (str | datetime): Data de nascimento no formato "dd/mm/aaaa" se for str ou no formato datetime.
 
         Raises:
-            ValueError: Se algum dos dados base de Pessoa for inválido (ex: nome, email, etc).
-            ValueError: Se houver erro ao usar a API (viaCEP) para atualizar o endereço.
-            ValueError: Se a data de nascimento for inválida.
+            ValueError: Se houver algum erro nos dados.
+            ValueError: Se houver erro ao usar a API (no construtor abstrato)
         """
-        super().__init__(nome, email, numero_documento, cep, numero_endereco, telefone)
-        self._data_nascimento = Validar.data_nascimento(data_nascimento)
+        erros = Validar.todos_campos(nome, email, cpf, cep, numero_endereco, telefone, data_nascimento)
+        if erros:
+            raise ValueError("\n".join(erros))
+
+        super().__init__(nome, email, cpf, cep, numero_endereco, telefone)
+        self._data_nascimento = data_nascimento
 
     def __str__(self) -> str:
         """

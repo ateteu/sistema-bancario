@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from utils.validadores import Validar
+from utils.validadores.validar_pessoa import ValidarPessoa as Validar
 from utils.api import API
 
 class Pessoa(ABC):
@@ -18,8 +18,12 @@ class Pessoa(ABC):
 
     def __init__(self, nome: str, email: str, numero_documento: str, cep: str, numero_endereco: str, telefone: str) -> None:
         """
-        Inicializa um novo pessoa com os dados fornecidos, caso não hajam problemas na validação dos dados.
-        Obs: não valida endereço retornado pela API.
+        Inicializa uma instância de Pessoa com os dados fornecidos.
+
+        Atenção:
+            Esta classe é abstrata e não deve ser instanciada diretamente.
+            Espera-se que os dados fornecidos já estejam validados pelas subclasses
+            antes de serem passados para este construtor.
 
         Args:
             nome (str): Nome completo da pessoa.
@@ -28,23 +32,16 @@ class Pessoa(ABC):
             cep (str): CEP da residência.
             numero_endereco (str): Número do endereço.
             telefone (str): Telefone da pessoa.
+        
         Raises:
-            ValueError: Se algum dos dados fornecidos for inválido (ex: email, telefone, CEP, etc).
-            ValueError: Se houver erro ao usar a API (viaCEP) para atualizar o endereço.
+            ValueError: Caso haja erro ao atualizar o endereço via API (viaCEP).
         """
-        Validar.nome(nome)
-        Validar.email(email)
-        Validar.numero_documento(numero_documento)
-        Validar.cep(cep)
-        Validar.numero_endereco(numero_endereco)
-        Validar.telefone(telefone)
-
-        self._nome = nome
-        self._email = email
+        self._nome             = nome
+        self._email            = email
         self._numero_documento = numero_documento
-        self._cep = cep
-        self._numero_endereco = numero_endereco
-        self._telefone = telefone
+        self._cep              = cep
+        self._numero_endereco  = numero_endereco
+        self._telefone         = telefone
 
         self._atualizar_endereco()
 

@@ -6,9 +6,12 @@ class ValidarPessoa(ABC):
     Classe utilitária abstrata para validações comuns de dados de entrada de Pessoa.
     """
     @staticmethod
-    def campos_comuns(nome: str, email: str, cep: str, numero_endereco: str, telefone: str) -> list[str]:
+    def _campos_comuns(nome: str, email: str, cep: str, numero_endereco: str, telefone: str) -> list[str]:
         """
         Valida os campos comuns entre os tipos de Pessoa (PF/PJ).
+        
+        Método protegido que serve apenas para evitar duplicação de código na validação
+        dos atributos comuns dos tipos de Pessoa.
 
         Args:
             nome (str): Nome da pessoa.

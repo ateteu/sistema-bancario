@@ -8,7 +8,7 @@ class ValidarPessoaFisica(Validar):
     implementa validações específicas de pessoas físicas.
     """
     @staticmethod
-    def validar_todos_campos(nome: str, email: str, cpf: str, cep: str, numero_endereco: str, telefone: str, data_nascimento: str) -> list[str]:
+    def todos_campos(nome: str, email: str, cpf: str, cep: str, numero_endereco: str, telefone: str, data_nascimento: str) -> list[str]:
         """
         Valida todos os campos de uma pessoa física. 
         
@@ -27,7 +27,7 @@ class ValidarPessoaFisica(Validar):
         Returns:
             erros (list[str]): Lista de erros encontrados.
         """
-        erros = Validar.campos_comuns(nome, email, cep, numero_endereco, telefone)
+        erros = Validar._campos_comuns(nome, email, cep, numero_endereco, telefone)
 
         try:
             ValidarPessoaFisica.cpf(cpf)
