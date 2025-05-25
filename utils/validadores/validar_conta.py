@@ -5,8 +5,47 @@ class ValidarConta:
     Classe utilitária responsável pela validação de atributos relacionados a contas bancárias.
     Cada método lança exceções apropriadas em caso de entrada inválida.
     """
+
     @staticmethod
-    def numero_conta(numero_conta: str) -> None:
+    def todos_campos(numero_conta: str, saldo: float, historico: list, estado: bool) -> list[str]:
+        """
+        Valida todos os campos comuns de uma conta bancária.
+
+        Args:
+            numero_conta (str): Número da conta.
+            saldo (float): Saldo inicial da conta.
+            historico (list): Histórico da conta.
+            estado (bool): Estado da conta (ativa/inativa).
+
+        Returns:
+            erros (list[str]): Lista de mensagens de erro (vazia se não houver erros).
+        """
+        erros = []
+
+        try:
+            ValidarConta._numero_conta(numero_conta)
+        except (ValueError, TypeError) as e:
+            erros.append(str(e))
+
+        try:
+            ValidarConta.saldo_livre(saldo)
+        except (ValueError, TypeError) as e:
+            erros.append(str(e))
+
+        try:
+            ValidarConta._historico(historico)
+        except (ValueError, TypeError) as e:
+            erros.append(str(e))
+
+        try:
+            ValidarConta.estado_da_conta(estado)
+        except (ValueError, TypeError) as e:
+            erros.append(str(e))
+
+        return erros
+
+    @staticmethod
+    def _numero_conta(numero_conta: str) -> None:
         """
         Valida o número da conta.
 
@@ -86,7 +125,7 @@ class ValidarConta:
         ValidarConta._verificacoes_basicas_saldo(saldo)
 
     @staticmethod
-    def historico(historico: list) -> None:
+    def _historico(historico: list) -> None:
         """
         Valida se o histórico da conta é uma lista de strings.
 

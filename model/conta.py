@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from utils.helpers import data_hora_atual_str
-from utils.validadores import Validar
+from utils.validadores.validar_conta import ValidarConta as Validar
 from utils.constantes import LIMITE_TRANSFERENCIA_CCORRENTE
 from model.exceptions import ContaInativaError
 
@@ -17,24 +17,25 @@ class Conta(ABC):
 
     def __init__(self, numero: str, saldo: float = 0.0, historico: list[str] = None, ativa: bool = True) -> None:
         """
-        Inicializa uma conta bancária com todos os dados necessários.
+        Inicializa uma conta bancária com os dados necessários.
+        
+        Todos os parâmetros são validados e em caso de valores inválidos, uma exceção será lançada
+        contendo todos os erros é lançada.
 
         Args:
             numero (str): Número da conta.
-            saldo (float): Saldo da conta. Padrão: 0.0.
-            historico (list[str], opcional): Lista de transações. Padrão: [] (lista vazia).
-            ativa (bool): Estado da conta. Padrão: True.
+            saldo (float, opcional): Saldo da conta (pode ser negativo). Padrão: 0.0.
+            historico (list[str], opcional): Lista de transações registradas. Padrão: lista vazia.
+            ativa (bool, opcional): Estado da conta (ativa ou inativa). Padrão: True.
 
         Raises:
-            ValueError: Se algum parâmetro for inválido.
-            TypeError: Se algum parâmetro for de um tipo incorreto.
+            ValueError: Se um ou mais valores forem inválidos e/ou esiverem com tipo incorreto.
         """
         historico = historico or []
 
-        Validar.numero_conta(numero)
-        Validar.saldo_livre(saldo)
-        Validar.historico(historico)
-        Validar.estado_da_conta(ativa)
+        erros = Validar.todos_campos(numero, saldo, historico, ativa)
+        if erros:
+            raise ValueError("\n".join(erros))
 
         self._numero_conta = numero
         self._saldo = saldo
