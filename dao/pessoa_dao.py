@@ -28,7 +28,7 @@ class PessoaDAO(DAO):
             Pessoa: Instância de Pessoa ou subclasse correspondente.
 
         Raises:
-            ValueError: Se o tipo de pessoa no dicionário for desconhecido.
+            ValueError: Se houver erro na criação do objeto Pessoa, ao usar dados do dicionário.
         """
         return PessoaMapper.from_dict(dados)
 

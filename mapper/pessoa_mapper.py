@@ -27,7 +27,8 @@ class PessoaMapper:
         
         Raises:
             ValueError: Se um ou mais campos obrigatórios estiverem ausentes.
-            ValueError: Se o 'tipo' da conta (salvo no BD) for desconhecido.
+            ValueError: Se o 'tipo' da conta for desconhecido.
+            ValueError: Se houver erro na construção de um objeto Pessoa.
         """
         campos_obrigatorios = [
             "tipo", "nome", "email", "numero_documento", "cep",
