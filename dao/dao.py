@@ -17,7 +17,7 @@ class DAO(ABC):
         self.arquivo_json = arquivo_json
 
     @abstractmethod
-    def from_dict(self, data: dict):
+    def criar_objeto(self, data: dict):
         """
         Converte um dicionário para um objeto da entidade.
 
@@ -30,9 +30,9 @@ class DAO(ABC):
         pass
 
     @abstractmethod
-    def to_dict(self, obj) -> dict:
+    def extrair_dados_do_objeto(self, obj) -> dict:
         """
-        Converte um objeto da entidade para um dicionário.
+        Extrai informações de um objeto da entidade, formando um dicionário.
 
         Args:
             obj: Objeto da entidade.
@@ -68,7 +68,7 @@ class DAO(ABC):
         except (FileNotFoundError, json.JSONDecodeError):
             return []
 
-    def _salvar_dados(self, dados: List[dict]) -> None:
+    def _salvar_no_arquivo_json(self, dados: List[dict]) -> None:
         """
         Salva os dados no arquivo JSON.
 
@@ -104,7 +104,7 @@ class DAO(ABC):
                 return self.from_dict(item)
         return None
 
-    def adicionar_objeto(self, obj) -> None:
+    def salvar_objeto(self, obj) -> None:
         """
         Adiciona um novo objeto ao armazenamento.
 
@@ -113,7 +113,7 @@ class DAO(ABC):
         """
         dados = self._carregar_dados()
         dados.append(self.to_dict(obj))
-        self._salvar_dados(dados)
+        self._salvar_no_arquivo_json(dados)
 
     def atualizar_objeto(self, obj) -> bool:
         """
@@ -130,7 +130,7 @@ class DAO(ABC):
         for i, item in enumerate(dados):
             if item.get(self.tipo_de_id()) == id_valor:
                 dados[i] = self.to_dict(obj)
-                self._salvar_dados(dados)
+                self._salvar_no_arquivo_json(dados)
                 return True
         return False
 
@@ -148,5 +148,5 @@ class DAO(ABC):
         novo_dados = [item for item in dados if item.get(self.tipo_de_id()) != id_valor]
         if len(novo_dados) == len(dados):
             return False
-        self._salvar_dados(novo_dados)
+        self._salvar_no_arquivo_json(novo_dados)
         return True

@@ -1,4 +1,3 @@
-from typing import Optional, List
 from model.conta import Conta
 from mapper.conta_mapper import ContaMapper
 from dao.dao import DAO
@@ -16,7 +15,7 @@ class ContaDAO(DAO):
         """
         super().__init__(ARQUIVO_CONTAS)
 
-    def from_dict(self, dados: dict) -> Conta:
+    def criar_objeto(self, dados: dict) -> Conta:
         """
         Cria uma instância de Conta a partir de um dicionário, usando o mapper de conta.
 
@@ -32,7 +31,7 @@ class ContaDAO(DAO):
         """
         return ContaMapper.from_dict(dados)
 
-    def to_dict(self, conta: Conta) -> dict:
+    def extrair_dados_do_objeto(self, conta: Conta) -> dict:
         """
         Converte uma instância de Conta em dicionário, usando o mapper de conta.
 

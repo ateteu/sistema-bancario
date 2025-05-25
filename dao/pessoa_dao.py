@@ -17,7 +17,7 @@ class PessoaDAO(DAO):
         """
         super().__init__(ARQUIVO_PESSOAS)
 
-    def from_dict(self, dados: dict) -> Pessoa:
+    def criar_objeto(self, dados: dict) -> Pessoa:
         """
         Constrói um objeto Pessoa (ou subclasse) a partir de um dicionário.
 
@@ -32,7 +32,7 @@ class PessoaDAO(DAO):
         """
         return PessoaMapper.from_dict(dados)
 
-    def to_dict(self, pessoa: Pessoa) -> dict:
+    def extrair_dados_do_objeto(self, pessoa: Pessoa) -> dict:
         """
         Converte um objeto Pessoa (ou subclasse) em um dicionário serializável.
 

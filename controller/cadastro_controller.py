@@ -59,8 +59,8 @@ class CadastroController:
         Raises:
             ValueError: Se falhar na criação da pessoa.
         """
-        pessoa = PessoaDAO().from_dict(dados)
-        PessoaDAO().adicionar_objeto(pessoa)
+        pessoa = PessoaDAO().criar_objeto(dados)
+        PessoaDAO().salvar_objeto(pessoa)
 
     @staticmethod
     def _criar_cliente(numero_documento: str, senha: str) -> None:
@@ -80,7 +80,7 @@ class CadastroController:
         """
         pessoa = PessoaDAO().buscar_por_id(numero_documento)
         if pessoa is None:
-            raise ValueError("Pessoa não encontrada para o documento informado.")
+            raise ValueError(f"Pessoa não encontrada para o documento [{numero_documento}] informado.")
 
-        cliente = Cliente(pessoa=pessoa, senha=senha)
-        ClienteDAO().adicionar_objeto(cliente)
+        cliente = Cliente(pessoa = pessoa, senha = senha)
+        ClienteDAO().salvar_objeto(cliente)

@@ -7,7 +7,7 @@ from utils.constantes import ARQUIVO_CLIENTES
 
 class ClienteDAO(DAO):
     """
-    DAO para persistência de Clientes em 'clientes.json'.
+    DAO para persistência de Clientes no arquivo correspondente.
     """
 
     def __init__(self):
@@ -18,9 +18,9 @@ class ClienteDAO(DAO):
         self._pessoa_dao = PessoaDAO()
         self._conta_dao = ContaDAO()
 
-    def from_dict(self, dados: dict) -> Cliente:
+    def criar_objeto(self, dados: dict) -> Cliente:
         """
-        Converte dicionário em instância de Cliente, carregando Pessoa e Contas.
+        Cria uma instância de Cliente, usando dados passados, carregando Pessoa e Contas.
 
         Args:
             dados (dict): Dicionário com campos de cliente.
@@ -37,7 +37,7 @@ class ClienteDAO(DAO):
         # Cria o objeto cliente com os dados correspondentes
         return Cliente(pessoa=pessoa, senha=dados["senha"], contas=contas)
 
-    def to_dict(self, obj: Cliente) -> dict:
+    def extrair_dados_do_objeto(self, obj: Cliente) -> dict:
         """
         Converte instância de Cliente para dicionário.
 
@@ -48,9 +48,9 @@ class ClienteDAO(DAO):
             dict: Dicionário com campos para JSON.
         """
         return {
-            "documento": obj.pessoa.get_numero_documento(),
-            "senha": obj._senha,
-            "contas": [c.get_numero_conta() for c in obj.contas],
+            "documento" : obj.pessoa.get_numero_documento(),
+            "senha"     : obj._senha,
+            "contas"    : [c.get_numero_conta() for c in obj.contas],
         }
 
     def tipo_de_id(self) -> str:
