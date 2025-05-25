@@ -86,7 +86,7 @@ class DAO(ABC):
             List: Lista de objetos da entidade.
         """
         dados = self._ler_dados_do_json()
-        return [self.from_dict(item) for item in dados]
+        return [self.criar_objeto(item) for item in dados]
 
     def buscar_por_id(self, id_valor) -> Optional[Any]:
         """
@@ -101,7 +101,7 @@ class DAO(ABC):
         dados = self._ler_dados_do_json()
         for item in dados:
             if item.get(self.tipo_de_id()) == id_valor:
-                return self.from_dict(item)
+                return self.criar_objeto(item)
         return None
 
     def salvar_objeto(self, obj) -> None:
@@ -112,7 +112,7 @@ class DAO(ABC):
             obj: Objeto da entidade a ser adicionado.
         """
         dados = self._ler_dados_do_json()
-        dados.append(self.to_dict(obj))
+        dados.append(self.extrair_dados_do_objeto(obj))
         self._salvar_no_arquivo_json(dados)
 
     def atualizar_objeto(self, obj) -> bool:
@@ -129,7 +129,7 @@ class DAO(ABC):
         id_valor = getattr(obj, self.tipo_de_id())
         for i, item in enumerate(dados):
             if item.get(self.tipo_de_id()) == id_valor:
-                dados[i] = self.to_dict(obj)
+                dados[i] = self.extrair_dados_do_objeto(obj)
                 self._salvar_no_arquivo_json(dados)
                 return True
         return False
