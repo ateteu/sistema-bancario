@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from utils.validadores import Validar
-from utils.api_endereco import buscar_endereco_por_cep
+from utils.api_endereco import API
 
 class Pessoa(ABC):
     """
@@ -174,7 +174,7 @@ class Pessoa(ABC):
             ValueError: Se o número do endereço for inválido.
             ValueError: Se houver erro na consulta.
         """
-        self._endereco = buscar_endereco_por_cep(self._cep, self._numero_endereco)
+        self._endereco = API.buscar_endereco_por_cep(self._cep, self._numero_endereco)
 
     def get_telefone(self) -> str:
         """
