@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from utils.validadores import Validar
-from utils.api_endereco import API
+from utils.api import API
 
 class Pessoa(ABC):
     """
