@@ -28,8 +28,13 @@ class ClienteDAO(DAO):
         Returns:
             Cliente: Objeto Cliente pronto para uso.
         """
+        # Usa o DAO de pessoa para buscar a pessoa com o id (cpf/cnpj) correspondente
         pessoa = self._pessoa_dao.buscar_por_id(dados["documento"])
+
+        # Usa o DAO de conta para buscar a(s) conta(s) com o id (numero_conta) correspondente
         contas = [self._conta_dao.buscar_por_id(n) for n in dados.get("contas", [])]
+
+        # Cria o objeto cliente com os dados correspondentes
         return Cliente(pessoa=pessoa, senha=dados["senha"], contas=contas)
 
     def to_dict(self, obj: Cliente) -> dict:
