@@ -24,8 +24,9 @@ class PessoaFisica(Pessoa):
             no formato datetime.
 
         Raises:
-            ValueError: Se algum dos dados fornecidos for inválido (ex: data de nascimento, email, etc).
+            ValueError: Se algum dos dados base de Pessoa for inválido (ex: nome, email, etc).
             ValueError: Se houver erro ao usar a API (viaCEP) para atualizar o endereço.
+            ValueError: Se a data de nascimento for inválida.
         """
         super().__init__(nome, email, numero_documento, cep, numero_endereco, telefone)
         self._data_nascimento = Validar.data_nascimento(data_nascimento)
