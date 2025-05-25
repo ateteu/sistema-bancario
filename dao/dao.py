@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 import json
-from typing import List, Optional, Any
+from typing import List, Optional, TypeVar, Generic
+T = TypeVar("T") # Tipo genérico para entidades do DAO
 
-class DAO(ABC):
+class DAO(ABC, Generic[T]):
     """
     Classe base abstrata para DAOs que lidam com persistência em arquivos JSON.
     """
@@ -78,7 +79,7 @@ class DAO(ABC):
         with open(self.arquivo_json, 'w', encoding='utf-8') as f:
             json.dump(dados, f, indent=4)
 
-    def listar_todos_objetos(self) -> List:
+    def listar_todos_objetos(self) -> List[T]:
         """
         Retorna todos os objetos da entidade armazenados.
 
@@ -88,7 +89,7 @@ class DAO(ABC):
         dados = self._ler_dados_do_json()
         return [self.criar_objeto(item) for item in dados]
 
-    def buscar_por_id(self, id_valor) -> Optional[Any]:
+    def buscar_por_id(self, id_valor) -> Optional[T]:
         """
         Busca um objeto da entidade pelo seu identificador único.
 
@@ -104,7 +105,7 @@ class DAO(ABC):
                 return self.criar_objeto(item)
         return None
 
-    def salvar_objeto(self, obj) -> None:
+    def salvar_objeto(self, obj: T) -> None:
         """
         Adiciona um novo objeto ao armazenamento.
 

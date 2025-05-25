@@ -62,6 +62,18 @@ class ClienteDAO(DAO):
         """
         return "numero_documento"
 
+    def buscar_por_id(self, id_valor: str) -> Optional[Cliente]:
+        """
+        Busca um cliente pelo identificador único (CPF ou documento).
+
+        Args:
+            id_valor (str): Valor do documento do cliente.
+
+        Returns:
+            Optional[Cliente]: Instância de Cliente se encontrado, ou None caso contrário.
+        """
+        return super().buscar_por_id(id_valor)
+
     def buscar_cliente_por_numero_conta(self, numero_conta: str) -> Optional[Cliente]:
         """
         Encontra o cliente dono de uma determinada conta.
