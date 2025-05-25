@@ -24,30 +24,28 @@ class ContaMapper:
             Conta: Instância de ContaCorrente ou ContaPoupanca.
         
         Raises:
-            TypeError: Se algum atributo for incompatível (ex: histórico).
-            ValueError: Se o valor de algum atributo for inválido (ex: saldo).
-            ValueError: Se os campos obrigatórios 'tipo' ou 'numero' estiverem ausentes no JSON.
+            ValueError: Se um ou mais campos obrigatórios estiverem ausentes.
+            ValueError: Se o 'tipo' da conta (salvo no BD) for desconhecido.
         """
-        try:
-            tipo = dados["tipo"]
-            numero = dados["numero"]
-        except KeyError as e:
-            raise ValueError(f"Campo obrigatório ausente: {e.args[0]}")
-        
-        # Se não houverem os campos saldo, histórico ou ativa, usa os valores padrão
-        # Ex: conta fica ativa por padrão, se não houver o campo "ativa" no BD
-        saldo     = dados.get("saldo", 0.0)
-        historico = dados.get("historico", [])
-        ativa     = dados.get("ativa", True)
-        
+        campos_obrigatorios = ["tipo", "numero", "saldo", "historico", "ativa"]
+
+        # Verifica todos campos faltantes no Banco de dados
+        campos_faltantes = [campo for campo in campos_obrigatorios if campo not in dados]
+        if campos_faltantes:
+            raise ValueError(f"Campos obrigatórios ausentes: {', '.join(campos_faltantes)}")
+
+        tipo      = dados["tipo"]
+        numero    = dados["numero"]
+        saldo     = dados["saldo"]
+        historico = dados["historico"]
+        ativa     = dados["ativa"]
+
         if tipo == TIPO_CCORRENTE:
-            conta = ContaCorrente(numero, saldo, historico, ativa)
+            return ContaCorrente(numero, saldo, historico, ativa)
         elif tipo == TIPO_CPOUPANCA:
-            conta = ContaPoupanca(numero, saldo, historico, ativa)
+            return ContaPoupanca(numero, saldo, historico, ativa)
         else:
             raise ValueError(f"Tipo de conta desconhecido: {tipo}")
-
-        return conta
 
     @staticmethod
     def to_dict(conta: Conta) -> dict:

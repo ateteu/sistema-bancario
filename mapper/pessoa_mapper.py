@@ -16,29 +16,46 @@ class PessoaMapper:
     @staticmethod
     def from_dict(dados: dict) -> Pessoa:
         """
-        Cria uma instância de Pessoa (PF/PJ) a partir de um dicionário.
+        Cria uma instância de Pessoa a partir de um dicionário.
+        Obs: apenas disponível para Pessoa Física no momento!
 
         Args:
             dados (dict): Dicionário com os dados da pessoa.
 
         Returns:
             Pessoa: Instância da subclasse de Pessoa reconstruída.
+        
+        Raises:
+            ValueError: Se um ou mais campos obrigatórios estiverem ausentes.
+            ValueError: Se o 'tipo' da conta (salvo no BD) for desconhecido.
         """
-        tipo             = dados.get("tipo")
-        nome             = dados.get("nome", "Desconhecido")
-        email            = dados.get("email", "Desconhecido")
-        numero_documento = dados["numero_documento"]
-        cep              = dados.get("cep", "Desconhecido")
-        numero_endereco  = dados.get("numero_endereco", "Desconhecido")
-        endereco         = dados.get("endereco", "Desconhecido")
-        telefone         = dados.get("telefone", "Desconhecido")
+        campos_obrigatorios = [
+            "tipo", "nome", "email", "numero_documento", "cep",
+            "numero_endereco", "endereco", "telefone", "data_nascimento"
+        ]
 
+        # Verifica todos campos faltantes no Banco de dados
+        campos_faltantes = [campo for campo in campos_obrigatorios if campo not in dados]
+        if campos_faltantes:
+            raise ValueError(f"Campos obrigatórios ausentes: {', '.join(campos_faltantes)}")
+
+        tipo             = dados["tipo"]
+        nome             = dados["nome"]
+        email            = dados["email"]
+        numero_documento = dados["numero_documento"]
+        cep              = dados["cep"]
+        numero_endereco  = dados["numero_endereco"]
+        endereco         = dados["endereco"]
+        telefone         = dados["telefone"]
+        
         if tipo == TIPO_PFISICA:
-            data_nascimento = dados.get("data_nascimento", "Desconhecido")
-            return PessoaFisica(nome, email, numero_documento, cep, numero_endereco, endereco, telefone, data_nascimento)
+            data_nascimento  = dados["data_nascimento"]
+            return PessoaFisica(
+                nome, email, numero_documento, cep, numero_endereco, endereco, telefone, data_nascimento
+            )
         else:
             raise ValueError(f"Tipo de Pessoa desconhecido: {tipo}")
-
+    
     @staticmethod
     def to_dict(pessoa: Pessoa) -> dict:
         """
