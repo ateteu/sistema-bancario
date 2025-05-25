@@ -62,18 +62,6 @@ class ClienteDAO(DAO):
         """
         return "numero_documento"
 
-    def buscar_cliente_por_numero_documento(self, numero_documento: str) -> Optional[Cliente]:
-        """
-        Busca um cliente pelo número do documento (CPF/CNPJ).
-
-        Args:
-            numero_documento (str): Número de documento do cliente.
-
-        Returns:
-            Optional[Cliente]: Cliente encontrado ou None.
-        """
-        return self.buscar_por_id(numero_documento)
-
     def buscar_cliente_por_numero_conta(self, numero_conta: str) -> Optional[Cliente]:
         """
         Encontra o cliente dono de uma determinada conta.
@@ -84,16 +72,7 @@ class ClienteDAO(DAO):
         Returns:
             Optional[Cliente]: Cliente que possui a conta, ou None.
         """
-        for cliente in self.listar_todos_clientes():
+        for cliente in self.listar_todos_objetos():
             if numero_conta in [c.get_numero_conta() for c in cliente.contas]:
                 return cliente
         return None
-
-    def listar_todos_clientes(self) -> List[Cliente]:
-        """
-        Retorna todos os clientes carregados.
-
-        Returns:
-            List[Cliente]: Lista de clientes.
-        """
-        return super().listar_todos_objetos()
