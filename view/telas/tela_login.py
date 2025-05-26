@@ -1,4 +1,5 @@
 import flet as ft
+import asyncio
 from view.components.campos import CampoCPF, CampoCNPJ, CampoSenha
 from view.components.botoes import BotaoPrimario, BotaoSecundario
 from view.components.mensagens import Notificador
@@ -6,20 +7,7 @@ from controller.auth_controller import AuthController
 
 
 class TelaLogin:
-    """
-    Tela de login do sistema bancário.
-
-    Permite o login via CPF ou CNPJ, validando as credenciais via AuthController.
-    """
-
     def __init__(self, on_login_sucesso=None, on_ir_cadastro=None):
-        """
-        Inicializa a tela e os componentes internos.
-
-        Args:
-            on_login_sucesso (callable): Função executada ao login bem-sucedido.
-            on_ir_cadastro (callable): Função chamada ao clicar em "Criar conta".
-        """
         self.on_login_sucesso = on_login_sucesso
         self.on_ir_cadastro = on_ir_cadastro
         self.notificador = Notificador()
@@ -27,19 +15,10 @@ class TelaLogin:
         self.tipo_ref = ft.Ref[ft.RadioGroup]()
         self.documento_container = ft.Ref[ft.Container]()
 
-        self.campo_documento = CampoCPF()  # Inicialmente assume CPF
+        self.campo_documento = CampoCPF()
         self.campo_senha = CampoSenha()
 
     def criar_view(self, page: ft.Page) -> ft.Container:
-        """
-        Cria e retorna a estrutura visual da tela de login.
-
-        Args:
-            page (ft.Page): Página Flet para renderizar a interface.
-
-        Returns:
-            ft.Container: Container com os componentes da tela.
-        """
         grupo_tipo = ft.RadioGroup(
             ref=self.tipo_ref,
             value="cpf",
@@ -67,7 +46,7 @@ class TelaLogin:
                     grupo_tipo,
                     ft.Container(ref=self.documento_container, content=self.campo_documento),
                     self.campo_senha,
-                    BotaoPrimario("Entrar", on_click=self.on_login_click),
+                    BotaoPrimario("Entrar", on_click=lambda e: page.run_task(self.on_login_click, e)),
                     BotaoSecundario("Criar conta", on_click=lambda e: self.on_ir_cadastro()),
                     self.notificador.get_snackbar()
                 ]
@@ -75,44 +54,28 @@ class TelaLogin:
         )
 
     def trocar_campo_documento(self, e):
-        """
-        Alterna entre o campo de CPF e CNPJ conforme a seleção do usuário.
-
-        Args:
-            e: Evento disparado pelo RadioGroup.
-        """
         tipo = self.tipo_ref.current.value
         self.campo_documento = CampoCPF() if tipo == "cpf" else CampoCNPJ()
         self.documento_container.current.content = self.campo_documento
         e.page.update()
 
-    def mostrar_erro(self, page: ft.Page, mensagem: str):
-        """
-        Exibe uma mensagem de erro usando o componente de notificação.
+    async def on_login_click(self, e):
+        e.control.disabled = True
+        e.page.update()
 
-        Args:
-            page (ft.Page): Página onde o snackbar será exibido.
-            mensagem (str): Texto da mensagem de erro.
-        """
-        self.notificador.erro(page, mensagem)
-
-    def on_login_click(self, e):
-        """
-        Lógica executada ao clicar no botão 'Entrar'.
-        Valida as credenciais e chama a função de sucesso, se aplicável.
-
-        Args:
-            e: Evento de clique do botão.
-        """
-        page = e.page
         documento = self.campo_documento.value.strip()
         senha = self.campo_senha.value.strip()
 
         resultado = AuthController.login(documento, senha)
 
         if resultado["status"] != "sucesso":
-            self.mostrar_erro(page, resultado["mensagem"])
+            self.notificador.erro(e.page, resultado["mensagem"])
+            e.control.disabled = False
+            e.page.update()
             return
+
+        # Espera breve para feedback visual
+        await asyncio.sleep(0.2)
 
         if self.on_login_sucesso:
             self.on_login_sucesso(resultado["usuario_id"])

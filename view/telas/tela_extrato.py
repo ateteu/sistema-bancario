@@ -6,39 +6,31 @@ from view.components.containers import CartaoResumo, CartaoTransacao
 
 class TelaExtrato:
     """
-    Tela de consulta de extrato bancário.
-
-    Permite ao cliente selecionar uma conta ativa e visualizar
-    saldo atual e as últimas transações.
+    Tela de consulta de saldo e histórico de transações.
     """
 
     def __init__(self, cliente):
-        """
-        Inicializa a tela de extrato para o cliente informado.
-
-        Args:
-            cliente: Objeto Cliente com as contas associadas.
-        """
         self.cliente = cliente
         self.notificador = Notificador()
 
         self.dropdown_ref = ft.Ref[ft.Dropdown]()
-        self.saldo_text = ft.Text("")
+        self.saldo_text = ft.Text("Selecione uma conta para ver o saldo.", size=14, italic=True)
         self.lista_extrato = ft.Column([], spacing=8, scroll=ft.ScrollMode.AUTO)
 
         self.view = self.criar_view()
 
     def criar_view(self) -> ft.Container:
-        """
-        Monta e retorna a estrutura visual da tela.
-
-        Returns:
-            ft.Container: Layout da interface do extrato.
-        """
         opcoes_contas = [
-            ft.dropdown.Option(str(conta.get_numero_conta()))
-            for conta in self.cliente.contas if conta.get_estado_da_conta()
+            ft.dropdown.Option(num) for num in ContaController.contas_ativas_para_dropdown(self.cliente)
         ]
+
+        dropdown_conta = ft.Dropdown(
+            label="Selecione uma conta",
+            ref=self.dropdown_ref,
+            width=300,
+            options=opcoes_contas,
+            on_change=self.atualizar_extrato,
+        )
 
         return ft.Container(
             padding=30,
@@ -48,38 +40,19 @@ class TelaExtrato:
                 width=500,
                 spacing=20,
                 controls=[
-                    ft.Text("Consulta de Extrato", size=22, weight=ft.FontWeight.BOLD),
-
-                    ft.Dropdown(
-                        label="Selecione uma conta",
-                        ref=self.dropdown_ref,
-                        width=300,
-                        options=opcoes_contas,
-                        on_change=self.atualizar_extrato,
-                    ),
-
-                    CartaoResumo(
-                        titulo="Saldo atual",
-                        conteudo=[self.saldo_text]
-                    ),
-
-                    CartaoResumo(
-                        titulo="Últimas transações",
-                        conteudo=[self.lista_extrato]
-                    ),
-
+                    ft.Row([
+                        ft.Icon(name=ft.Icons.RECEIPT_LONG, size=28),
+                        ft.Text("Consulta de Extrato", size=22, weight=ft.FontWeight.BOLD),
+                    ], alignment=ft.MainAxisAlignment.CENTER),
+                    dropdown_conta,
+                    CartaoResumo("Saldo atual", [self.saldo_text]),
+                    CartaoResumo("Últimas transações", [self.lista_extrato]),
                     self.notificador.get_snackbar()
                 ]
             )
         )
 
     def atualizar_extrato(self, e):
-        """
-        Atualiza o extrato e saldo exibido com base na conta selecionada.
-
-        Args:
-            e: Evento disparado pelo Dropdown.
-        """
         numero = self.dropdown_ref.current.value
 
         if not numero:
@@ -93,7 +66,7 @@ class TelaExtrato:
             return
 
         saldo, historico = resultado
-        self.saldo_text.value = f"R$ {saldo:.2f}"
+        self.saldo_text.value = f"💰 Saldo disponível: R$ {saldo:.2f}"
 
         self.lista_extrato.controls.clear()
         if not historico:
@@ -101,7 +74,6 @@ class TelaExtrato:
                 ft.Text("Nenhuma transação encontrada.", italic=True)
             )
         else:
-            # Exibe as 10 últimas transações mais recentes primeiro
             for item in reversed(historico[-10:]):
                 self.lista_extrato.controls.append(CartaoTransacao(item))
 

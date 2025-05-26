@@ -15,6 +15,7 @@ ICONES_CAMPOS = {
     "cep": "location_on",
     "numero": "pin",
     "data_nascimento": "calendar_today",
+    "valor": "attach_money"
 }
 
 # Paleta de cores do sistema

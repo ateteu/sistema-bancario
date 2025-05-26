@@ -32,7 +32,10 @@ class ClienteDAO(DAO):
         pessoa = self._pessoa_dao.buscar_por_id(dados["numero_documento"])
 
         # Usa o DAO de conta para buscar a(s) conta(s) com o id (numero_conta) correspondente
-        contas = [self._conta_dao.buscar_por_id(n) for n in dados.get("contas", [])]
+        # Cache o JSON completo só uma vez
+        todas_contas = {c.get_numero_conta(): c for c in self._conta_dao.listar_todos_objetos()}
+        contas = [todas_contas[n] for n in dados.get("contas", []) if n in todas_contas]
+
 
         # Cria o objeto cliente com os dados correspondentes
         return Cliente(pessoa=pessoa, senha=dados["senha"], contas=contas)

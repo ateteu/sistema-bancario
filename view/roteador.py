@@ -63,7 +63,7 @@ def navegar(page: ft.Page, route: str):
         tela_usuario = TelaUsuario(
             banco=None,
             cliente=cliente,
-            on_logout=lambda: page.go("/login"),
+            on_logout=lambda e: page.go("/login"),
             subrota=subrota
         )
 

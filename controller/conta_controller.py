@@ -121,3 +121,19 @@ class ContaController:
         cliente_dao.atualizar_objeto(cliente)
 
         return {"sucesso": True, "mensagem": f"Conta {numero_conta} encerrada com sucesso."}
+    
+    @staticmethod
+    def contas_ativas_para_dropdown(cliente):
+        """
+        Retorna uma lista de opções para dropdown com as contas ativas do cliente.
+
+        Args:
+            cliente: Objeto Cliente.
+
+        Returns:
+            list[str]: Lista de strings com os números das contas ativas.
+        """
+        return [
+            str(conta.get_numero_conta())
+            for conta in cliente.contas if conta.get_estado_da_conta()
+        ]
