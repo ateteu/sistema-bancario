@@ -60,6 +60,10 @@ class Cliente:
             List[Conta]: Lista de contas do cliente.
         """
         return self._contas
+    
+    @contas.setter
+    def contas(self, nova_lista: List[Conta]):
+        self._contas = nova_lista
 
     def verificar_senha(self, senha_digitada: str) -> bool:
         """
@@ -99,3 +103,6 @@ class Cliente:
         """
         return bool(self._contas)
     
+    @property
+    def numero_documento(self) -> str:
+        return self._pessoa.get_numero_documento() 

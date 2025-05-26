@@ -29,7 +29,7 @@ class ClienteDAO(DAO):
             Cliente: Objeto Cliente pronto para uso.
         """
         # Usa o DAO de pessoa para buscar a pessoa com o id (cpf/cnpj) correspondente
-        pessoa = self._pessoa_dao.buscar_por_id(dados["documento"])
+        pessoa = self._pessoa_dao.buscar_por_id(dados["numero_documento"])
 
         # Usa o DAO de conta para buscar a(s) conta(s) com o id (numero_conta) correspondente
         contas = [self._conta_dao.buscar_por_id(n) for n in dados.get("contas", [])]
@@ -48,7 +48,7 @@ class ClienteDAO(DAO):
             dict: Dicionário com campos para JSON.
         """
         return {
-            "documento" : obj.pessoa.get_numero_documento(),
+            "numero_documento" : obj.pessoa.get_numero_documento(),
             "senha"     : obj._senha,
             "contas"    : [c.get_numero_conta() for c in obj.contas],
         }

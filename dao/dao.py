@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import json
+import os
 from typing import List, Optional, TypeVar, Generic
 T = TypeVar("T") # Tipo genérico para entidades do DAO
 
@@ -15,7 +16,7 @@ class DAO(ABC, Generic[T]):
         Args:
             arquivo_json (str): Caminho do arquivo JSON para armazenar os dados.
         """
-        self.arquivo_json = arquivo_json
+        self.arquivo_json = os.path.join("database", arquivo_json)
 
     @abstractmethod
     def criar_objeto(self, data: dict):
@@ -104,17 +105,22 @@ class DAO(ABC, Generic[T]):
             if item.get(self.tipo_de_id()) == id_valor:
                 return self.criar_objeto(item)
         return None
-
+    
     def salvar_objeto(self, obj: T) -> None:
-        """
-        Adiciona um novo objeto ao armazenamento.
-
-        Args:
-            obj: Objeto da entidade a ser adicionado.
-        """
         dados = self._ler_dados_do_json()
-        dados.append(self.extrair_dados_do_objeto(obj))
+        novo = self.extrair_dados_do_objeto(obj)
+        chave = self.tipo_de_id()
+
+        print(">>> Tentando salvar objeto:", novo)
+
+        if any(item.get(chave) == novo[chave] for item in dados):
+            raise ValueError(f"Objeto com {chave} = '{novo[chave]}' já existe.")
+
+        dados.append(novo)
         self._salvar_no_arquivo_json(dados)
+        print(">>> Objeto salvo com sucesso.")
+
+
 
     def atualizar_objeto(self, obj) -> bool:
         """
@@ -127,13 +133,31 @@ class DAO(ABC, Generic[T]):
             bool: True se atualização foi realizada, False se objeto não encontrado.
         """
         dados = self._ler_dados_do_json()
-        id_valor = getattr(obj, self.tipo_de_id())
+        id_chave = self.tipo_de_id()
+
+        import traceback
+
+        try:
+            id_valor = getattr(obj, self.tipo_de_id())
+        except AttributeError as e:
+            print(f"[ERRO DETALHADO] Tentando acessar atributo '{self.tipo_de_id()}' em {obj}")
+            print("[ERRO DETALHADO] Stack trace:")
+            traceback.print_stack()
+            raise e
+
+
+        novo_dado = self.extrair_dados_do_objeto(obj)
+
         for i, item in enumerate(dados):
-            if item.get(self.tipo_de_id()) == id_valor:
-                dados[i] = self.extrair_dados_do_objeto(obj)
+            if item.get(id_chave) == id_valor:
+                dados[i] = novo_dado
                 self._salvar_no_arquivo_json(dados)
+                print(f">>> Objeto com {id_chave} = {id_valor} atualizado com sucesso.")
                 return True
+
+        print(f"[ATUALIZAR] Objeto com {id_chave} = {id_valor} não encontrado.")
         return False
+
 
     def deletar_objeto(self, id_valor) -> bool:
         """

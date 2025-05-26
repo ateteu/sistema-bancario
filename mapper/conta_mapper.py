@@ -1,7 +1,7 @@
 from model.conta import Conta
 from model.conta_corrente import ContaCorrente
 from model.conta_poupanca import ContaPoupanca
-from utils.constantes import TIPO_CCORRENTE, TIPO_CPOUPANCA, NUMERO_CONTA_PARA_ERRO
+from utils.constantes import TIPO_CCORRENTE, TIPO_CPOUPANCA
 
 class ContaMapper:
     """
@@ -49,6 +49,8 @@ class ContaMapper:
 
     @staticmethod
     def to_dict(conta: Conta) -> dict:
+        tipo = TIPO_CCORRENTE if isinstance(conta, ContaCorrente) else TIPO_CPOUPANCA
+        print(">>> Serializando conta:", conta.get_numero_conta(), "| tipo:", tipo)
         """
         Converte uma instância de Conta em dicionário.
 

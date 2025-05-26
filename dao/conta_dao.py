@@ -48,6 +48,6 @@ class ContaDAO(DAO):
         Retorna o campo usado como identificador da conta no JSON.
 
         Returns:
-            str: 'numero_conta'
+            str: 'numero'
         """
-        return "numero_conta"
+        return "numero"

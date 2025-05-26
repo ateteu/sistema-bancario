@@ -194,3 +194,7 @@ class Pessoa(ABC):
         """
         Validar.telefone(novo_telefone)
         self._telefone = novo_telefone
+
+    @property
+    def numero_documento(self):
+        return self.get_numero_documento()

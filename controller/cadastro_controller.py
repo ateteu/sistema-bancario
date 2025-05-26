@@ -20,10 +20,10 @@ class CadastroController:
         Returns:
             dict: Resultado da operação, com status e mensagem.
         """
-        logger.info(f"Iniciando cadastro de cliente com documento: {dados.get('documento')}")
+        logger.info(f"Iniciando cadastro de cliente com documento: {dados.get('numero_documento')}")
         try:
             CadastroController._criar_pessoa(dados)
-            CadastroController._criar_cliente(dados["documento"], dados["senha"])
+            CadastroController._criar_cliente(dados["numero_documento"], dados["senha"])
             return {
                 "status"   : "sucesso",
                 "mensagem" : "Cadastro realizado com sucesso"
@@ -59,8 +59,16 @@ class CadastroController:
         Raises:
             ValueError: Se falhar na criação da pessoa.
         """
-        pessoa = PessoaDAO().criar_objeto(dados)
-        PessoaDAO().salvar_objeto(pessoa)
+
+        pessoa_dao = PessoaDAO()
+        pessoa = pessoa_dao.criar_objeto(dados)
+
+        numero_documento = pessoa.get_numero_documento()
+
+        if pessoa_dao.buscar_por_id(numero_documento) is None:
+            pessoa_dao.salvar_objeto(pessoa)
+        else:
+            pessoa_dao.atualizar_objeto(pessoa)
 
     @staticmethod
     def _criar_cliente(numero_documento: str, senha: str) -> None:
@@ -82,5 +90,10 @@ class CadastroController:
         if pessoa is None:
             raise ValueError(f"Pessoa não encontrada para o documento [{numero_documento}] informado.")
 
-        cliente = Cliente(pessoa = pessoa, senha = senha)
-        ClienteDAO().salvar_objeto(cliente)
+        cliente = Cliente(pessoa=pessoa, senha=senha)
+        cliente_dao = ClienteDAO()
+
+        if cliente_dao.buscar_por_id(numero_documento) is None:
+            cliente_dao.salvar_objeto(cliente)
+        else:
+            cliente_dao.atualizar_objeto(cliente)
