@@ -30,7 +30,12 @@ class PessoaFisica(Pessoa):
             raise ValueError("\n".join(erros))
 
         super().__init__(nome, email, cpf, cep, numero_endereco, telefone)
-        self._data_nascimento = data_nascimento
+        
+        # Convertendo para datetime se for string
+        if isinstance(data_nascimento, str):
+            self._data_nascimento = datetime.strptime(data_nascimento, "%d/%m/%Y")
+        else:
+            self._data_nascimento = data_nascimento
 
     def __str__(self) -> str:
         """
