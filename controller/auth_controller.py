@@ -18,7 +18,7 @@ class AuthController:
         Realiza login de um cliente com base no documento e senha.
 
         Args:
-            numero_documento (str): CPF ou identificador da pessoa.
+            numero_documento (str): identificador da pessoa.
             senha (str): Senha informada pelo usuário.
 
         Returns:
