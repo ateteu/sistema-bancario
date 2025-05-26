@@ -4,24 +4,28 @@ from model.exceptions import ContaInativaError
 
 
 class PagamentoController:
+    """
+    Controlador responsável por realizar transferências entre contas de clientes.
+    """
+
     @staticmethod
     def realizar_pagamento(dados: dict, banco=None) -> dict:
         """
-        Realiza um pagamento entre contas (transferência).
+        Executa uma transferência entre contas bancárias.
 
         Args:
-            dados (dict): Dicionário contendo:
-                - conta_origem (str): número da conta de origem
-                - cpf_destino (str): CPF do cliente destinatário
-                - valor (float): valor a ser transferido
-                - descricao (str): descrição opcional
+            dados (dict): Dicionário com os seguintes campos:
+                - conta_origem (str): Número da conta de origem.
+                - cpf_destino (str): CPF do cliente destinatário.
+                - valor (float): Valor a ser transferido.
+                - descricao (str): Descrição da transação (opcional).
 
-            banco (opcional): parâmetro não utilizado (mantido por compatibilidade)
+            banco (opcional): Argumento mantido por compatibilidade, atualmente não utilizado.
 
         Returns:
-            dict: Resultado com 'sucesso' (bool) e 'mensagem' ou 'erros'
+            dict: Resultado da operação com status ('sucesso': bool) e mensagem/erros.
         """
-        erros = []
+        # Validação de entrada básica
         conta_origem_num = str(dados.get("conta_origem"))
         cpf_destino = dados.get("cpf_destino", "").strip()
         valor = dados.get("valor")
@@ -35,6 +39,7 @@ class PagamentoController:
         cliente_dao = ClienteDAO()
         conta_dao = ContaDAO()
 
+        # Busca destinatário e valida conta ativa
         cliente_destino = cliente_dao.buscar_por_id(cpf_destino)
         if not cliente_destino:
             return {"sucesso": False, "erros": [f"Destinatário com CPF {cpf_destino} não encontrado."]}
@@ -43,6 +48,7 @@ class PagamentoController:
         if not conta_destino:
             return {"sucesso": False, "erros": ["Destinatário não possui conta ativa."]}
 
+        # Busca conta de origem
         conta_origem = conta_dao.buscar_por_id(conta_origem_num)
         if not conta_origem:
             return {"sucesso": False, "erros": ["Conta de origem não encontrada."]}
@@ -50,6 +56,7 @@ class PagamentoController:
         if conta_destino.get_numero_conta() == conta_origem.get_numero_conta():
             return {"sucesso": False, "erros": ["Não é possível transferir para a mesma conta."]}
 
+        # Realiza a transferência com tratamento de exceções
         try:
             conta_origem.transferir(conta_destino, valor)
         except ContaInativaError as e:
@@ -59,7 +66,7 @@ class PagamentoController:
         except Exception:
             return {"sucesso": False, "erros": ["Erro inesperado ao realizar a transferência."]}
 
-        # Atualiza contas
+        # Atualiza estado das contas no sistema
         conta_dao.atualizar_objeto(conta_origem)
         conta_dao.atualizar_objeto(conta_destino)
 

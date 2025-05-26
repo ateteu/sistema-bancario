@@ -2,8 +2,11 @@
     {
         "numero_documento": "157.112.896-40",
         "senha": "123",
-        "contas": [
-            "1004"
-        ]
+        "contas": []
+    },
+    {
+        "numero_documento": "65.347.822/9734-24",
+        "senha": "123",
+        "contas": []
     }
 ]

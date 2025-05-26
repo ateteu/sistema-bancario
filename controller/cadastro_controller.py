@@ -3,6 +3,7 @@ from dao.pessoa_dao import PessoaDAO
 from dao.cliente_dao import ClienteDAO
 from model.cliente import Cliente
 
+
 class CadastroController:
     """
     Controlador responsável por gerenciar o cadastro de
@@ -20,71 +21,70 @@ class CadastroController:
         Returns:
             dict: Resultado da operação, com status e mensagem.
         """
-        logger.info(f"Iniciando cadastro de cliente com documento: {dados.get('numero_documento')}")
+        numero_documento = dados.get("numero_documento")
+        email = dados.get("email")
+
+        logger.info(f"Iniciando cadastro de cliente com documento: {numero_documento}")
+
+        cliente_dao = ClienteDAO()
+
+        # Verifica se já existe cliente com o mesmo documento
+        if cliente_dao.buscar_por_id(numero_documento):
+            return {
+                "status": "erro",
+                "mensagem": f"Já existe um cliente cadastrado com o documento {numero_documento}."
+            }
+
+        # Verifica se já existe cliente com o mesmo e-mail (evita criar pessoa antes disso)
+        pessoas_raw = PessoaDAO()._ler_dados_do_json()
+        email_em_uso = any(p.get("email") == email for p in pessoas_raw)
+
+        if email_em_uso:
+            return {
+                "status": "erro",
+                "mensagem": f"Já existe um cliente cadastrado com o e-mail {email}."
+            }
+
         try:
             CadastroController._criar_pessoa(dados)
-            CadastroController._criar_cliente(dados["numero_documento"], dados["senha"])
+            CadastroController._criar_cliente(numero_documento, dados["senha"])
             return {
-                "status"   : "sucesso",
-                "mensagem" : "Cadastro realizado com sucesso"
+                "status": "sucesso",
+                "mensagem": "Cadastro realizado com sucesso"
             }
         except ValueError as e:
             logger.warning(f"Erro de validação: {e}")
-            return {
-                "status"   : "erro",
-                "mensagem" : str(e)
-            }
+            return {"status": "erro", "mensagem": str(e)}
         except TypeError as e:
             logger.warning(f"Erro de tipagem: {e}")
-            return {
-                "status"   : "erro",
-                "mensagem" : str(e)
-            }
+            return {"status": "erro", "mensagem": str(e)}
         except Exception as e:
             logger.warning(f"Erro inesperado: {e}")
-            return {
-                "status"   : "erro",
-                "mensagem" : "Erro inesperado ao cadastrar cliente"
-            }
+            return {"status": "erro", "mensagem": "Erro inesperado ao cadastrar cliente"}
 
     @staticmethod
     def _criar_pessoa(dados: dict) -> None:
         """
         Cria e salva um objeto Pessoa a partir de um dicionário de dados.
         A conversão e persistência são feitas por meio do PessoaDAO.
-
-        Args:
-            dados (dict): Dicionário com os dados pessoais obrigatórios.
-        
-        Raises:
-            ValueError: Se falhar na criação da pessoa.
         """
-
+        from copy import deepcopy
         pessoa_dao = PessoaDAO()
-        pessoa = pessoa_dao.criar_objeto(dados)
 
+        dados_pessoa = deepcopy(dados)
+
+        # Garante que nome_fantasia sempre exista
+        dados_pessoa["nome_fantasia"] = dados_pessoa.get("nome_fantasia", "").strip()
+
+        pessoa = pessoa_dao.criar_objeto(dados_pessoa)
         numero_documento = pessoa.get_numero_documento()
 
-        if pessoa_dao.buscar_por_id(numero_documento) is None:
-            pessoa_dao.salvar_objeto(pessoa)
-        else:
-            pessoa_dao.atualizar_objeto(pessoa)
+        pessoa_dao.salvar_objeto(pessoa)
 
     @staticmethod
     def _criar_cliente(numero_documento: str, senha: str) -> None:
         """
         Cria e salva um objeto Cliente a partir de um documento e senha.
-
-        Procura a Pessoa correspondente ao documento e associa à nova
-        instância de Cliente.
-
-        Args:
-            numero_documento (str): Documento da pessoa (ex: CPF).
-            senha (str): Senha definida para o cliente.
-
-        Raises:
-            ValueError: Se nenhuma Pessoa for encontrada para o documento.
-            TypeError: Se 'pessoa não for uma instância de Pessoa
         """
         pessoa = PessoaDAO().buscar_por_id(numero_documento)
         if pessoa is None:
@@ -93,7 +93,4 @@ class CadastroController:
         cliente = Cliente(pessoa=pessoa, senha=senha)
         cliente_dao = ClienteDAO()
 
-        if cliente_dao.buscar_por_id(numero_documento) is None:
-            cliente_dao.salvar_objeto(cliente)
-        else:
-            cliente_dao.atualizar_objeto(cliente)
+        cliente_dao.salvar_objeto(cliente)

@@ -7,7 +7,20 @@ from controller.conta_controller import ContaController
 
 
 class TelaPagamento:
+    """
+    Tela de transferência de valores entre contas de clientes.
+
+    Permite selecionar uma conta de origem e informar os dados do destinatário.
+    """
+
     def __init__(self, banco, cliente):
+        """
+        Inicializa a tela com base no cliente logado e banco (opcional).
+
+        Args:
+            banco: Objeto do banco (não utilizado diretamente).
+            cliente: Cliente logado, contendo contas disponíveis.
+        """
         self.banco = banco
         self.cliente = cliente
         self.notificador = Notificador()
@@ -21,6 +34,12 @@ class TelaPagamento:
         self.view = self.criar_view()
 
     def criar_view(self) -> ft.Container:
+        """
+        Cria e retorna a interface da tela de pagamento.
+
+        Returns:
+            ft.Container: Container com layout da tela.
+        """
         opcoes_contas = [
             ft.dropdown.Option(str(conta.get_numero_conta()))
             for conta in self.cliente.contas if conta.get_estado_da_conta()
@@ -55,21 +74,36 @@ class TelaPagamento:
         )
 
     def atualizar_saldo(self, e):
+        """
+        Atualiza o texto de saldo disponível da conta selecionada.
+
+        Args:
+            e: Evento disparado ao trocar de conta.
+        """
         numero = self.conta_ref.current.value
+
         if not numero:
             self.saldo_text.value = ""
             e.page.update()
             return
 
         resultado, erro = ContaController.obter_extrato(numero)
+
         if erro:
             self.saldo_text.value = "Erro ao carregar saldo."
         else:
             saldo, _ = resultado
             self.saldo_text.value = f"Saldo disponível: R$ {saldo:.2f}"
+
         e.page.update()
 
     def realizar_pagamento(self, e):
+        """
+        Realiza a transferência com os dados preenchidos.
+
+        Args:
+            e: Evento disparado ao clicar no botão de confirmação.
+        """
         page = e.page
         conta_origem_num = self.conta_ref.current.value
 

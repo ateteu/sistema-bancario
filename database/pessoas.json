@@ -9,5 +9,15 @@
         "telefone": "(31) 99628-1600",
         "tipo": "fisica",
         "data_nascimento": "25/05/2004"
+    },
+    {
+        "nome": "Lucas Pimenta",
+        "email": "teste@gmail.com",
+        "numero_documento": "65.347.822/9734-24",
+        "cep": "32315-120",
+        "numero_endereco": "375",
+        "endereco": "Rua Ingas, 375 - Eldorado, Contagem - MG, 32315-120",
+        "telefone": "(31) 99628-1600",
+        "tipo": "juridica"
     }
 ]

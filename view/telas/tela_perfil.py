@@ -4,28 +4,47 @@ from view.components.containers import CartaoResumo
 
 
 class TelaPerfil:
+    """
+    Tela de exibição do perfil do cliente logado.
+    Mostra os dados cadastrais da pessoa e as contas bancárias ativas.
+    """
+
     def __init__(self, cliente):
         """
-        Tela de exibição de informações do perfil do cliente.
+        Inicializa a tela com base no cliente fornecido.
+
+        Args:
+            cliente: Instância de Cliente (PessoaFisica ou PessoaJuridica).
         """
         self.cliente = cliente
         self.notificador = Notificador()
         self.view = self.criar_view()
 
     def criar_view(self) -> ft.Container:
+        """
+        Constrói e retorna a estrutura visual da tela.
+
+        Returns:
+            ft.Container: Layout da tela de perfil.
+        """
         titulo = ft.Text("Informações do Cliente", size=22, weight=ft.FontWeight.BOLD)
 
-        # Dados pessoais
+        pessoa = self.cliente.pessoa
+
         dados_pessoais = [
-            ft.Text(f"Nome: {self.cliente.get_nome()}"),
-            ft.Text(f"CPF/CNPJ: {self.cliente.get_numero_documento()}"),
-            ft.Text(f"Email: {self.cliente.get_email()}"),
-            ft.Text(f"Telefone: {self.cliente.get_telefone()}"),
-            ft.Text(f"Data de nascimento: {self.cliente.get_data_nascimento().strftime('%d/%m/%Y')}"),
-            ft.Text(f"Endereço: {self.cliente.get_endereco()}"),
+            ft.Text(f"Nome: {pessoa.get_nome()}"),
+            ft.Text(f"CPF/CNPJ: {pessoa.get_numero_documento()}"),
+            ft.Text(f"Email: {pessoa.get_email()}"),
+            ft.Text(f"Telefone: {pessoa.get_telefone()}"),
+            ft.Text(f"Endereço: {pessoa.get_endereco()}")
         ]
 
-        # Contas ativas
+        # Adiciona data de nascimento apenas se for Pessoa Física
+        if hasattr(pessoa, "get_data_nascimento"):
+            dados_pessoais.insert(4, ft.Text(
+                f"Data de nascimento: {pessoa.get_data_nascimento().strftime('%d/%m/%Y')}")
+            )
+
         contas_ativas = [
             ft.Text(
                 f"- {conta.__class__.__name__} | Nº {conta.get_numero_conta()} | "

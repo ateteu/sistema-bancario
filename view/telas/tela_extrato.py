@@ -5,7 +5,20 @@ from view.components.containers import CartaoResumo, CartaoTransacao
 
 
 class TelaExtrato:
+    """
+    Tela de consulta de extrato bancário.
+
+    Permite ao cliente selecionar uma conta ativa e visualizar
+    saldo atual e as últimas transações.
+    """
+
     def __init__(self, cliente):
+        """
+        Inicializa a tela de extrato para o cliente informado.
+
+        Args:
+            cliente: Objeto Cliente com as contas associadas.
+        """
         self.cliente = cliente
         self.notificador = Notificador()
 
@@ -16,6 +29,12 @@ class TelaExtrato:
         self.view = self.criar_view()
 
     def criar_view(self) -> ft.Container:
+        """
+        Monta e retorna a estrutura visual da tela.
+
+        Returns:
+            ft.Container: Layout da interface do extrato.
+        """
         opcoes_contas = [
             ft.dropdown.Option(str(conta.get_numero_conta()))
             for conta in self.cliente.contas if conta.get_estado_da_conta()
@@ -55,6 +74,12 @@ class TelaExtrato:
         )
 
     def atualizar_extrato(self, e):
+        """
+        Atualiza o extrato e saldo exibido com base na conta selecionada.
+
+        Args:
+            e: Evento disparado pelo Dropdown.
+        """
         numero = self.dropdown_ref.current.value
 
         if not numero:
@@ -76,6 +101,7 @@ class TelaExtrato:
                 ft.Text("Nenhuma transação encontrada.", italic=True)
             )
         else:
+            # Exibe as 10 últimas transações mais recentes primeiro
             for item in reversed(historico[-10:]):
                 self.lista_extrato.controls.append(CartaoTransacao(item))
 

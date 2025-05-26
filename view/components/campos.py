@@ -4,7 +4,10 @@ from view.components.identidade_visual import ICONES_CAMPOS
 
 
 class CampoTextoPadrao(ft.TextField):
-    """Campo de texto base reutilizável com borda, estilo e ícone padronizados."""
+    """
+    Campo de texto base reutilizável com borda, estilo e ícone padronizados.
+    Serve como base para os campos especializados.
+    """
     def __init__(self, label: str, hint: str = "", icon: str = None, **kwargs):
         super().__init__(
             label=label,
@@ -19,6 +22,7 @@ class CampoTextoPadrao(ft.TextField):
 
 
 class CampoEmail(CampoTextoPadrao):
+    """Campo para e-mail com teclado adequado e ícone padronizado."""
     def __init__(self):
         super().__init__(
             label="Email",
@@ -29,6 +33,7 @@ class CampoEmail(CampoTextoPadrao):
 
 
 class CampoSenha(ft.TextField):
+    """Campo de senha com revelação opcional e estilo visual definido."""
     def __init__(self, label="Senha"):
         super().__init__(
             label=label,
@@ -43,6 +48,7 @@ class CampoSenha(ft.TextField):
 
 
 class CampoCPF(CampoTextoPadrao):
+    """Campo com máscara dinâmica para CPF (000.000.000-00)."""
     def __init__(self):
         super().__init__(label="CPF", hint="000.000.000-00", max_length=14, icon=ICONES_CAMPOS["cpf"])
         self.keyboard_type = "number"
@@ -60,6 +66,7 @@ class CampoCPF(CampoTextoPadrao):
 
 
 class CampoCNPJ(CampoTextoPadrao):
+    """Campo com máscara dinâmica para CNPJ (00.000.000/0000-00)."""
     def __init__(self):
         super().__init__(label="CNPJ", hint="00.000.000/0000-00", max_length=18, icon=ICONES_CAMPOS.get("cpf"))
         self.keyboard_type = "number"
@@ -78,6 +85,7 @@ class CampoCNPJ(CampoTextoPadrao):
 
 
 class CampoCEP(CampoTextoPadrao):
+    """Campo com máscara dinâmica para CEP (00000-000)."""
     def __init__(self):
         super().__init__(label="CEP", hint="00000-000", max_length=9, icon=ICONES_CAMPOS["cep"])
         self.keyboard_type = "number"
@@ -90,6 +98,8 @@ class CampoCEP(CampoTextoPadrao):
 
 
 class CampoNome(CampoTextoPadrao):
+    """Campo para nome completo com validação integrada e suporte a PF/PJ."""
+
     def __init__(self):
         super().__init__(
             label="Nome completo",
@@ -129,6 +139,7 @@ class CampoNome(CampoTextoPadrao):
 
 
 class CampoTelefone(CampoTextoPadrao):
+    """Campo com máscara e validação para número de telefone brasileiro."""
     def __init__(self):
         super().__init__(label="Telefone", hint="(31) 91234-5678", max_length=15, icon=ICONES_CAMPOS["telefone"])
         self.keyboard_type = "number"
@@ -162,6 +173,7 @@ class CampoTelefone(CampoTextoPadrao):
 
 
 class CampoValor(CampoTextoPadrao):
+    """Campo para entrada de valores monetários com validação de formato."""
     def __init__(self):
         super().__init__(label="Valor", hint="Ex: 100.00", keyboard_type="number", icon=ICONES_CAMPOS["valor"])
 
@@ -191,6 +203,7 @@ class CampoValor(CampoTextoPadrao):
 
 
 class CampoDataNascimento(CampoTextoPadrao):
+    """Campo com máscara para entrada de datas no formato dd/mm/aaaa."""
     def __init__(self):
         super().__init__(label="Data de Nascimento", hint="dd/mm/aaaa", max_length=10, icon="calendar_today")
         self.keyboard_type = "number"
@@ -198,6 +211,8 @@ class CampoDataNascimento(CampoTextoPadrao):
 
     def _on_change(self, e):
         d = "".join(filter(str.isdigit, self.value))[:8]
-        self.value = f"{d[:2]}/{d[2:4]}/{d[4:]}" if len(d) > 4 else \
-                     f"{d[:2]}/{d[2:]}" if len(d) > 2 else d
+        self.value = (
+            f"{d[:2]}/{d[2:4]}/{d[4:]}" if len(d) > 4 else
+            f"{d[:2]}/{d[2:]}" if len(d) > 2 else d
+        )
         self.update()
