@@ -1,5 +1,5 @@
 import requests
-from utils.validadores import Validar
+from utils.validadores.validar_pessoa import ValidarPessoa as Validar
 
 class API():
     """
