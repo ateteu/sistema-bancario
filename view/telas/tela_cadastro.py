@@ -15,6 +15,11 @@ from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
 class TelaCadastro:
+    """
+    Tela de cadastro de cliente, com suporte para pessoas físicas e jurídicas.
+    Permite preenchimento de dados, validação e submissão assíncrona.
+    """
+
     def __init__(self, on_cadastro_sucesso=None, on_voltar_login=None):
         self.on_cadastro_sucesso = on_cadastro_sucesso
         self.on_voltar_login = on_voltar_login
@@ -38,10 +43,12 @@ class TelaCadastro:
         Thread(target=self._delayed_init).start()
 
     def _delayed_init(self):
+        """Aplica atraso para garantir que os campos dinâmicos sejam atualizados corretamente na renderização inicial."""
         sleep_sync(0.05)
         self.atualizar_campos_visiveis(None)
 
     def criar_view(self) -> ft.Container:
+        """Constrói a interface visual completa da tela de cadastro."""
         grupo_tipo_pessoa = ft.RadioGroup(
             ref=self.tipo_pessoa_ref,
             value="fisica",
@@ -107,8 +114,10 @@ class TelaCadastro:
         )
 
     def atualizar_campos_visiveis(self, e):
+        """Atualiza dinamicamente os campos com base no tipo de pessoa selecionado."""
         tipo = self.tipo_pessoa_ref.current.value if self.tipo_pessoa_ref.current else "fisica"
 
+        # Limpa os campos
         self.nome.value = ""
         self.campo_documento.value = ""
         self.telefone.value = ""
@@ -123,16 +132,14 @@ class TelaCadastro:
             self.nome.atualizar_para_pessoa_fisica()
             self.campo_documento = CampoCPF()
             self.nascimento = CampoDataNascimento()
-            self.campos_dinamicos.controls.clear()
-            self.campos_dinamicos.controls.append(self.nascimento)
+            self.campos_dinamicos.controls = [self.nascimento]
         else:
             self.nome.atualizar_para_empresa()
             self.campo_documento = CampoCNPJ()
-            self.campos_dinamicos.controls.clear()
-            self.campos_dinamicos.controls.append(self.nome_fantasia)
-            self.campos_dinamicos.controls.append(
+            self.campos_dinamicos.controls = [
+                self.nome_fantasia,
                 ft.Text("(Opcional)", size=12, italic=True, color=CORES["texto"])
-            )
+            ]
 
         self.documento_container.current.content = self.campo_documento
         self.documento_container.current.update()
@@ -142,6 +149,7 @@ class TelaCadastro:
             e.page.update()
 
     def coletar_dados(self) -> dict:
+        """Coleta e estrutura os dados preenchidos pelo usuário para envio ao backend."""
         tipo = self.tipo_pessoa_ref.current.value
         dados = {
             "tipo": tipo,
@@ -163,6 +171,7 @@ class TelaCadastro:
         return dados
 
     async def on_cadastrar_click(self, e):
+        """Aciona o processo de cadastro ao clicar em 'Cadastrar'."""
         page = e.page
         dados = self.coletar_dados()
 

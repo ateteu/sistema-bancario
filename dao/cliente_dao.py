@@ -17,21 +17,13 @@ class ClienteDAO(DAO):
         super().__init__(ARQUIVO_CLIENTES)
         self._pessoa_dao = PessoaDAO()
         self._conta_dao = ContaDAO()
+        self._cache_clientes_objetos = None  # Cache dos clientes reconstruídos
 
     def criar_objeto(self, dados: dict) -> Cliente:
         """
         Cria uma instância de Cliente, usando dados passados, carregando Pessoa e Contas.
-
-        Args:
-            dados (dict): Dicionário com campos de cliente.
-
-        Returns:
-            Cliente: Objeto Cliente pronto para uso.
         """
-        # Usa o DAO de pessoa para buscar a pessoa com o id (cpf/cnpj) correspondente
         pessoa = self._pessoa_dao.buscar_por_id(dados["numero_documento"])
-
-        # Usa o DAO de conta para buscar a(s) conta(s) com o id (numero_conta) correspondente
         todas_contas = {c.get_numero_conta(): c for c in self._conta_dao.listar_todos_objetos()}
 
         contas = []
@@ -49,30 +41,36 @@ class ClienteDAO(DAO):
         return {
             "numero_documento": obj.pessoa.get_numero_documento(),
             "senha": obj._senha,
-            "contas": [str(c.get_numero_conta()) for c in obj.contas],  # ✅ FORÇA STRING
+            "contas": [str(c.get_numero_conta()) for c in obj.contas],
         }
 
-
     def tipo_de_id(self) -> str:
-        """
-        Retorna o campo usado como identificador no JSON de clientes.
-
-        Returns:
-            str: 'numero_documento'
-        """
         return "numero_documento"
 
     def buscar_por_id(self, id_valor: str) -> Optional[Cliente]:
-        """
-        Busca um cliente pelo identificador único (CPF ou documento).
-
-        Args:
-            id_valor (str): Valor do documento do cliente.
-
-        Returns:
-            Optional[Cliente]: Instância de Cliente se encontrado, ou None caso contrário.
-        """
         return super().buscar_por_id(id_valor)
+
+    def listar_todos_objetos(self) -> List[Cliente]:
+        if self._cache_clientes_objetos is not None:
+            return self._cache_clientes_objetos
+
+        dados_raw = self._ler_dados_do_json()
+        self._cache_clientes_objetos = [self.criar_objeto(d) for d in dados_raw]
+        return self._cache_clientes_objetos
+
+    def salvar_objeto(self, obj: Cliente) -> None:
+        super().salvar_objeto(obj)
+        self._cache_clientes_objetos = None
+
+    def atualizar_objeto(self, obj: Cliente) -> bool:
+        resultado = super().atualizar_objeto(obj)
+        self._cache_clientes_objetos = None
+        return resultado
+
+    def deletar_objeto(self, id_valor: str) -> bool:
+        resultado = super().deletar_objeto(id_valor)
+        self._cache_clientes_objetos = None
+        return resultado
 
     def buscar_cliente_por_numero_conta(self, numero_conta: int) -> Optional[Cliente]:
         print(f"🔍 [DEBUG] Procurando cliente que possui a conta: {numero_conta}")
@@ -83,8 +81,7 @@ class ClienteDAO(DAO):
             print(f"👤 [DEBUG] Verificando cliente: {cliente.pessoa.get_nome()}")
             for conta in cliente.contas:
                 print(f"   ↳ [DEBUG] Conta do cliente: {conta.get_numero_conta()} (tipo: {type(conta.get_numero_conta())})")
-
-                if str(conta.get_numero_conta()) == str(numero_conta):  # ✅ forçando comparação coerente
+                if str(conta.get_numero_conta()) == str(numero_conta):
                     print("✅ [DEBUG] Cliente encontrado!")
                     return cliente
 

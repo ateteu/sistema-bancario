@@ -5,16 +5,24 @@ from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
 class TelaEditarCliente:
+    """
+    Tela responsável por permitir ao cliente atualizar seu email, telefone e senha.
+    Requer confirmação com a senha atual para aplicar alterações.
+    """
+
     def __init__(self, cliente):
         self.cliente = cliente
         self.notificador = Notificador()
+
         self.email_field = ft.Ref[ft.TextField]()
         self.telefone_field = ft.Ref[ft.TextField]()
         self.senha_atual_field = ft.Ref[ft.TextField]()
         self.nova_senha_field = ft.Ref[ft.TextField]()
+
         self.view = self.criar_view()
 
     def criar_view(self) -> ft.Container:
+        """Cria o layout da tela de edição de dados do cliente."""
         layout = ft.Container(
             width=500,
             padding=25,
@@ -41,6 +49,7 @@ class TelaEditarCliente:
                     ),
 
                     ft.Divider(),
+
                     ft.Text(
                         "Para confirmar as alterações, digite sua senha atual:",
                         size=12,
@@ -80,7 +89,9 @@ class TelaEditarCliente:
         )
 
     def salvar_dados(self, e):
+        """Valida a senha e atualiza os dados do cliente no sistema."""
         page = e.page
+
         email = self.email_field.current.value.strip()
         telefone = self.telefone_field.current.value.strip()
         senha_atual = self.senha_atual_field.current.value.strip()
@@ -103,6 +114,7 @@ class TelaEditarCliente:
 
             ClienteDAO().atualizar_objeto(self.cliente)
 
+            # Limpa os campos de senha após atualização
             self.senha_atual_field.current.value = ""
             self.nova_senha_field.current.value = ""
             page.update()

@@ -5,20 +5,19 @@ from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
 class TelaPerfil:
+    """
+    Classe que representa a tela de perfil do cliente,
+    mostrando informações pessoais e contas ativas.
+    """
+
     def __init__(self, cliente):
         self.cliente = cliente
         self.notificador = Notificador()
         self.view = self.criar_view()
 
     def criar_view(self) -> ft.Container:
+        """Cria o container principal da tela de perfil do usuário."""
         pessoa = self.cliente.pessoa
-
-        print("🧪 DEBUG → Contas carregadas na TelaPerfil:")
-        for conta in self.cliente.contas:
-            print(
-                f"   - Tipo: {conta.__class__.__name__} | Nº: {conta.get_numero_conta()} | "
-                f"Saldo: {conta.get_saldo():.2f} | Ativa: {conta.get_estado_da_conta()}"
-            )
 
         dados = {
             "nome": pessoa.get_nome(),
@@ -35,6 +34,7 @@ class TelaPerfil:
         }
 
         def linha_info(icon, texto):
+            """Cria uma linha simples com ícone e texto informativo."""
             return ft.Row(
                 spacing=10,
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -45,6 +45,7 @@ class TelaPerfil:
             )
 
         def linha_multilinha(icon, rotulo, texto):
+            """Cria uma seção com rótulo e texto multilinha selecionável."""
             return ft.Column([
                 ft.Row([
                     ft.Icon(icon, size=20, color=CORES["primaria"]),
@@ -65,7 +66,6 @@ class TelaPerfil:
                 linha_info(ft.Icons.CALENDAR_MONTH, f"Data de nascimento: {dados['data_nascimento']}")
             )
 
-        # Substitui o endereço por versão que quebra linha
         dados_pessoais.append(
             linha_multilinha(ft.Icons.LOCATION_ON_OUTLINED, "Endereço:", dados['endereco'])
         )
@@ -76,7 +76,13 @@ class TelaPerfil:
                 f"{conta.__class__.__name__} • Nº {conta.get_numero_conta()} • Saldo: R$ {conta.get_saldo():.2f}"
             )
             for conta in dados["contas"] if conta.get_estado_da_conta()
-        ] or [ft.Text("❌ Nenhuma conta ativa encontrada.", italic=True, style=ESTILOS_TEXTO["normal"])]
+        ] or [
+            ft.Text(
+                "❌ Nenhuma conta ativa encontrada.",
+                italic=True,
+                style=ESTILOS_TEXTO["normal"]
+            )
+        ]
 
         return ft.Container(
             alignment=ft.alignment.top_center,
@@ -88,13 +94,24 @@ class TelaPerfil:
                 padding=25,
                 bgcolor=CORES["fundo"],
                 border_radius=16,
-                shadow=ft.BoxShadow(blur_radius=20, color="#00000022", offset=ft.Offset(3, 3)),
+                shadow=ft.BoxShadow(
+                    blur_radius=20,
+                    color="#00000022",
+                    offset=ft.Offset(3, 3)
+                ),
                 content=ft.Column(
                     spacing=20,
                     controls=[
                         ft.Row([
-                            ft.Icon(name=ft.Icons.PERSON_OUTLINE, size=28, color=CORES["primaria"]),
-                            ft.Text("Informações do Cliente", style=ESTILOS_TEXTO["titulo"])
+                            ft.Icon(
+                                name=ft.Icons.PERSON_OUTLINE,
+                                size=28,
+                                color=CORES["primaria"]
+                            ),
+                            ft.Text(
+                                "Informações do Cliente",
+                                style=ESTILOS_TEXTO["titulo"]
+                            )
                         ], alignment=ft.MainAxisAlignment.CENTER),
 
                         CartaoResumo("Dados pessoais", dados_pessoais),

@@ -14,40 +14,56 @@ class ContaDAO(DAO):
         Inicializa o DAO de contas com o caminho do arquivo.
         """
         super().__init__(ARQUIVO_CONTAS)
+        self._cache_contas = None  # ✅ cache local de objetos Conta
 
     def criar_objeto(self, dados: dict) -> Conta:
         """
         Cria uma instância de Conta a partir de um dicionário, usando o mapper de conta.
-
-        Args:
-            dados (dict): Dicionário contendo os dados da conta e seu tipo.
-
-        Returns:
-            Conta: Instância de ContaCorrente ou ContaPoupanca.
-        
-        Raises:
-            ValueError: Se o valor de algum atributo for inválido (ex: saldo).
-            TypeError: Se algum atributo for incompatível (ex: histórico).
         """
         return ContaMapper.from_dict(dados)
 
     def extrair_dados_do_objeto(self, conta: Conta) -> dict:
         """
         Converte uma instância de Conta em dicionário, usando o mapper de conta.
-
-        Args:
-            conta (Conta): Objeto de uma subclasse de Conta.
-
-        Returns:
-            dict: Dicionário com os dados da conta (e o tipo (subclasse) de Conta incluído!).
         """
         return ContaMapper.to_dict(conta)
 
     def tipo_de_id(self) -> str:
         """
         Retorna o campo usado como identificador da conta no JSON.
-
-        Returns:
-            str: 'numero'
         """
         return "numero"
+
+    def listar_todos_objetos(self) -> list[Conta]:
+        """
+        Lista todas as contas persistidas, utilizando cache para evitar reprocessamento.
+        """
+        if self._cache_contas is not None:
+            return self._cache_contas
+
+        dados = self._ler_dados_do_json()
+        self._cache_contas = [self.criar_objeto(d) for d in dados]
+        return self._cache_contas
+
+    def buscar_por_id(self, id_valor: str) -> Conta | None:
+        """
+        Busca uma conta pelo número, utilizando cache local.
+        """
+        for conta in self.listar_todos_objetos():
+            if str(conta.get_numero_conta()) == str(id_valor):
+                return conta
+        return None
+
+    def salvar_objeto(self, conta: Conta) -> None:
+        super().salvar_objeto(conta)
+        self._cache_contas = None  # ❌ invalida cache após salvar
+
+    def atualizar_objeto(self, conta: Conta) -> bool:
+        atualizado = super().atualizar_objeto(conta)
+        self._cache_contas = None
+        return atualizado
+
+    def deletar_objeto(self, id_valor: str) -> bool:
+        deletado = super().deletar_objeto(id_valor)
+        self._cache_contas = None
+        return deletado

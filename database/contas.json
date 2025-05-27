@@ -43,13 +43,14 @@
     },
     {
         "numero": "1007",
-        "saldo": 450.0,
+        "saldo": 550.0,
         "historico": [
             "[2025-05-27 00:33:27] Recebido R$ 100.00 da conta 1009",
             "[2025-05-27 02:20:47] Recebido R$ 100.00 da conta 1009",
             "[2025-05-27 03:04:49] Recebido R$ 100.00 da conta 1009",
             "[2025-05-27 03:15:25] Recebido R$ 100.00 da conta 1009",
-            "[2025-05-27 03:19:25] Recebido R$ 50.00 da conta 1009"
+            "[2025-05-27 03:19:25] Recebido R$ 50.00 da conta 1009",
+            "[2025-05-27 03:43:23] Recebido R$ 100.00 da conta 1009"
         ],
         "ativa": true,
         "tipo": "corrente"
@@ -63,7 +64,7 @@
     },
     {
         "numero": "1009",
-        "saldo": 9850.0,
+        "saldo": 9750.0,
         "historico": [
             "[2025-05-27 00:33:27] Transfer\u00eancia de R$ 100.00 para conta 1007",
             "[2025-05-27 00:57:51] Conta encerrada",
@@ -75,7 +76,8 @@
             "[2025-05-27 02:56:39] Conta encerrada",
             "[2025-05-27 03:04:49] Transfer\u00eancia de R$ 100.00 para conta 1007",
             "[2025-05-27 03:15:25] Transfer\u00eancia de R$ 100.00 para conta 1007",
-            "[2025-05-27 03:19:25] Transfer\u00eancia de R$ 50.00 para conta 1007"
+            "[2025-05-27 03:19:25] Transfer\u00eancia de R$ 50.00 para conta 1007",
+            "[2025-05-27 03:43:23] Transfer\u00eancia de R$ 100.00 para conta 1007"
         ],
         "ativa": true,
         "tipo": "corrente"

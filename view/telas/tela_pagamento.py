@@ -9,6 +9,10 @@ from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
 class TelaPagamento:
+    """
+    Classe responsável pela tela de pagamentos, permitindo ao cliente realizar transferências entre contas.
+    """
+
     def __init__(self, banco, cliente):
         self.banco = banco
         self.cliente = cliente
@@ -42,6 +46,7 @@ class TelaPagamento:
         self.view = self.criar_view()
 
     def criar_view(self) -> ft.Container:
+        """Cria a visualização completa da tela de pagamentos."""
         opcoes_contas = [
             ft.dropdown.Option(num) for num in ContaController.contas_ativas_para_dropdown(self.cliente)
         ]
@@ -106,6 +111,7 @@ class TelaPagamento:
         )
 
     def alternar_campo_chave(self, e):
+        """Alterna entre os campos CPF e CNPJ conforme tipo selecionado."""
         tipo = self.tipo_chave.current.value
         self.destinatario_confirmado = False
         self.nome_destinatario_text.value = ""
@@ -120,6 +126,7 @@ class TelaPagamento:
         e.page.update()
 
     def buscar_destinatario_automatico(self, e):
+        """Busca automaticamente destinatário e exibe suas contas ativas ao perder foco do campo documento."""
         doc = self.campo_doc.value.strip()
         self.destinatario_confirmado = False
         self.dropdown_conta_destino.opacity = 0
@@ -151,6 +158,7 @@ class TelaPagamento:
         e.page.update()
 
     def atualizar_saldo(self, e):
+        """Atualiza saldo, tipo e limite da conta de origem selecionada."""
         numero = self.conta_ref.current.value
         self.saldo_text.value = ""
         self.tipo_conta_text.value = ""
@@ -170,6 +178,7 @@ class TelaPagamento:
         e.page.update()
 
     def realizar_pagamento(self, e):
+        """Processa o pagamento após validar os campos."""
         page = e.page
 
         try:
@@ -179,38 +188,12 @@ class TelaPagamento:
             self.notificador.erro(page, "Erro ao selecionar conta. Tente novamente.")
             return
 
-        doc_destino = self.campo_doc.value.strip()
-        senha = self.campo_senha.value.strip()
-
-        if not conta_origem:
-            self.notificador.erro(page, "Selecione uma conta de origem.")
-            return
-
-        if not doc_destino:
-            self.notificador.erro(page, "Informe o CPF ou CNPJ do destinatário.")
-            return
-
-        if not self.destinatario_confirmado:
-            self.notificador.erro(page, "Confirme o destinatário.")
-            return
-
-        if not conta_destino:
-            self.notificador.erro(page, "Selecione a conta de destino.")
-            return
-
-        if not self.campo_valor.validar():
-            return
-
-        if not senha:
-            self.notificador.erro(page, "Digite sua senha para confirmar.")
-            return
-
         resultado = PagamentoController.processar_pagamento(
             conta_origem_num=conta_origem,
-            doc_destino=doc_destino,
+            doc_destino=self.campo_doc.value.strip(),
             valor=self.campo_valor.get_valor(),
             descricao=self.campo_desc.value,
-            senha=senha,
+            senha=self.campo_senha.value.strip(),
             conta_destino_numero=conta_destino
         )
 
@@ -224,24 +207,5 @@ class TelaPagamento:
         page.update()
 
     def resetar_campos(self):
-        self.campo_senha.value = ""
-        self.campo_valor.value = ""
-        self.campo_valor.update()
-
-        self.campo_desc.value = ""
-        self.nome_destinatario_text.value = ""
-        self.campo_doc.value = ""
-
-        self.tipo_chave.current.value = None
-        self.tipo_chave.current.key = str(uuid.uuid4())
-        self.tipo_chave.current.update()
-
-        self.dropdown_conta_destino.options = []
-        self.dropdown_conta_destino.opacity = 0
-        self.dropdown_conta_destino.disabled = True
-        self.conta_destino_ref.current.value = None
-        self.dropdown_conta_destino.update()
-
-        self.container_chave.content = ft.Column([])
-        self.container_chave.update()
-        self.destinatario_confirmado = False
+        """Limpa e reseta todos os campos após pagamento bem-sucedido."""
+        self.__init__(self.banco, self.cliente)

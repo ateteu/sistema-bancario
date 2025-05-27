@@ -17,6 +17,8 @@ class DAO(ABC, Generic[T]):
             arquivo_json (str): Caminho do arquivo JSON para armazenar os dados.
         """
         self.arquivo_json = os.path.join("database", arquivo_json)
+        self._cache_local = None  # cache específico da instância
+
 
     @abstractmethod
     def criar_objeto(self, data: dict):

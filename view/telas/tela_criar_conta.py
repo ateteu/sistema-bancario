@@ -1,5 +1,3 @@
-# arquivo: view/telas/tela_criar_conta.py
-
 import flet as ft
 import uuid
 from controller.conta_controller import ContaController
@@ -10,14 +8,18 @@ from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
 class TelaCriarConta:
+    """
+    Tela responsável pela criação de uma nova conta bancária (corrente ou poupança) vinculada ao cliente.
+    """
+
     def __init__(self, cliente):
-        print("🆕 [TelaCriarConta] nova instância criada")
         self.cliente = cliente
         self.notificador = Notificador()
-        self.dropdown_ref = ft.Ref[ft.Dropdown]()  # ✅ ref do Dropdown
+        self.dropdown_ref = ft.Ref[ft.Dropdown]()
         self.view = self.criar_view()
 
     def criar_view(self) -> ft.Container:
+        """Cria a interface de seleção do tipo de conta e botão de criação."""
         layout = ft.Container(
             width=420,
             padding=25,
@@ -36,7 +38,7 @@ class TelaCriarConta:
 
                     ft.Dropdown(
                         ref=self.dropdown_ref,
-                        key=str(uuid.uuid4()),  # ✅ força reset visual
+                        key=str(uuid.uuid4()),
                         label="Tipo de conta",
                         width=300,
                         options=[
@@ -66,10 +68,8 @@ class TelaCriarConta:
         )
 
     def criar_conta(self, e):
-        dropdown_opcao = self.dropdown_ref.current
-        tipo_exibido = dropdown_opcao.value if dropdown_opcao else None
-
-        print("🔍 Dropdown selecionado:", tipo_exibido)
+        """Cria uma nova conta com base na opção selecionada."""
+        tipo_exibido = self.dropdown_ref.current.value if self.dropdown_ref.current else None
 
         if not tipo_exibido:
             self.notificador.erro(e.page, "Selecione um tipo de conta.")
@@ -89,14 +89,16 @@ class TelaCriarConta:
         resultado = ContaController.criar_conta(self.cliente.numero_documento, tipo)
 
         if resultado["sucesso"]:
+            # Atualiza os dados do cliente para refletir a nova conta
             cliente_atualizado = PerfilController.buscar_cliente_por_documento(self.cliente.numero_documento)
             if cliente_atualizado:
                 self.cliente = cliente_atualizado
+
             self.notificador.sucesso(e.page, resultado["mensagem"])
         else:
             self.notificador.erro(e.page, resultado["mensagem"])
 
-        # ✅ Reset visual garantido (independente do resultado)
+        # Reseta visualmente o dropdown para forçar novo estado
         self.dropdown_ref.current.key = str(uuid.uuid4())
         self.dropdown_ref.current.value = None
         self.dropdown_ref.current.update()

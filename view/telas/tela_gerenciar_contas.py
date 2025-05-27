@@ -1,5 +1,3 @@
-# arquivo: view/telas/tela_gerenciar_contas.py
-
 import flet as ft
 import uuid
 from controller.conta_controller import ContaController
@@ -8,6 +6,11 @@ from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
 class TelaGerenciarContas:
+    """
+    Tela para gerenciamento das contas do cliente,
+    permitindo ativar, reativar ou encerrar contas existentes.
+    """
+
     def __init__(self, cliente):
         self.cliente = cliente
         self.notificador = Notificador()
@@ -16,15 +19,15 @@ class TelaGerenciarContas:
         self.senha_field = ft.Ref[ft.TextField]()
         self.botao_acao = ft.Ref[ft.ElevatedButton]()
         self.dropdown_control = None
-        self.container = None
 
         self.view = self.criar_view()
         self.recarregar_lista_contas()
 
     def criar_view(self) -> ft.Container:
+        """Cria o layout completo da tela para gerenciamento de contas."""
         self.dropdown_control = ft.Dropdown(
             ref=self.conta_dropdown,
-            key=str(uuid.uuid4()),  # 🔑 Força rebuild visual
+            key=str(uuid.uuid4()),
             label="Selecione uma conta",
             width=400,
             on_change=self.alternar_botao_acao
@@ -67,6 +70,7 @@ class TelaGerenciarContas:
         )
 
     def recarregar_lista_contas(self):
+        """Recarrega as contas disponíveis para seleção no dropdown."""
         contas = ContaController.listar_contas(self.cliente.numero_documento)
 
         if not contas:
@@ -85,13 +89,13 @@ class TelaGerenciarContas:
             )
 
         self.dropdown_control.options = opcoes
-        self.conta_dropdown.current.value = None
         self.dropdown_control.value = None
 
         if self.senha_field.current:
             self.senha_field.current.value = ""
 
     def alternar_botao_acao(self, e):
+        """Alterna texto e cor do botão com base no estado atual da conta selecionada."""
         numero = self.conta_dropdown.current.value
         conta = self._buscar_conta(numero)
 
@@ -108,6 +112,7 @@ class TelaGerenciarContas:
         e.page.update()
 
     def executar_acao(self, e):
+        """Executa ativação, reativação ou encerramento da conta selecionada após validação da senha."""
         numero = self.conta_dropdown.current.value
         senha = self.senha_field.current.value
 
@@ -135,13 +140,12 @@ class TelaGerenciarContas:
         else:
             self.notificador.erro(e.page, resultado["mensagem"])
 
-        # 🔄 Reset visual do dropdown (força rebuild)
+        # Reset visual do dropdown após ação executada
         self.dropdown_control.key = str(uuid.uuid4())
-        self.conta_dropdown.current.value = None
         self.dropdown_control.value = None
         self.dropdown_control.update()
 
-        # Reset visual do botão e senha
+        # Reset visual do botão e campo senha
         self.botao_acao.current.text = "Ativar / Reativar"
         self.botao_acao.current.bgcolor = CORES["primaria"]
 
@@ -151,6 +155,7 @@ class TelaGerenciarContas:
         e.page.update()
 
     def _buscar_conta(self, numero: str):
+        """Busca e retorna a conta correspondente ao número fornecido."""
         contas = ContaController.listar_contas(self.cliente.numero_documento)
         for conta in contas:
             if str(conta.get_numero_conta()) == str(numero):

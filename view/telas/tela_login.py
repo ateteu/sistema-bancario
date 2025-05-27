@@ -9,6 +9,11 @@ from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
 class TelaLogin:
+    """
+    Classe responsável pela tela de login do sistema bancário, permitindo
+    acesso ao usuário com CPF ou CNPJ e senha.
+    """
+
     def __init__(self, on_login_sucesso=None, on_ir_cadastro=None):
         self.on_login_sucesso = on_login_sucesso
         self.on_ir_cadastro = on_ir_cadastro
@@ -21,6 +26,8 @@ class TelaLogin:
         self.campo_senha = CampoSenha()
 
     def criar_view(self, page: ft.Page) -> ft.Container:
+        """Cria a visualização completa da tela de login."""
+
         grupo_tipo = ft.RadioGroup(
             ref=self.tipo_ref,
             value="cpf",
@@ -78,12 +85,14 @@ class TelaLogin:
         )
 
     def trocar_campo_documento(self, e):
+        """Alterna o campo de documento entre CPF e CNPJ conforme seleção."""
         tipo = self.tipo_ref.current.value
         self.campo_documento = CampoCPF() if tipo == "cpf" else CampoCNPJ()
         self.documento_container.current.content = self.campo_documento
         e.page.update()
 
     async def on_login_click(self, e):
+        """Realiza autenticação e redireciona o usuário ao painel após login."""
         e.control.disabled = True
         e.page.update()
 
@@ -106,5 +115,6 @@ class TelaLogin:
             return
 
         await asyncio.sleep(0.2)
+
         if self.on_login_sucesso:
             self.on_login_sucesso(resultado["usuario_id"])

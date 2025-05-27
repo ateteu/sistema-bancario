@@ -6,6 +6,7 @@ from utils.constantes import TIPO_CCORRENTE, TIPO_CPOUPANCA
 
 
 class ContaController:
+    _cache_cliente_por_conta = {}
     """
     Controlador responsável pelas operações sobre contas bancárias:
     criação, listagem, exclusão e consulta de extrato.
@@ -135,13 +136,21 @@ class ContaController:
 
     @staticmethod
     def obter_info_destinatario(numero_conta: int) -> str:
-        cliente = ClienteDAO().buscar_cliente_por_numero_conta(numero_conta)
+        if numero_conta in ContaController._cache_cliente_por_conta:
+            cliente = ContaController._cache_cliente_por_conta[numero_conta]
+        else:
+            cliente = ClienteDAO().buscar_cliente_por_numero_conta(numero_conta)
+            if cliente:
+                ContaController._cache_cliente_por_conta[numero_conta] = cliente
+
         if not cliente:
             return f"Conta {numero_conta} (cliente não encontrado)"
+
         nome = cliente.pessoa.get_nome()
         doc = cliente.pessoa.get_numero_documento()
         return f"Destinatário: {nome} | Documento: {doc} | Conta: {numero_conta}"
-    
+
+        
     @staticmethod
     def reativar_conta(usuario_id: str, numero_conta: str, senha: str) -> dict:
         cliente_dao = ClienteDAO()

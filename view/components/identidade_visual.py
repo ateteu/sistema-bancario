@@ -1,10 +1,9 @@
-# view/components/identidade_visual.py
+from flet import Colors, TextStyle, FontWeight
 
 """
 Definições visuais reutilizáveis do sistema bancário.
 """
 
-from flet import Colors, TextStyle, FontWeight
 
 # Paleta de cores
 CORES = {
