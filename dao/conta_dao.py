@@ -3,40 +3,41 @@ from mapper.conta_mapper import ContaMapper
 from dao.dao import DAO
 from utils.constantes import ARQUIVO_CONTAS
 
+
 class ContaDAO(DAO):
     """
-    DAO responsável pela persistência de objetos do tipo Conta
-    (ContaCorrente, ContaPoupanca) no arquivo em questão.
+    DAO responsável pela persistência de objetos do tipo Conta,
+    como ContaCorrente e ContaPoupanca, no arquivo JSON de contas.
     """
 
     def __init__(self):
         """
-        Inicializa o DAO de contas com o caminho do arquivo.
+        Inicializa o DAO com cache local e caminho do arquivo JSON.
         """
         super().__init__(ARQUIVO_CONTAS)
-        self._cache_contas = None  # ✅ cache local de objetos Conta
+        self._cache_contas = None
 
     def criar_objeto(self, dados: dict) -> Conta:
         """
-        Cria uma instância de Conta a partir de um dicionário, usando o mapper de conta.
+        Constrói uma instância de Conta a partir de um dicionário.
         """
         return ContaMapper.from_dict(dados)
 
     def extrair_dados_do_objeto(self, conta: Conta) -> dict:
         """
-        Converte uma instância de Conta em dicionário, usando o mapper de conta.
+        Converte uma instância de Conta em dicionário serializável.
         """
         return ContaMapper.to_dict(conta)
 
     def tipo_de_id(self) -> str:
         """
-        Retorna o campo usado como identificador da conta no JSON.
+        Define o campo identificador único da Conta.
         """
         return "numero"
 
     def listar_todos_objetos(self) -> list[Conta]:
         """
-        Lista todas as contas persistidas, utilizando cache para evitar reprocessamento.
+        Retorna todas as contas armazenadas, com suporte a cache local.
         """
         if self._cache_contas is not None:
             return self._cache_contas
@@ -47,23 +48,32 @@ class ContaDAO(DAO):
 
     def buscar_por_id(self, id_valor: str) -> Conta | None:
         """
-        Busca uma conta pelo número, utilizando cache local.
+        Retorna a conta correspondente ao número informado.
         """
-        for conta in self.listar_todos_objetos():
-            if str(conta.get_numero_conta()) == str(id_valor):
-                return conta
-        return None
+        return next(
+            (c for c in self.listar_todos_objetos() if str(c.get_numero_conta()) == str(id_valor)),
+            None
+        )
 
     def salvar_objeto(self, conta: Conta) -> None:
+        """
+        Salva uma nova conta e limpa o cache.
+        """
         super().salvar_objeto(conta)
-        self._cache_contas = None  # ❌ invalida cache após salvar
+        self._cache_contas = None
 
     def atualizar_objeto(self, conta: Conta) -> bool:
+        """
+        Atualiza uma conta existente e limpa o cache.
+        """
         atualizado = super().atualizar_objeto(conta)
         self._cache_contas = None
         return atualizado
 
     def deletar_objeto(self, id_valor: str) -> bool:
+        """
+        Remove uma conta com base no número e limpa o cache.
+        """
         deletado = super().deletar_objeto(id_valor)
         self._cache_contas = None
         return deletado

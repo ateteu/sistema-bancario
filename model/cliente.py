@@ -3,51 +3,40 @@ from model.pessoa import Pessoa
 from model.conta import Conta
 from utils.validadores.validar_cliente import ValidarCliente as Validar
 
+
 class Cliente:
     """
-    Representa um cliente do sistema bancário, ou seja, uma Pessoa, 
-    com uma senha de acesso ao sistema e que pode ou não ter contas associadas.
+    Representa um cliente do sistema bancário.
 
-    Attributes:
-        _pessoa (Pessoa): Objeto que representa os dados pessoais do cliente.
-        _senha (str): Senha de acesso do cliente ao sistema.
-        _contas (List[Conta]): Lista de contas associadas ao cliente.
+    Um cliente possui:
+        - Um objeto Pessoa com os dados pessoais (física ou jurídica).
+        - Uma senha de acesso ao sistema.
+        - Uma ou mais contas bancárias associadas (opcional).
     """
 
     def __init__(self, pessoa: Pessoa, senha: str, contas: List[Conta] = None) -> None:
         """
-        Inicializa um novo cliente com os dados fornecidos.
-        Obs: A senha não é validada nesse construtor!
-
-        Args:
-            pessoa (Pessoa): Objeto Pessoa contendo os dados do cliente.
-            senha (str): Senha de acesso do cliente.
-            contas (List[Conta], optional): Lista inicial de contas associadas ao cliente. 
-                Caso não seja fornecida, será considerada uma lista vazia.
+        Inicializa um novo cliente com pessoa, senha e lista opcional de contas.
 
         Raises:
-            TypeError: Se 'pessoa' não for uma instância de Pessoa.
-            TypeError: Se algum item de 'contas' não for uma instância de Conta.
+            TypeError: Se os tipos de pessoa ou contas forem inválidos.
         """
         if not isinstance(pessoa, Pessoa):
             raise TypeError("O parâmetro 'pessoa' deve ser um objeto da classe Pessoa.")
-        
+
         if contas is None:
             contas = []
         elif not all(isinstance(c, Conta) for c in contas):
             raise TypeError("Todos os itens em 'contas' devem ser objetos da classe Conta.")
-        
+
         self._pessoa = pessoa
-        self._senha  = senha
+        self._senha = senha
         self._contas = contas
 
     @property
     def pessoa(self) -> Pessoa:
         """
         Retorna o objeto Pessoa associado ao cliente.
-
-        Returns:
-            Pessoa: Objeto Pessoa do cliente.
         """
         return self._pessoa
 
@@ -55,54 +44,40 @@ class Cliente:
     def contas(self) -> List[Conta]:
         """
         Retorna a lista de contas associadas ao cliente.
-
-        Returns:
-            List[Conta]: Lista de contas do cliente.
         """
         return self._contas
-    
+
     @contas.setter
     def contas(self, nova_lista: List[Conta]):
         self._contas = nova_lista
 
+    @property
+    def numero_documento(self) -> str:
+        """
+        Retorna o número do documento da pessoa associada.
+        """
+        return self._pessoa.get_numero_documento()
+
     def verificar_senha(self, senha_digitada: str) -> bool:
         """
         Verifica se a senha informada está correta.
-
-        Args:
-            senha_digitada (str): Senha digitada para verificação.
-
-        Returns:
-            bool: True se a senha digitada estiver correta, False caso contrário.
         """
         return self._senha == senha_digitada
 
     def alterar_senha(self, senha_atual: str, nova_senha: str) -> None:
         """
-        Altera a senha do cliente se a senha antiga estiver correta.
-
-        Args:
-            senha_atual (str): Senha atual.
-            nova_senha (str): Nova senha desejada.
+        Altera a senha do cliente após validação.
 
         Raises:
-            ValueError: Se a senha atual estiver incorreta ou a nova senha pretendida for inválida.
+            ValueError: Se a senha atual estiver incorreta ou a nova senha for inválida.
         """
         if not self.verificar_senha(senha_atual):
-            raise ValueError("Senha atual incorreta. Por favor, verifique se foi digitada corretamente.")
-        
-        Validar.senha(nova_senha) # Valida força da nova senha
+            raise ValueError("Senha atual incorreta.")
+        Validar.senha(nova_senha)
         self._senha = nova_senha
 
     def possui_conta(self) -> bool:
         """
-        Verifica se o cliente possui uma ou mais contas associadas.
-
-        Returns:
-            bool: True se possuir pelo menos uma conta, False caso contrário.
+        Verifica se o cliente possui pelo menos uma conta cadastrada.
         """
         return bool(self._contas)
-    
-    @property
-    def numero_documento(self) -> str:
-        return self._pessoa.get_numero_documento() 

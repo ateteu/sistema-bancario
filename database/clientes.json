@@ -1,31 +1,10 @@
 [
     {
         "numero_documento": "157.112.896-40",
-        "senha": "lucas@gmail.com",
-        "contas": [
-            "1007"
-        ]
-    },
-    {
-        "numero_documento": "12.345.678/9123-45",
         "senha": "123",
         "contas": [
-            "1003"
-        ]
-    },
-    {
-        "numero_documento": "123.456.789-12",
-        "senha": "123",
-        "contas": [
-            "1009",
-            "1010"
-        ]
-    },
-    {
-        "numero_documento": "675.432.345-64",
-        "senha": "123",
-        "contas": [
-            "1011"
+            "1001",
+            "1002"
         ]
     }
 ]

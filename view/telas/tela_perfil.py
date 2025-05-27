@@ -1,4 +1,5 @@
 import flet as ft
+from controller.perfil_controller import PerfilController
 from view.components.mensagens import Notificador
 from view.components.containers import CartaoResumo
 from view.components.identidade_visual import CORES, ESTILOS_TEXTO
@@ -6,8 +7,7 @@ from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 class TelaPerfil:
     """
-    Classe que representa a tela de perfil do cliente,
-    mostrando informações pessoais e contas ativas.
+    Tela de exibição do perfil do cliente, contendo dados pessoais e contas ativas.
     """
 
     def __init__(self, cliente):
@@ -16,7 +16,12 @@ class TelaPerfil:
         self.view = self.criar_view()
 
     def criar_view(self) -> ft.Container:
-        """Cria o container principal da tela de perfil do usuário."""
+        """Gera a interface visual principal da tela de perfil."""
+        
+        cliente_atualizado = PerfilController.buscar_cliente_por_documento(self.cliente.numero_documento)
+        if cliente_atualizado:
+            self.cliente = cliente_atualizado
+
         pessoa = self.cliente.pessoa
 
         dados = {
@@ -34,7 +39,6 @@ class TelaPerfil:
         }
 
         def linha_info(icon, texto):
-            """Cria uma linha simples com ícone e texto informativo."""
             return ft.Row(
                 spacing=10,
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -45,7 +49,6 @@ class TelaPerfil:
             )
 
         def linha_multilinha(icon, rotulo, texto):
-            """Cria uma seção com rótulo e texto multilinha selecionável."""
             return ft.Column([
                 ft.Row([
                     ft.Icon(icon, size=20, color=CORES["primaria"]),
@@ -77,11 +80,7 @@ class TelaPerfil:
             )
             for conta in dados["contas"] if conta.get_estado_da_conta()
         ] or [
-            ft.Text(
-                "❌ Nenhuma conta ativa encontrada.",
-                italic=True,
-                style=ESTILOS_TEXTO["normal"]
-            )
+            ft.Text("❌ Nenhuma conta ativa encontrada.", italic=True, style=ESTILOS_TEXTO["normal"])
         ]
 
         return ft.Container(
@@ -94,24 +93,13 @@ class TelaPerfil:
                 padding=25,
                 bgcolor=CORES["fundo"],
                 border_radius=16,
-                shadow=ft.BoxShadow(
-                    blur_radius=20,
-                    color="#00000022",
-                    offset=ft.Offset(3, 3)
-                ),
+                shadow=ft.BoxShadow(blur_radius=20, color="#00000022", offset=ft.Offset(3, 3)),
                 content=ft.Column(
                     spacing=20,
                     controls=[
                         ft.Row([
-                            ft.Icon(
-                                name=ft.Icons.PERSON_OUTLINE,
-                                size=28,
-                                color=CORES["primaria"]
-                            ),
-                            ft.Text(
-                                "Informações do Cliente",
-                                style=ESTILOS_TEXTO["titulo"]
-                            )
+                            ft.Icon(name=ft.Icons.PERSON_OUTLINE, size=28, color=CORES["primaria"]),
+                            ft.Text("Informações do Cliente", style=ESTILOS_TEXTO["titulo"])
                         ], alignment=ft.MainAxisAlignment.CENTER),
 
                         CartaoResumo("Dados pessoais", dados_pessoais),

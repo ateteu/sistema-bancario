@@ -5,8 +5,8 @@ from utils.validadores.validar_pessoa_fisica import ValidarPessoaFisica as Valid
 
 class PessoaFisica(Pessoa):
     """
-    Representa uma pessoa física com CPF e data de nascimento.
-    Herda os campos comuns da classe Pessoa.
+    Representa uma pessoa física, com CPF e data de nascimento.
+    Herda atributos e comportamentos comuns da classe Pessoa.
     """
 
     def __init__(
@@ -21,29 +21,19 @@ class PessoaFisica(Pessoa):
         data_nascimento: str | datetime
     ):
         """
-        Inicializa uma Pessoa Física com dados pessoais e data de nascimento.
+        Inicializa uma Pessoa Física com os dados pessoais fornecidos.
 
-        Args:
-            nome (str): Nome completo da pessoa.
-            email (str): Endereço de e-mail.
-            numero_documento (str): CPF da pessoa (11 dígitos).
-            cep (str): CEP do endereço.
-            numero_endereco (str): Número da residência.
-            endereco (str): Endereço completo.
-            telefone (str): Telefone da pessoa.
-            data_nascimento (str | datetime): Data de nascimento (formato 'dd/mm/aaaa' ou datetime).
+        Raises:
+            ValueError: Em caso de erro na validação dos dados.
         """
-        # Validação completa dos dados
         erros = Validar.todos_campos(
             nome, email, numero_documento, cep, numero_endereco, telefone, data_nascimento
         )
         if erros:
             raise ValueError("\n".join(erros))
 
-        # Inicialização dos atributos comuns herdados
         super().__init__(nome, email, numero_documento, cep, numero_endereco, telefone)
 
-        # Conversão da data de nascimento se for string
         self._data_nascimento = (
             datetime.strptime(data_nascimento, "%d/%m/%Y")
             if isinstance(data_nascimento, str)
@@ -51,22 +41,19 @@ class PessoaFisica(Pessoa):
         )
 
     def __str__(self) -> str:
+        """
+        Representação textual da pessoa física (nome + CPF).
+        """
         return f"{self._nome} (CPF: {self._numero_documento})"
 
     def get_data_nascimento(self) -> datetime:
         """
         Retorna a data de nascimento como objeto datetime.
-
-        Returns:
-            datetime: Data de nascimento.
         """
         return self._data_nascimento
 
     def get_tipo(self) -> str:
         """
-        Retorna o tipo da pessoa ('fisica').
-
-        Returns:
-            str: Tipo da pessoa.
+        Retorna o tipo da pessoa ('fisica') para fins de serialização.
         """
         return "fisica"

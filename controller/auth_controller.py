@@ -11,7 +11,7 @@ class AuthController:
     """
 
     sessao_ativa = {}
-    _cache_clientes = {}  # ✅ cache interno para clientes autenticados
+    _cache_clientes = {}
 
     @staticmethod
     def login(numero_documento: str, senha: str) -> dict:
@@ -43,7 +43,7 @@ class AuthController:
                     "mensagem" : "Senha incorreta."
                 }
 
-            # ✅ Armazena na sessão o cliente logado
+            # Armazena na sessão o cliente logado
             AuthController.sessao_ativa[numero_documento] = cliente
 
             logger.info("Login realizado com sucesso.")

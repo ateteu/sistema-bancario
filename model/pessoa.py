@@ -6,11 +6,10 @@ from utils.api import API
 class Pessoa(ABC):
     """
     Classe abstrata que representa uma pessoa (física ou jurídica).
-    Deve ser estendida por subclasses especializadas.
 
-    Atributos comuns:
-        - nome, email, documento, endereço, telefone.
-        - O endereço completo é obtido via API a partir do CEP e número.
+    Atributos:
+        - nome, email, número de documento, telefone.
+        - CEP e número do endereço, com busca automática via API (ViaCEP).
     """
 
     def __init__(
@@ -23,17 +22,11 @@ class Pessoa(ABC):
         telefone: str
     ) -> None:
         """
-        Inicializa uma instância de Pessoa.
+        Inicializa uma instância de Pessoa com os dados fornecidos.
 
-        OBS: Validações devem ser feitas nas subclasses. Esta classe espera dados válidos.
-
-        Args:
-            nome (str): Nome completo da pessoa.
-            email (str): Email da pessoa.
-            numero_documento (str): CPF ou CNPJ da pessoa.
-            cep (str): CEP da residência.
-            numero_endereco (str): Número do endereço.
-            telefone (str): Telefone da pessoa.
+        Nota:
+            As validações são feitas nas subclasses.
+            Esta classe assume que os dados recebidos já são válidos.
 
         Raises:
             ValueError: Em caso de falha ao buscar o endereço via API.
@@ -51,7 +44,7 @@ class Pessoa(ABC):
     def __str__(self) -> str:
         """
         Retorna a representação textual da pessoa.
-        Deve ser implementado pelas subclasses.
+        Deve ser implementado por subclasses.
         """
         pass
 
@@ -98,20 +91,17 @@ class Pessoa(ABC):
         Validar.telefone(novo_telefone)
         self._telefone = novo_telefone
 
-    # === Métodos auxiliares ===
+    # === Lógica de endereço ===
 
     def _atualizar_endereco(self) -> None:
         """
-        Atualiza o endereço completo com base no CEP e número.
-        Utiliza API externa (ViaCEP).
+        Consulta a API externa e atualiza o endereço completo da pessoa.
 
-        Raises:
-            ValueError: Em caso de falha na consulta do endereço.
+        Nota:
+            O endereço é resolvido apenas uma vez por instância.
         """
-        if hasattr(self, "_endereco_resolvido") and self._endereco_resolvido:
+        if getattr(self, "_endereco_resolvido", False):
             return
 
-        from time import time
-        inicio = time()
         self._endereco = API.buscar_endereco_por_cep(self._cep, self._numero_endereco)
         self._endereco_resolvido = True

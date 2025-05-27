@@ -2,7 +2,12 @@ from dao.cliente_dao import ClienteDAO
 from dao.conta_dao import ContaDAO
 from model.exceptions import ContaInativaError
 
+
 class PagamentoController:
+    """
+    Controlador responsável por processar transferências entre contas de clientes.
+    """
+
     @staticmethod
     def processar_pagamento(
         conta_origem_num: int,
@@ -12,11 +17,16 @@ class PagamentoController:
         senha: str,
         conta_destino_numero: int
     ) -> dict:
-        
-        if not doc_destino or valor is None or conta_origem_num is None or not senha or conta_destino_numero is None:
+        """
+        Processa uma transferência entre contas, validando origem, destino, saldo e limites.
+
+        Returns:
+            dict: Resultado com chaves 'sucesso' e 'mensagem' ou 'erros'.
+        """
+        # Validação inicial
+        if not all([doc_destino, valor, conta_origem_num, senha, conta_destino_numero]):
             return {"sucesso": False, "erros": ["Preencha todos os campos obrigatórios."]}
 
-        # ✅ Converte números de conta para int, se necessário
         try:
             conta_origem_num = int(conta_origem_num)
             conta_destino_numero = int(conta_destino_numero)
@@ -29,7 +39,7 @@ class PagamentoController:
         cliente_dao = ClienteDAO()
         conta_dao = ContaDAO()
 
-        # Cliente e conta de origem
+        # Busca cliente e conta de origem
         cliente_origem = cliente_dao.buscar_cliente_por_numero_conta(conta_origem_num)
         if not cliente_origem:
             return {"sucesso": False, "erros": ["Cliente de origem não encontrado."]}
@@ -38,13 +48,10 @@ class PagamentoController:
             return {"sucesso": False, "erros": ["Senha incorreta."]}
 
         conta_origem = conta_dao.buscar_por_id(conta_origem_num)
-        if not conta_origem:
-            return {"sucesso": False, "erros": ["Conta de origem não encontrada."]}
+        if not conta_origem or not conta_origem.get_estado_da_conta():
+            return {"sucesso": False, "erros": ["A conta de origem está inativa ou não encontrada."]}
 
-        if not conta_origem.get_estado_da_conta():
-            return {"sucesso": False, "erros": ["A conta de origem está inativa."]}
-
-        # Cliente e conta de destino
+        # Busca cliente e conta de destino
         cliente_destino = cliente_dao.buscar_por_id(doc_destino)
         if not cliente_destino:
             return {"sucesso": False, "erros": [f"Destinatário com documento {doc_destino} não encontrado."]}
@@ -53,11 +60,8 @@ class PagamentoController:
             (c for c in cliente_destino.contas if int(c.get_numero_conta()) == conta_destino_numero),
             None
         )
-        if not conta_destino:
-            return {"sucesso": False, "erros": ["Conta de destino não encontrada para este cliente."]}
-
-        if not conta_destino.get_estado_da_conta():
-            return {"sucesso": False, "erros": ["A conta de destino está inativa."]}
+        if not conta_destino or not conta_destino.get_estado_da_conta():
+            return {"sucesso": False, "erros": ["Conta de destino não encontrada ou está inativa."]}
 
         if conta_origem.get_numero_conta() == conta_destino.get_numero_conta():
             return {"sucesso": False, "erros": ["Você não pode transferir para a mesma conta."]}
@@ -68,16 +72,14 @@ class PagamentoController:
         if valor > conta_origem.limite_transferencia:
             return {
                 "sucesso": False,
-                "erros": [f"Valor excede o limite de transferência da conta ({conta_origem.limite_transferencia:.2f})."]
+                "erros": [f"Valor excede o limite de transferência da conta (R$ {conta_origem.limite_transferencia:.2f})."]
             }
 
-        # Transferência
+        # Efetiva a transferência
         try:
             conta_origem.transferir(conta_destino, valor)
-        except ContaInativaError as e:
-            return {"sucesso": False, "erros": [f"Erro: {str(e)}"]}
-        except ValueError as e:
-            return {"sucesso": False, "erros": [f"Erro: {str(e)}"]}
+        except (ContaInativaError, ValueError) as e:
+            return {"sucesso": False, "erros": [str(e)]}
 
         conta_dao.atualizar_objeto(conta_origem)
         conta_dao.atualizar_objeto(conta_destino)

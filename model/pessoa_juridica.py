@@ -4,8 +4,8 @@ from utils.validadores.validar_pessoa_juridica import ValidarPessoaJuridica as V
 
 class PessoaJuridica(Pessoa):
     """
-    Representa uma pessoa jurídica com CNPJ e nome fantasia.
-    Herda os campos comuns da classe Pessoa.
+    Representa uma pessoa jurídica, com CNPJ e nome fantasia.
+    Herda os atributos e comportamentos da classe abstrata Pessoa.
     """
 
     def __init__(
@@ -20,17 +20,10 @@ class PessoaJuridica(Pessoa):
         nome_fantasia: str = ""
     ):
         """
-        Inicializa uma Pessoa Jurídica com os dados obrigatórios e nome fantasia opcional.
+        Inicializa a pessoa jurídica com os dados obrigatórios e nome fantasia opcional.
 
-        Args:
-            nome (str): Nome da empresa (razão social).
-            email (str): E-mail de contato.
-            numero_documento (str): CNPJ.
-            cep (str): CEP da sede.
-            numero_endereco (str): Número do endereço.
-            endereco (str): Endereço completo.
-            telefone (str): Telefone de contato.
-            nome_fantasia (str, opcional): Nome fantasia da empresa.
+        Raises:
+            ValueError: Se houver erro na validação dos dados.
         """
         erros = Validar.todos_campos(
             nome, email, numero_documento, cep, numero_endereco, telefone, nome_fantasia
@@ -43,10 +36,7 @@ class PessoaJuridica(Pessoa):
 
     def __str__(self) -> str:
         """
-        Retorna uma representação textual da pessoa jurídica.
-
-        Returns:
-            str: Nome fantasia (ou mensagem padrão) com o CNPJ.
+        Representação textual da pessoa jurídica (nome fantasia + CNPJ).
         """
         nome_exibicao = self._nome_fantasia.strip() or "Empresa sem nome fantasia"
         return f"{nome_exibicao} (CNPJ: {self._numero_documento})"
@@ -54,17 +44,11 @@ class PessoaJuridica(Pessoa):
     def get_nome_fantasia(self) -> str:
         """
         Retorna o nome fantasia da empresa.
-
-        Returns:
-            str: Nome fantasia (ou string vazia).
         """
         return self._nome_fantasia or ""
 
     def get_tipo(self) -> str:
         """
-        Retorna o tipo da pessoa ('juridica').
-
-        Returns:
-            str: Tipo da pessoa.
+        Retorna o tipo da pessoa para fins de serialização.
         """
         return "juridica"
