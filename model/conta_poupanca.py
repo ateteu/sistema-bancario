@@ -5,35 +5,30 @@ from utils.constantes import (
     RENDIMENTO_MENSAL_CPOUPANCA
 )
 
+
 class ContaPoupanca(Conta):
     """
-    Representa uma conta poupança com limite de transferência
-    e aplicação de rendimento mensal.
-
-    Herda atributos e métodos padrão de Conta.
+    Representa uma conta poupança, com rendimento mensal e limite de transferência reduzido.
+    Herda os comportamentos padrão da classe Conta.
     """
 
     @property
     def limite_transferencia(self) -> float:
+        """
+        Limite específico de transferência para contas poupança.
+        """
         return LIMITE_TRANSFERENCIA_CPOUPANCA
 
     def atualizacao_mensal(self) -> None:
         """
-        Aplica o rendimento mensal ao saldo da conta e registra a operação no histórico.
-
-        O rendimento é calculado multiplicando o saldo atual pela constante RENDIMENTO_MENSAL_CPOUPANCA,
-        e o saldo é atualizado com esse valor.
+        Aplica o rendimento mensal sobre o saldo da conta.
 
         Raises:
             ContaInativaError: Se a conta estiver inativa.
-            ValueError: Se o saldo atualizado for inválido ao tentar ser definido.
         """
-        conta_ativa = self.get_estado_da_conta()
-        if not conta_ativa:
+        if not self.get_estado_da_conta():
             raise ContaInativaError(self.get_numero_conta())
-        
-        saldo_atual = self.get_saldo()
-        rendimento = saldo_atual * RENDIMENTO_MENSAL_CPOUPANCA
-        novo_saldo = saldo_atual + rendimento
-        self._set_saldo(novo_saldo)
+
+        rendimento = self._saldo * RENDIMENTO_MENSAL_CPOUPANCA
+        self._set_saldo(self._saldo + rendimento)
         self._registrar_operacao(f"Atualização mensal: rendimento de R$ {rendimento:.2f} aplicado.")

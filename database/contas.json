@@ -1,1 +1,20 @@
-[]
+[
+    {
+        "numero": "1001",
+        "saldo": 0.0,
+        "historico": [
+            "[2025-05-27 05:03:08] Conta encerrada"
+        ],
+        "ativa": false,
+        "tipo": "corrente"
+    },
+    {
+        "numero": "1002",
+        "saldo": 0.0,
+        "historico": [
+            "[2025-05-27 05:07:51] Conta encerrada"
+        ],
+        "ativa": true,
+        "tipo": "poupanca"
+    }
+]

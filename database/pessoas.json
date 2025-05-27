@@ -1,1 +1,13 @@
-[]
+[
+    {
+        "nome": "Lucas Pimenta Braga",
+        "email": "lucaspimentabraga@gmail.com",
+        "numero_documento": "157.112.896-40",
+        "cep": "32315-120",
+        "numero_endereco": "375",
+        "endereco": "Rua Ingas, 375 - Eldorado, Contagem - MG, 32315-120",
+        "telefone": "(31) 99628-1600",
+        "tipo": "fisica",
+        "data_nascimento": "25/05/2004"
+    }
+]

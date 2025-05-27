@@ -45,30 +45,34 @@ class ValidarConta:
         return erros
 
     @staticmethod
-    def _numero_conta(numero_conta: str) -> None:
+    def _numero_conta(numero_conta) -> None:
         """
         Valida o número da conta.
 
-        Verifica se o valor fornecido é uma string composta apenas por dígitos,
-        com comprimento mínimo definido por 'TAMANHO_MIN_NUMERO_CONTA'.
-
-        Args:
-            numero_conta (str): Número da conta a ser validado.
+        Aceita string (com apenas dígitos) ou int (positivo). Converte string para int se necessário.
 
         Raises:
-            TypeError: Se o número da conta não for uma string.
-            ValueError: Se o número da conta estiver vazio.
-            ValueError: Se o número da conta contiver caracteres não numéricos.
-            ValueError: Se o número da conta for menor que o comprimento mínimo exigido.
+            TypeError: Se o tipo for inválido.
+            ValueError: Se o número estiver vazio, for negativo, ou não for composto por dígitos.
         """
-        if not isinstance(numero_conta, str):
-            raise TypeError("Número da conta deve ser uma string.")
-        if numero_conta == "":
-            raise ValueError("Número da conta não pode ser vazio.")
-        if not numero_conta.isdigit():
-            raise ValueError("Número da conta deve conter apenas dígitos.")
-        if len(numero_conta) < TAMANHO_MIN_NUMERO_CONTA:
-            raise ValueError("Número da conta muito curto.")
+        if isinstance(numero_conta, int):
+            if numero_conta < 0:
+                raise ValueError("Número da conta não pode ser negativo.")
+            if len(str(numero_conta)) < TAMANHO_MIN_NUMERO_CONTA:
+                raise ValueError("Número da conta muito curto.")
+            return
+
+        if isinstance(numero_conta, str):
+            if numero_conta.strip() == "":
+                raise ValueError("Número da conta não pode ser vazio.")
+            if not numero_conta.isdigit():
+                raise ValueError("Número da conta deve conter apenas dígitos.")
+            if len(numero_conta) < TAMANHO_MIN_NUMERO_CONTA:
+                raise ValueError("Número da conta muito curto.")
+            return
+
+        raise TypeError("Número da conta deve ser um número inteiro ou string com dígitos.")
+
 
     @staticmethod
     def _verificacoes_basicas_saldo(saldo: float) -> None:

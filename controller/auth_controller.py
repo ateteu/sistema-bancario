@@ -11,22 +11,23 @@ class AuthController:
     """
 
     sessao_ativa = {}
+    _cache_clientes = {}
 
     @staticmethod
     def login(numero_documento: str, senha: str) -> dict:
         """
         Realiza login de um cliente com base no documento e senha.
-
-        Args:
-            numero_documento (str): identificador da pessoa.
-            senha (str): Senha informada pelo usuário.
-
-        Returns:
-            dict: Resultado da operação com status e mensagem.
         """
         logger.info(f"Tentando login com documento: {numero_documento}")
+
         try:
-            cliente = ClienteDAO().buscar_por_id(numero_documento)
+            # Verifica cache antes de acessar o DAO
+            if numero_documento in AuthController._cache_clientes:
+                cliente = AuthController._cache_clientes[numero_documento]
+            else:
+                cliente = ClienteDAO().buscar_por_id(numero_documento)
+                if cliente:
+                    AuthController._cache_clientes[numero_documento] = cliente
 
             if cliente is None:
                 logger.warning(f"Cliente não encontrado: {numero_documento}")
@@ -42,6 +43,7 @@ class AuthController:
                     "mensagem" : "Senha incorreta."
                 }
 
+            # Armazena na sessão o cliente logado
             AuthController.sessao_ativa[numero_documento] = cliente
 
             logger.info("Login realizado com sucesso.")
@@ -50,6 +52,7 @@ class AuthController:
                 "mensagem"   : "Login realizado com sucesso.",
                 "usuario_id" : numero_documento
             }
+
         except Exception as e:
             logger.warning(f"Erro durante login: {e}")
             return {
@@ -61,12 +64,6 @@ class AuthController:
     def logout(usuario_id: str) -> dict:
         """
         Realiza logout de um cliente.
-
-        Args:
-            usuario_id (str): Identificador do cliente (documento).
-
-        Returns:
-            dict: Resultado da operação com status e mensagem.
         """
         logger.info(f"Logout solicitado para ID: {usuario_id}")
 

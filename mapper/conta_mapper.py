@@ -1,44 +1,33 @@
 from model.conta import Conta
 from model.conta_corrente import ContaCorrente
 from model.conta_poupanca import ContaPoupanca
-from utils.constantes import TIPO_CCORRENTE, TIPO_CPOUPANCA, NUMERO_CONTA_PARA_ERRO
+from utils.constantes import TIPO_CCORRENTE, TIPO_CPOUPANCA
+
 
 class ContaMapper:
     """
-    Classe responsável por mapear objetos Conta e suas subclasses para e a partir de dicionários.
-
-    Essa classe oferece métodos estáticos para:
-    - Criar instâncias de Conta a partir de um dicionário (deserialização).
-    - Converter instâncias de Conta em dicionários (serialização).
+    Classe responsável por converter objetos Conta (e subclasses)
+    para dicionários e vice-versa, com validação de tipo.
     """
 
     @staticmethod
     def from_dict(dados: dict) -> Conta:
         """
-        Cria uma instância de Conta a partir de um dicionário.
+        Constrói uma instância de ContaCorrente ou ContaPoupanca a partir de um dicionário.
 
-        Args:
-            dados (dict): Dicionário contendo os dados da conta e seu tipo.
-
-        Returns:
-            Conta: Instância de ContaCorrente ou ContaPoupanca.
-        
         Raises:
-            ValueError: Se um ou mais campos obrigatórios estiverem ausentes.
-            ValueError: Se o 'tipo' da conta (salvo no BD) for desconhecido.
+            ValueError: Se campos obrigatórios estiverem ausentes ou tipo for inválido.
         """
         campos_obrigatorios = ["tipo", "numero", "saldo", "historico", "ativa"]
-
-        # Verifica todos campos faltantes no Banco de dados
         campos_faltantes = [campo for campo in campos_obrigatorios if campo not in dados]
         if campos_faltantes:
             raise ValueError(f"Campos obrigatórios ausentes: {', '.join(campos_faltantes)}")
 
-        tipo      = dados["tipo"]
-        numero    = dados["numero"]
-        saldo     = dados["saldo"]
+        tipo = dados["tipo"]
+        numero = int(dados["numero"])
+        saldo = float(dados["saldo"])
         historico = dados["historico"]
-        ativa     = dados["ativa"]
+        ativa = dados["ativa"]
 
         if tipo == TIPO_CCORRENTE:
             return ContaCorrente(numero, saldo, historico, ativa)
@@ -50,18 +39,14 @@ class ContaMapper:
     @staticmethod
     def to_dict(conta: Conta) -> dict:
         """
-        Converte uma instância de Conta em dicionário.
-
-        Args:
-            conta (Conta): Objeto de uma subclasse de Conta.
-
-        Returns:
-            dict: Dicionário com os dados da conta (e o tipo (subclasse) de Conta incluído!).
+        Converte uma instância de Conta em um dicionário serializável.
         """
+        tipo = TIPO_CCORRENTE if isinstance(conta, ContaCorrente) else TIPO_CPOUPANCA
+
         return {
-            "numero"    : conta.get_numero_conta(),
-            "saldo"     : conta.get_saldo(),
-            "historico" : conta.get_historico(),
-            "ativa"     : conta.get_estado_da_conta(),
-            "tipo"      : TIPO_CCORRENTE if isinstance(conta, ContaCorrente) else TIPO_CPOUPANCA
+            "numero": str(conta.get_numero_conta()),
+            "saldo": conta.get_saldo(),
+            "historico": conta.get_historico(),
+            "ativa": conta.get_estado_da_conta(),
+            "tipo": tipo
         }

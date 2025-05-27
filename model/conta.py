@@ -184,3 +184,7 @@ class Conta(ABC):
             str: Representação da conta.
         """
         return f"Conta {self.get_numero_conta()} | Saldo: R$ {self.get_saldo():.2f}"
+
+    @property
+    def numero_documento(self) -> str:
+        return self._pessoa.get_numero_documento()

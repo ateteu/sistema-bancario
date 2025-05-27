@@ -1,67 +1,49 @@
 from abc import ABC, abstractmethod
 import json
+import os
 from typing import List, Optional, TypeVar, Generic
-T = TypeVar("T") # Tipo genérico para entidades do DAO
+
+T = TypeVar("T")  # Tipo genérico para entidades manipuladas pelo DAO
+
 
 class DAO(ABC, Generic[T]):
     """
-    Classe base abstrata para DAOs que lidam com persistência em arquivos JSON.
+    Classe abstrata genérica para DAOs com persistência em arquivos JSON.
+    Define a estrutura comum para salvar, buscar, atualizar e deletar entidades.
     """
 
     def __init__(self, arquivo_json: str):
         """
-        Inicializa um objeto de acesso genérico.
-
-        Args:
-            arquivo_json (str): Caminho do arquivo JSON para armazenar os dados.
+        Inicializa o DAO com o caminho do arquivo JSON de armazenamento.
         """
-        self.arquivo_json = arquivo_json
+        self.arquivo_json = os.path.join("database", arquivo_json)
+        self._cache_local = None  # Cache opcional de leitura
 
     @abstractmethod
-    def criar_objeto(self, data: dict):
+    def criar_objeto(self, data: dict) -> T:
         """
-        Converte um dicionário para um objeto da entidade.
-
-        Args:
-            data (dict): Dicionário com dados da entidade.
-
-        Returns:
-            Objeto da entidade correspondente.
+        Converte um dicionário do JSON em uma instância da entidade.
         """
         pass
 
     @abstractmethod
-    def extrair_dados_do_objeto(self, obj) -> dict:
+    def extrair_dados_do_objeto(self, obj: T) -> dict:
         """
-        Extrai informações de um objeto da entidade, formando um dicionário.
-
-        Args:
-            obj: Objeto da entidade.
-
-        Returns:
-            dict: Dicionário com dados para salvar no JSON.
+        Converte uma entidade em dicionário para persistência.
         """
         pass
 
     @abstractmethod
     def tipo_de_id(self) -> str:
         """
-        Retorna o nome do campo usado como identificador único no JSON.
-
-        Returns:
-            str: Nome do campo identificador único.
+        Retorna o nome do campo usado como identificador único.
         """
         pass
 
     def _ler_dados_do_json(self) -> List[dict]:
         """
-        Carrega os dados do arquivo JSON.
-
-        Returns:
-            List[dict]: Lista de dicionários representando as entidades.
-
-        Nota:
-            Retorna lista vazia se o arquivo não existir ou estiver vazio/corrompido.
+        Lê o conteúdo do JSON, retornando uma lista de dicionários.
+        Retorna lista vazia se o arquivo não existir ou estiver corrompido.
         """
         try:
             with open(self.arquivo_json, 'r', encoding='utf-8') as f:
@@ -71,83 +53,69 @@ class DAO(ABC, Generic[T]):
 
     def _salvar_no_arquivo_json(self, dados: List[dict]) -> None:
         """
-        Salva os dados no arquivo JSON.
-
-        Args:
-            dados (List[dict]): Lista de dicionários para salvar.
+        Salva uma lista de dicionários no arquivo JSON.
         """
         with open(self.arquivo_json, 'w', encoding='utf-8') as f:
             json.dump(dados, f, indent=4)
 
     def listar_todos_objetos(self) -> List[T]:
         """
-        Retorna todos os objetos da entidade armazenados.
-
-        Returns:
-            List: Lista de objetos da entidade.
+        Retorna todas as entidades salvas no JSON.
         """
         dados = self._ler_dados_do_json()
         return [self.criar_objeto(item) for item in dados]
 
     def buscar_por_id(self, id_valor) -> Optional[T]:
         """
-        Busca um objeto da entidade pelo seu identificador único.
-
-        Args:
-            id_valor: Valor do identificador único.
-
-        Returns:
-            Objeto da entidade se encontrado, None caso contrário.
+        Retorna a entidade correspondente ao identificador fornecido.
         """
-        dados = self._ler_dados_do_json()
-        for item in dados:
-            if item.get(self.tipo_de_id()) == id_valor:
+        for item in self._ler_dados_do_json():
+            if str(item.get(self.tipo_de_id())) == str(id_valor):
                 return self.criar_objeto(item)
         return None
 
     def salvar_objeto(self, obj: T) -> None:
         """
-        Adiciona um novo objeto ao armazenamento.
-
-        Args:
-            obj: Objeto da entidade a ser adicionado.
+        Salva um novo objeto no JSON, desde que não haja duplicação de ID.
         """
         dados = self._ler_dados_do_json()
-        dados.append(self.extrair_dados_do_objeto(obj))
+        novo = self.extrair_dados_do_objeto(obj)
+        chave = self.tipo_de_id()
+
+        if any(item.get(chave) == novo[chave] for item in dados):
+            raise ValueError(f"Objeto com {chave} = '{novo[chave]}' já existe.")
+
+        dados.append(novo)
         self._salvar_no_arquivo_json(dados)
 
-    def atualizar_objeto(self, obj) -> bool:
+    def atualizar_objeto(self, obj: T) -> bool:
         """
-        Atualiza um objeto existente no armazenamento.
-
-        Args:
-            obj: Objeto da entidade com dados atualizados.
-
-        Returns:
-            bool: True se atualização foi realizada, False se objeto não encontrado.
+        Atualiza um objeto existente com base em seu identificador.
+        Retorna True se atualizado com sucesso, False se não encontrado.
         """
         dados = self._ler_dados_do_json()
-        id_valor = getattr(obj, self.tipo_de_id())
+        id_chave = self.tipo_de_id()
+        novo_dado = self.extrair_dados_do_objeto(obj)
+        id_valor = novo_dado[id_chave]
+
         for i, item in enumerate(dados):
-            if item.get(self.tipo_de_id()) == id_valor:
-                dados[i] = self.extrair_dados_do_objeto(obj)
+            if item.get(id_chave) == id_valor:
+                dados[i] = novo_dado
                 self._salvar_no_arquivo_json(dados)
                 return True
+
         return False
 
     def deletar_objeto(self, id_valor) -> bool:
         """
-        Remove um objeto pelo identificador único.
-
-        Args:
-            id_valor: Valor do identificador único do objeto a ser removido.
-
-        Returns:
-            bool: True se remoção foi realizada, False se objeto não encontrado.
+        Remove um objeto com o ID fornecido.
+        Retorna True se a exclusão for bem-sucedida, False se não encontrado.
         """
         dados = self._ler_dados_do_json()
         novo_dados = [item for item in dados if item.get(self.tipo_de_id()) != id_valor]
+
         if len(novo_dados) == len(dados):
             return False
+
         self._salvar_no_arquivo_json(novo_dados)
         return True
