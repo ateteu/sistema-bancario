@@ -101,11 +101,22 @@ class DAO(ABC, Generic[T]):
             Objeto da entidade se encontrado, None caso contrário.
         """
         dados = self._ler_dados_do_json()
+        print(f"\n🔎 [DEBUG] DAO.buscar_por_id()")
+        print(f"   ➤ Procurando por id = {id_valor} (tipo: {type(id_valor)})")
+        print(f"   ➤ Tipo de ID definido pela entidade: {self.tipo_de_id()}")
+        print(f"   📁 Total de registros carregados: {len(dados)}")
+
         for item in dados:
-            if item.get(self.tipo_de_id()) == id_valor:
+            valor_item = item.get(self.tipo_de_id())
+            print(f"     ↳ Comparando com item[{self.tipo_de_id()}] = {valor_item} (tipo: {type(valor_item)})")
+            if str(valor_item) == str(id_valor):  # ✅ correção aqui
+                print("   ✅ Objeto encontrado!\n")
                 return self.criar_objeto(item)
+
+
+        print("   ❌ Nenhum objeto encontrado com este ID.\n")
         return None
-    
+
     def salvar_objeto(self, obj: T) -> None:
         dados = self._ler_dados_do_json()
         novo = self.extrair_dados_do_objeto(obj)
@@ -135,18 +146,9 @@ class DAO(ABC, Generic[T]):
         dados = self._ler_dados_do_json()
         id_chave = self.tipo_de_id()
 
-        import traceback
-
-        try:
-            id_valor = getattr(obj, self.tipo_de_id())
-        except AttributeError as e:
-            print(f"[ERRO DETALHADO] Tentando acessar atributo '{self.tipo_de_id()}' em {obj}")
-            print("[ERRO DETALHADO] Stack trace:")
-            traceback.print_stack()
-            raise e
-
-
+        # ✅ Usa o dicionário extraído para pegar o ID corretamente
         novo_dado = self.extrair_dados_do_objeto(obj)
+        id_valor = novo_dado[id_chave]
 
         for i, item in enumerate(dados):
             if item.get(id_chave) == id_valor:
@@ -157,6 +159,7 @@ class DAO(ABC, Generic[T]):
 
         print(f"[ATUALIZAR] Objeto com {id_chave} = {id_valor} não encontrado.")
         return False
+
 
 
     def deletar_objeto(self, id_valor) -> bool:

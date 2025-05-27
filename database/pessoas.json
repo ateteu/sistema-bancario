@@ -11,13 +11,24 @@
         "data_nascimento": "25/05/2004"
     },
     {
-        "nome": "Lucas Pimenta",
+        "nome": "Royal",
+        "email": "royal@gmail.com",
+        "numero_documento": "12.345.678/9123-45",
+        "cep": "32315-120",
+        "numero_endereco": "295",
+        "endereco": "Rua Ingas, 295 - Eldorado, Contagem - MG, 32315-120",
+        "telefone": "(31) 99628-1600",
+        "tipo": "juridica"
+    },
+    {
+        "nome": "Teste",
         "email": "teste@gmail.com",
-        "numero_documento": "65.347.822/9734-24",
+        "numero_documento": "123.456.789-12",
         "cep": "32315-120",
         "numero_endereco": "375",
         "endereco": "Rua Ingas, 375 - Eldorado, Contagem - MG, 32315-120",
         "telefone": "(31) 99628-1600",
-        "tipo": "juridica"
+        "tipo": "fisica",
+        "data_nascimento": "25/05/2004"
     }
 ]

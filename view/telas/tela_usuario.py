@@ -2,6 +2,7 @@ import flet as ft
 from view.telas.tela_perfil import TelaPerfil
 from view.telas.tela_pagamento import TelaPagamento
 from view.telas.tela_extrato import TelaExtrato
+from controller.perfil_controller import PerfilController  # ✅ Importado para recarregar cliente
 
 
 class TelaUsuario:
@@ -9,9 +10,12 @@ class TelaUsuario:
         self.banco = banco
         self.cliente = cliente
         self.on_logout = on_logout
-        self.subrota = subrota  # <- salva a rota desejada
+        self.subrota = subrota or "perfil"
         self.conteudo_ref = ft.Ref[ft.Container]()
         self.view = self.criar_view()
+
+        # 🚀 Garante que a sub-tela será carregada logo após instanciar
+        self.carregar_tela(self.subrota)
 
     def criar_view(self) -> ft.View:
         view = ft.View(
@@ -32,12 +36,11 @@ class TelaUsuario:
             ]
         )
 
-        # ⚡ Executa carregamento após renderização
         def apos_renderizacao(e):
-            if self.subrota:
-                self.carregar_tela(self.subrota, e)
+            print("[DEBUG] on_view_init executado com subrota =", self.subrota)
+            self.carregar_tela(self.subrota, e)
 
-        view.on_view_pop = apos_renderizacao  # Alternativa: view.on_view_init
+        view.on_view_init = apos_renderizacao
         return view
 
     def criar_sidebar(self) -> ft.Container:
@@ -53,12 +56,22 @@ class TelaUsuario:
                     ft.TextButton("Perfil", icon=ft.Icons.PERSON, on_click=lambda e: self.carregar_tela("perfil", e)),
                     ft.TextButton("Pagamentos", icon=ft.Icons.PAYMENTS, on_click=lambda e: self.carregar_tela("pagamento", e)),
                     ft.TextButton("Extrato", icon=ft.Icons.RECEIPT_LONG, on_click=lambda e: self.carregar_tela("extrato", e)),
+                    ft.TextButton("Criar conta", icon=ft.Icons.ACCOUNT_BALANCE, on_click=lambda e: self.carregar_tela("criar_conta", e)),
+                    ft.TextButton("Gerenciar contas", icon=ft.Icons.MANAGE_ACCOUNTS, on_click=lambda e: self.carregar_tela("gerenciar_contas", e)),
+                    ft.TextButton("Alterar dados", icon=ft.Icons.EDIT, on_click=lambda e: self.carregar_tela("editar", e)),
                     ft.TextButton("Sair", icon=ft.Icons.LOGOUT, on_click=self.on_logout),
                 ]
             )
         )
 
     def carregar_tela(self, rota: str, e=None):
+        print("[DEBUG] carregar_tela chamado com rota:", rota)
+
+        # ✅ Sempre recarrega o cliente atualizado do JSON
+        cliente_atualizado = PerfilController.buscar_cliente_por_documento(self.cliente.numero_documento)
+        if cliente_atualizado:
+            self.cliente = cliente_atualizado
+
         match rota:
             case "perfil":
                 tela = TelaPerfil(self.cliente)
@@ -66,6 +79,15 @@ class TelaUsuario:
                 tela = TelaPagamento(self.banco, self.cliente)
             case "extrato":
                 tela = TelaExtrato(self.cliente)
+            case "criar_conta":
+                from view.telas.tela_criar_conta import TelaCriarConta
+                tela = TelaCriarConta(self.cliente)
+            case "gerenciar_contas":
+                from view.telas.tela_gerenciar_contas import TelaGerenciarContas
+                tela = TelaGerenciarContas(self.cliente)
+            case "editar":
+                from view.telas.tela_editar_cliente import TelaEditarCliente
+                tela = TelaEditarCliente(self.cliente)
             case _:
                 tela = ft.Text("Tela não encontrada.")
 

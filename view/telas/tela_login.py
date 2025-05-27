@@ -63,10 +63,19 @@ class TelaLogin:
         e.control.disabled = True
         e.page.update()
 
+        # 🔄 Spinner de carregamento
+        spinner = ft.ProgressRing()
+        e.page.overlay.append(spinner)
+        e.page.update()
+
         documento = self.campo_documento.value.strip()
         senha = self.campo_senha.value.strip()
 
         resultado = AuthController.login(documento, senha)
+
+        # 🔁 Remove o spinner
+        e.page.overlay.clear()
+        e.page.update()
 
         if resultado["status"] != "sucesso":
             self.notificador.erro(e.page, resultado["mensagem"])
@@ -74,7 +83,7 @@ class TelaLogin:
             e.page.update()
             return
 
-        # Espera breve para feedback visual
+        # Pequeno atraso para sensação de transição suave
         await asyncio.sleep(0.2)
 
         if self.on_login_sucesso:

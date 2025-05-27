@@ -1,8 +1,25 @@
 from dao.cliente_dao import ClienteDAO
 from model.pessoa_fisica import PessoaFisica
+from model.cliente import Cliente
 from utils.logger import logger
+from typing import Optional
+
 
 class PerfilController:
+    @staticmethod
+    def buscar_cliente_por_documento(doc: str) -> Optional[Cliente]:
+        logger.info(f"Buscando cliente pelo documento: {doc}")
+        return ClienteDAO().buscar_por_id(doc)
+
+    @staticmethod
+    def buscar_cliente_por_conta(numero_conta: int) -> Optional[Cliente]:
+        logger.info(f"Buscando cliente pela conta: {numero_conta}")
+        return ClienteDAO().buscar_cliente_por_numero_conta(numero_conta)
+
+    @staticmethod
+    def atualizar_cliente(cliente: Cliente):
+        ClienteDAO().atualizar_objeto(cliente)
+
     @staticmethod
     def obter_dados_perfil(documento: str) -> dict:
         logger.info(f"Buscando dados de perfil para documento: {documento}")
@@ -30,7 +47,6 @@ class PerfilController:
             }
 
             return {"status": "sucesso", "dados": dados}
-
         except Exception as e:
             logger.error(f"Erro ao obter dados do perfil: {e}")
             return {"status": "erro", "mensagem": "Erro ao obter dados do perfil."}

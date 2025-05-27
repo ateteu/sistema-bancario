@@ -12,39 +12,24 @@ class ContaController:
     """
 
     @staticmethod
-    def obter_extrato(numero_conta: str):
-        """
-        Retorna o saldo e o histórico de transações de uma conta ativa.
-
-        Args:
-            numero_conta (str): Número da conta a ser consultada.
-
-        Returns:
-            Tuple[(float, list), None] em caso de sucesso,
-            ou (None, str) com mensagem de erro.
-        """
+    def obter_extrato(numero_conta: int):
         conta = ContaDAO().buscar_por_id(numero_conta)
+        
+        if not conta:
+            return None, "Conta não encontrada."
 
-        if not conta or not conta.get_estado_da_conta():
-            return None, "Conta inválida ou inativa."
+        if not conta.get_estado_da_conta():
+            return None, "Conta inativa."
 
-        return (conta.get_saldo(), conta.get_historico()), None
+        saldo = conta.get_saldo()
+        return (saldo, conta), None
 
     @staticmethod
     def criar_conta(usuario_id: str, tipo_conta: str) -> dict:
-        """
-        Cria uma nova conta para um cliente, garantindo que ele não possua conta do mesmo tipo.
-
-        Args:
-            usuario_id (str): CPF ou CNPJ do cliente.
-            tipo_conta (str): Tipo da conta (corrente ou poupança).
-
-        Returns:
-            dict: Resultado da operação com status e mensagem.
-        """
         cliente_dao = ClienteDAO()
         conta_dao = ContaDAO()
 
+        # ✅ Sempre recarrega cliente mais atual (com todas as contas já salvas)
         cliente = cliente_dao.buscar_por_id(usuario_id)
         if not cliente:
             return {"sucesso": False, "mensagem": "Cliente não encontrado."}
@@ -52,7 +37,7 @@ class ContaController:
         # Verifica se o cliente já possui uma conta do tipo informado
         for conta in cliente.contas:
             if (tipo_conta == TIPO_CCORRENTE and isinstance(conta, ContaCorrente)) or \
-               (tipo_conta == TIPO_CPOUPANCA and isinstance(conta, ContaPoupanca)):
+            (tipo_conta == TIPO_CPOUPANCA and isinstance(conta, ContaPoupanca)):
                 return {"sucesso": False, "mensagem": f"Você já possui uma conta do tipo {tipo_conta}."}
 
         # Geração de número único de conta
@@ -68,12 +53,22 @@ class ContaController:
         else:
             return {"sucesso": False, "mensagem": "Tipo de conta inválido."}
 
-        # Persiste a nova conta e atualiza cliente
+        # ✅ Persiste a conta nova
         conta_dao.salvar_objeto(nova_conta)
-        cliente.contas.append(nova_conta)
-        cliente_dao.atualizar_objeto(cliente)
+
+        # ✅ Recarrega cliente após salvar (importante se ele foi alterado por outro processo)
+        cliente_atualizado = cliente_dao.buscar_por_id(usuario_id)
+        if cliente_atualizado is None:
+            return {"sucesso": False, "mensagem": "Erro ao recarregar cliente após criação da conta."}
+
+        # ✅ Adiciona conta nova à lista real de contas
+        cliente_atualizado.contas.append(nova_conta)
+
+        # ✅ Atualiza cliente com lista completa de contas
+        cliente_dao.atualizar_objeto(cliente_atualizado)
 
         return {"sucesso": True, "mensagem": f"Conta {novo_numero} criada com sucesso!"}
+
 
     @staticmethod
     def listar_contas(usuario_id: str):
@@ -112,7 +107,7 @@ class ContaController:
         if not cliente.verificar_senha(senha):
             return {"sucesso": False, "mensagem": "Senha incorreta."}
 
-        conta = next((c for c in cliente.contas if c.get_numero_conta() == numero_conta), None)
+        conta = next((c for c in cliente.contas if str(c.get_numero_conta()) == str(numero_conta)), None)
         if not conta or not conta.get_estado_da_conta():
             return {"sucesso": False, "mensagem": "Conta não encontrada ou já inativa."}
 
@@ -137,3 +132,12 @@ class ContaController:
             str(conta.get_numero_conta())
             for conta in cliente.contas if conta.get_estado_da_conta()
         ]
+
+    @staticmethod
+    def obter_info_destinatario(numero_conta: int) -> str:
+        cliente = ClienteDAO().buscar_cliente_por_numero_conta(numero_conta)
+        if not cliente:
+            return f"Conta {numero_conta} (cliente não encontrado)"
+        nome = cliente.pessoa.get_nome()
+        doc = cliente.pessoa.get_numero_documento()
+        return f"Destinatário: {nome} | Documento: {doc} | Conta: {numero_conta}"

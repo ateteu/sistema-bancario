@@ -15,7 +15,14 @@ class TelaExtrato:
 
         self.dropdown_ref = ft.Ref[ft.Dropdown]()
         self.saldo_text = ft.Text("Selecione uma conta para ver o saldo.", size=14, italic=True)
-        self.lista_extrato = ft.Column([], spacing=8, scroll=ft.ScrollMode.AUTO)
+
+        # ✅ Lista de transações com scroll vertical embutido
+        self.lista_extrato = ft.Column(
+            [],
+            spacing=8,
+            scroll=ft.ScrollMode.AUTO,
+            expand=True
+        )
 
         self.view = self.criar_view()
 
@@ -46,7 +53,12 @@ class TelaExtrato:
                     ], alignment=ft.MainAxisAlignment.CENTER),
                     dropdown_conta,
                     CartaoResumo("Saldo atual", [self.saldo_text]),
-                    CartaoResumo("Últimas transações", [self.lista_extrato]),
+                    CartaoResumo("Últimas transações", [
+                        ft.Container(
+                            content=self.lista_extrato,
+                            height=300  # ✅ Limita altura para scroll
+                        )
+                    ]),
                     self.notificador.get_snackbar()
                 ]
             )
@@ -65,10 +77,12 @@ class TelaExtrato:
             self.notificador.erro(e.page, erro)
             return
 
-        saldo, historico = resultado
-        self.saldo_text.value = f"💰 Saldo disponível: R$ {saldo:.2f}"
+        saldo, conta = resultado
+        historico = conta.get_historico()
 
+        self.saldo_text.value = f"💰 Saldo disponível: R$ {saldo:.2f}"
         self.lista_extrato.controls.clear()
+
         if not historico:
             self.lista_extrato.controls.append(
                 ft.Text("Nenhuma transação encontrada.", italic=True)
