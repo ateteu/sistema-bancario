@@ -30,5 +30,16 @@
         "telefone": "(31) 99628-1600",
         "tipo": "fisica",
         "data_nascimento": "25/05/2004"
+    },
+    {
+        "nome": "aaa",
+        "email": "a@gmail.com",
+        "numero_documento": "675.432.345-64",
+        "cep": "32315-120",
+        "numero_endereco": "295",
+        "endereco": "Rua Ingas, 295 - Eldorado, Contagem - MG, 32315-120",
+        "telefone": "(31) 99628-1600",
+        "tipo": "fisica",
+        "data_nascimento": "25/05/2004"
     }
 ]

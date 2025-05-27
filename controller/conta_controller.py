@@ -141,3 +141,28 @@ class ContaController:
         nome = cliente.pessoa.get_nome()
         doc = cliente.pessoa.get_numero_documento()
         return f"Destinatário: {nome} | Documento: {doc} | Conta: {numero_conta}"
+    
+    @staticmethod
+    def reativar_conta(usuario_id: str, numero_conta: str, senha: str) -> dict:
+        cliente_dao = ClienteDAO()
+        conta_dao = ContaDAO()
+
+        cliente = cliente_dao.buscar_por_id(usuario_id)
+        if not cliente:
+            return {"sucesso": False, "mensagem": "Cliente não encontrado."}
+
+        if not cliente.verificar_senha(senha):
+            return {"sucesso": False, "mensagem": "Senha incorreta."}
+
+        conta = next((c for c in cliente.contas if str(c.get_numero_conta()) == str(numero_conta)), None)
+        if not conta:
+            return {"sucesso": False, "mensagem": "Conta não encontrada."}
+
+        if conta.get_estado_da_conta():
+            return {"sucesso": False, "mensagem": "A conta já está ativa."}
+
+        conta._ativa = True
+        conta_dao.atualizar_objeto(conta)
+        cliente_dao.atualizar_objeto(cliente)
+
+        return {"sucesso": True, "mensagem": f"Conta {numero_conta} reativada com sucesso."}

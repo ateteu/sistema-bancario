@@ -1,8 +1,10 @@
 # arquivo: view/telas/tela_gerenciar_contas.py
 
 import flet as ft
+import uuid
 from controller.conta_controller import ContaController
 from view.components.mensagens import Notificador
+from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
 class TelaGerenciarContas:
@@ -12,41 +14,57 @@ class TelaGerenciarContas:
 
         self.conta_dropdown = ft.Ref[ft.Dropdown]()
         self.senha_field = ft.Ref[ft.TextField]()
+        self.botao_acao = ft.Ref[ft.ElevatedButton]()
         self.dropdown_control = None
         self.container = None
 
         self.view = self.criar_view()
+        self.recarregar_lista_contas()
 
     def criar_view(self) -> ft.Container:
         self.dropdown_control = ft.Dropdown(
             ref=self.conta_dropdown,
+            key=str(uuid.uuid4()),  # 🔑 Força rebuild visual
             label="Selecione uma conta",
             width=400,
+            on_change=self.alternar_botao_acao
         )
 
-        self.container = ft.Container(
-            padding=30,
-            alignment=ft.alignment.top_center,
-            expand=True,
+        layout = ft.Container(
+            width=500,
+            padding=25,
+            bgcolor=CORES["fundo"],
+            border_radius=16,
+            shadow=ft.BoxShadow(blur_radius=20, color="#00000022", offset=ft.Offset(3, 3)),
             content=ft.Column(
-                width=500,
                 spacing=20,
                 controls=[
-                    ft.Text("Gerenciar Contas", size=22, weight=ft.FontWeight.BOLD),
+                    ft.Row([
+                        ft.Icon(name=ft.Icons.MANAGE_ACCOUNTS, size=28, color=CORES["primaria"]),
+                        ft.Text("Gerenciar Contas", style=ESTILOS_TEXTO["titulo"])
+                    ], alignment=ft.MainAxisAlignment.CENTER),
+
                     self.dropdown_control,
                     ft.TextField(ref=self.senha_field, label="Confirme sua senha", password=True),
-                    ft.Row([
-                        ft.ElevatedButton("Encerrar conta", on_click=self.encerrar_conta)
-                    ]),
+                    ft.ElevatedButton(
+                        "Ativar / Reativar",
+                        ref=self.botao_acao,
+                        on_click=self.executar_acao,
+                        bgcolor=CORES["primaria"],
+                        color=CORES["icone_sidebar"]
+                    ),
                     self.notificador.get_snackbar()
                 ]
             )
         )
 
-        # ✅ Atualiza lista automaticamente quando a tela for exibida
-        self.container.on_view_init = lambda e: self.recarregar_lista_contas()
-
-        return self.container
+        return ft.Container(
+            alignment=ft.alignment.top_center,
+            expand=True,
+            bgcolor=CORES["secundaria"],
+            padding=30,
+            content=layout
+        )
 
     def recarregar_lista_contas(self):
         contas = ContaController.listar_contas(self.cliente.numero_documento)
@@ -56,39 +74,60 @@ class TelaGerenciarContas:
             self.dropdown_control.label = "Nenhuma conta encontrada"
             return
 
-        opcoes = [
-            ft.dropdown.Option(
-                key=str(conta.get_numero_conta()),
-                text=f"{conta.__class__.__name__} - Nº {conta.get_numero_conta()} - "
-                     f"{'Ativa' if conta.get_estado_da_conta() else 'Inativa'}"
+        opcoes = []
+        for conta in contas:
+            estado = "Ativa" if conta.get_estado_da_conta() else "Inativa"
+            opcoes.append(
+                ft.dropdown.Option(
+                    key=str(conta.get_numero_conta()),
+                    text=f"{conta.__class__.__name__} - Nº {conta.get_numero_conta()} - {estado}"
+                )
             )
-            for conta in contas if conta.get_estado_da_conta()
-        ]
 
         self.dropdown_control.options = opcoes
         self.conta_dropdown.current.value = None
+        self.dropdown_control.value = None
 
         if self.senha_field.current:
             self.senha_field.current.value = ""
 
-    def atualizar_tela(self, e):
-        self.recarregar_lista_contas()
-        self.notificador.sucesso(e.page, "Lista atualizada com sucesso.")
+    def alternar_botao_acao(self, e):
+        numero = self.conta_dropdown.current.value
+        conta = self._buscar_conta(numero)
+
+        if not conta or not self.botao_acao.current:
+            return
+
+        if conta.get_estado_da_conta():
+            self.botao_acao.current.text = "Encerrar conta"
+            self.botao_acao.current.bgcolor = CORES["erro"]
+        else:
+            self.botao_acao.current.text = "Reativar conta"
+            self.botao_acao.current.bgcolor = CORES["sucesso"]
+
         e.page.update()
 
-    def encerrar_conta(self, e):
+    def executar_acao(self, e):
         numero = self.conta_dropdown.current.value
         senha = self.senha_field.current.value
 
         if not numero or not senha:
-            self.notificador.erro(e.page, "Selecione uma conta ativa e digite a senha.")
+            self.notificador.erro(e.page, "Selecione uma conta e digite a senha.")
             return
 
-        resultado = ContaController.excluir_conta(
-            self.cliente.numero_documento,
-            numero,
-            senha
-        )
+        conta = self._buscar_conta(numero)
+        if not conta:
+            self.notificador.erro(e.page, "Conta não encontrada.")
+            return
+
+        if not self.cliente.verificar_senha(senha):
+            self.notificador.erro(e.page, "Senha incorreta.")
+            return
+
+        if conta.get_estado_da_conta():
+            resultado = ContaController.excluir_conta(self.cliente.numero_documento, numero, senha)
+        else:
+            resultado = ContaController.reativar_conta(self.cliente.numero_documento, numero, senha)
 
         if resultado["sucesso"]:
             self.notificador.sucesso(e.page, resultado["mensagem"])
@@ -96,7 +135,24 @@ class TelaGerenciarContas:
         else:
             self.notificador.erro(e.page, resultado["mensagem"])
 
+        # 🔄 Reset visual do dropdown (força rebuild)
+        self.dropdown_control.key = str(uuid.uuid4())
+        self.conta_dropdown.current.value = None
+        self.dropdown_control.value = None
+        self.dropdown_control.update()
+
+        # Reset visual do botão e senha
+        self.botao_acao.current.text = "Ativar / Reativar"
+        self.botao_acao.current.bgcolor = CORES["primaria"]
+
         if self.senha_field.current:
             self.senha_field.current.value = ""
 
         e.page.update()
+
+    def _buscar_conta(self, numero: str):
+        contas = ContaController.listar_contas(self.cliente.numero_documento)
+        for conta in contas:
+            if str(conta.get_numero_conta()) == str(numero):
+                return conta
+        return None

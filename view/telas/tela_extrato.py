@@ -2,21 +2,17 @@ import flet as ft
 from controller.conta_controller import ContaController
 from view.components.mensagens import Notificador
 from view.components.containers import CartaoResumo, CartaoTransacao
+from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
 class TelaExtrato:
-    """
-    Tela de consulta de saldo e histórico de transações.
-    """
-
     def __init__(self, cliente):
         self.cliente = cliente
         self.notificador = Notificador()
 
         self.dropdown_ref = ft.Ref[ft.Dropdown]()
-        self.saldo_text = ft.Text("Selecione uma conta para ver o saldo.", size=14, italic=True)
+        self.saldo_text = ft.Text("Selecione uma conta para ver o saldo.", style=ESTILOS_TEXTO["normal"], italic=True)
 
-        # ✅ Lista de transações com scroll vertical embutido
         self.lista_extrato = ft.Column(
             [],
             spacing=8,
@@ -39,29 +35,39 @@ class TelaExtrato:
             on_change=self.atualizar_extrato,
         )
 
-        return ft.Container(
-            padding=30,
-            alignment=ft.alignment.top_center,
-            expand=True,
+        conteudo = ft.Container(
+            width=520,
+            padding=25,
+            bgcolor=CORES["fundo"],
+            border_radius=16,
+            shadow=ft.BoxShadow(blur_radius=20, color="#00000022", offset=ft.Offset(3, 3)),
             content=ft.Column(
-                width=500,
                 spacing=20,
                 controls=[
                     ft.Row([
-                        ft.Icon(name=ft.Icons.RECEIPT_LONG, size=28),
-                        ft.Text("Consulta de Extrato", size=22, weight=ft.FontWeight.BOLD),
+                        ft.Icon(name=ft.Icons.RECEIPT_LONG, size=28, color=CORES["primaria"]),
+                        ft.Text("Consulta de Extrato", style=ESTILOS_TEXTO["titulo"])
                     ], alignment=ft.MainAxisAlignment.CENTER),
+
                     dropdown_conta,
                     CartaoResumo("Saldo atual", [self.saldo_text]),
                     CartaoResumo("Últimas transações", [
                         ft.Container(
                             content=self.lista_extrato,
-                            height=300  # ✅ Limita altura para scroll
+                            height=300
                         )
                     ]),
                     self.notificador.get_snackbar()
                 ]
             )
+        )
+
+        return ft.Container(
+            alignment=ft.alignment.top_center,
+            expand=True,
+            bgcolor=CORES["secundaria"],
+            padding=30,
+            content=conteudo
         )
 
     def atualizar_extrato(self, e):
@@ -83,12 +89,18 @@ class TelaExtrato:
         self.saldo_text.value = f"💰 Saldo disponível: R$ {saldo:.2f}"
         self.lista_extrato.controls.clear()
 
-        if not historico:
+        # 🎯 Filtra apenas transações reais
+        transacoes_validas = [
+            item for item in historico
+            if "Recebido" in item or "Transferência de" in item
+        ]
+
+        if not transacoes_validas:
             self.lista_extrato.controls.append(
-                ft.Text("Nenhuma transação encontrada.", italic=True)
+                ft.Text("Nenhuma transação encontrada.", italic=True, style=ESTILOS_TEXTO["normal"])
             )
         else:
-            for item in reversed(historico[-10:]):
+            for item in reversed(transacoes_validas[-10:]):
                 self.lista_extrato.controls.append(CartaoTransacao(item))
 
         e.page.update()

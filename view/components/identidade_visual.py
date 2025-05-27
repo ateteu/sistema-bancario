@@ -1,11 +1,41 @@
+# view/components/identidade_visual.py
+
 """
 Definições visuais reutilizáveis do sistema bancário.
-
-Este módulo centraliza ícones, cores e tamanhos de fonte,
-facilitando a consistência visual e a manutenção.
 """
 
-# Ícones padrão para campos de entrada
+from flet import Colors, TextStyle, FontWeight
+
+# Paleta de cores
+CORES = {
+    "fundo": "#f2f4f7",       # fundo suave
+    "primaria": "#0077cc",    # azul institucional
+    "primaria_hover": "#005fa3",
+    "secundaria": "#e3f2fd",  # azul claro
+    "erro": "#e53935",        # vermelho claro
+    "sucesso": "#2e7d32",     # verde
+    "texto": "#212121",       # preto suave
+    "icone_sidebar": "#ffffff",
+    "fundo_sidebar": "#004a80",
+}
+
+# Tamanhos de fonte
+FONTES = {
+    "titulo": 22,
+    "subtitulo": 18,
+    "normal": 16,
+    "pequena": 13,
+}
+
+# Estilos pré-definidos
+ESTILOS_TEXTO = {
+    "titulo": TextStyle(size=FONTES["titulo"], weight=FontWeight.BOLD, color=CORES["texto"]),
+    "subtitulo": TextStyle(size=FONTES["subtitulo"], weight=FontWeight.W_500, color=CORES["texto"]),
+    "normal": TextStyle(size=FONTES["normal"], color=CORES["texto"]),
+    "erro": TextStyle(size=FONTES["pequena"], color=CORES["erro"]),
+}
+
+# Ícones padrão
 ICONES_CAMPOS = {
     "nome": "person",
     "cpf": "badge",
@@ -16,20 +46,4 @@ ICONES_CAMPOS = {
     "numero": "pin",
     "data_nascimento": "calendar_today",
     "valor": "attach_money"
-}
-
-# Paleta de cores do sistema
-CORES = {
-    "fundo": "#f8f9fa",     # Cor de fundo clara para páginas
-    "primaria": "#0077cc",  # Azul padrão para botões e destaques
-    "erro": "#e53935",      # Vermelho para mensagens de erro
-    "sucesso": "#2e7d32",   # Verde para confirmações
-    "texto": "#212121",     # Cor padrão para textos escuros
-}
-
-# Tamanhos de fonte padronizados
-FONTES = {
-    "titulo": 22,    # Fontes de títulos principais
-    "normal": 16,    # Texto padrão
-    "pequena": 13,   # Texto auxiliar ou informativo
 }

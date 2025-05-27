@@ -1,6 +1,8 @@
 import flet as ft
 from view.components.mensagens import Notificador
 from view.components.containers import CartaoResumo
+from view.components.identidade_visual import CORES, ESTILOS_TEXTO
+
 
 class TelaPerfil:
     def __init__(self, cliente):
@@ -11,7 +13,6 @@ class TelaPerfil:
     def criar_view(self) -> ft.Container:
         pessoa = self.cliente.pessoa
 
-        # 🧪 DEBUG: imprime contas carregadas
         print("🧪 DEBUG → Contas carregadas na TelaPerfil:")
         for conta in self.cliente.contas:
             print(
@@ -33,40 +34,73 @@ class TelaPerfil:
             "contas": self.cliente.contas
         }
 
-        # ✅ Define os textos de dados pessoais
+        def linha_info(icon, texto):
+            return ft.Row(
+                spacing=10,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    ft.Icon(icon, size=20, color=CORES["primaria"]),
+                    ft.Text(texto, style=ESTILOS_TEXTO["normal"])
+                ]
+            )
+
+        def linha_multilinha(icon, rotulo, texto):
+            return ft.Column([
+                ft.Row([
+                    ft.Icon(icon, size=20, color=CORES["primaria"]),
+                    ft.Text(rotulo, style=ESTILOS_TEXTO["normal"])
+                ]),
+                ft.Text(texto, style=ESTILOS_TEXTO["normal"], selectable=True, no_wrap=False)
+            ])
+
         dados_pessoais = [
-            ft.Text(f"Nome: {dados['nome']}"),
-            ft.Text(f"Documento: {dados['documento_formatado']}"),
-            ft.Text(f"Email: {dados['email']}"),
-            ft.Text(f"Telefone: {dados['telefone']}"),
-            ft.Text(f"Endereço: {dados['endereco']}")
+            linha_info(ft.Icons.PERSON, f"Nome: {dados['nome']}"),
+            linha_info(ft.Icons.BADGE, f"Documento: {dados['documento_formatado']}"),
+            linha_info(ft.Icons.MAIL_OUTLINE, f"Email: {dados['email']}"),
+            linha_info(ft.Icons.PHONE, f"Telefone: {dados['telefone']}")
         ]
 
         if dados["data_nascimento"]:
-            dados_pessoais.insert(4, ft.Text(f"Data de nascimento: {dados['data_nascimento']}"))
+            dados_pessoais.append(
+                linha_info(ft.Icons.CALENDAR_MONTH, f"Data de nascimento: {dados['data_nascimento']}")
+            )
 
-        # ✅ Lista contas ativas (ou mensagem padrão)
+        # Substitui o endereço por versão que quebra linha
+        dados_pessoais.append(
+            linha_multilinha(ft.Icons.LOCATION_ON_OUTLINED, "Endereço:", dados['endereco'])
+        )
+
         contas_ativas = [
-            ft.Text(
-                f"- {conta.__class__.__name__} | Nº {conta.get_numero_conta()} | "
-                f"Saldo: R$ {conta.get_saldo():.2f}"
+            linha_info(
+                ft.Icons.ACCOUNT_BALANCE,
+                f"{conta.__class__.__name__} • Nº {conta.get_numero_conta()} • Saldo: R$ {conta.get_saldo():.2f}"
             )
             for conta in dados["contas"] if conta.get_estado_da_conta()
-        ] or [ft.Text("Nenhuma conta ativa encontrada.", italic=True)]
+        ] or [ft.Text("❌ Nenhuma conta ativa encontrada.", italic=True, style=ESTILOS_TEXTO["normal"])]
 
-        # ✅ Retorna a interface completa
         return ft.Container(
-            padding=30,
             alignment=ft.alignment.top_center,
+            padding=30,
             expand=True,
-            content=ft.Column(
-                width=500,
-                spacing=20,
-                controls=[
-                    ft.Text("Informações do Cliente", size=22, weight=ft.FontWeight.BOLD),
-                    CartaoResumo("Dados pessoais", dados_pessoais),
-                    CartaoResumo("Contas ativas", contas_ativas),
-                    self.notificador.get_snackbar()
-                ]
+            bgcolor=CORES["secundaria"],
+            content=ft.Container(
+                width=520,
+                padding=25,
+                bgcolor=CORES["fundo"],
+                border_radius=16,
+                shadow=ft.BoxShadow(blur_radius=20, color="#00000022", offset=ft.Offset(3, 3)),
+                content=ft.Column(
+                    spacing=20,
+                    controls=[
+                        ft.Row([
+                            ft.Icon(name=ft.Icons.PERSON_OUTLINE, size=28, color=CORES["primaria"]),
+                            ft.Text("Informações do Cliente", style=ESTILOS_TEXTO["titulo"])
+                        ], alignment=ft.MainAxisAlignment.CENTER),
+
+                        CartaoResumo("Dados pessoais", dados_pessoais),
+                        CartaoResumo("Contas ativas", contas_ativas),
+                        self.notificador.get_snackbar()
+                    ]
+                )
             )
         )

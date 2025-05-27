@@ -11,27 +11,15 @@ from view.components.campos import (
 )
 from view.components.botoes import BotaoPrimario, BotaoSecundario
 from view.components.mensagens import Notificador
+from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
 class TelaCadastro:
-    """
-    Tela de cadastro de novos clientes (pessoa física ou jurídica).
-    Permite entrada de dados, validação e envio para persistência via controller.
-    """
-
     def __init__(self, on_cadastro_sucesso=None, on_voltar_login=None):
-        """
-        Inicializa a tela e seus componentes visuais.
-
-        Args:
-            on_cadastro_sucesso (callable): Função chamada ao cadastrar com sucesso.
-            on_voltar_login (callable): Função chamada ao clicar em 'Voltar'.
-        """
         self.on_cadastro_sucesso = on_cadastro_sucesso
         self.on_voltar_login = on_voltar_login
         self.notificador = Notificador()
 
-        # Referências e campos
         self.tipo_pessoa_ref = ft.Ref[ft.RadioGroup]()
         self.nome = CampoNome()
         self.campo_documento = CampoCPF()
@@ -47,21 +35,13 @@ class TelaCadastro:
         self.campos_dinamicos = ft.Column(controls=[])
         self.view = self.criar_view()
 
-        # Inicializa dinamicamente os campos visíveis com leve atraso
         Thread(target=self._delayed_init).start()
 
     def _delayed_init(self):
         sleep_sync(0.05)
         self.atualizar_campos_visiveis(None)
 
-    async def _inicializar_campos(self):
-        await sleep(0.03)
-        self.atualizar_campos_visiveis(None)
-
     def criar_view(self) -> ft.Container:
-        """
-        Constrói e retorna o layout da tela de cadastro.
-        """
         grupo_tipo_pessoa = ft.RadioGroup(
             ref=self.tipo_pessoa_ref,
             value="fisica",
@@ -75,50 +55,60 @@ class TelaCadastro:
             )
         )
 
-        layout = ft.Column(
-            width=450,
-            alignment=ft.MainAxisAlignment.CENTER,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            spacing=18,
-            controls=[
-                ft.Text("Cadastro de Cliente", size=22, weight=ft.FontWeight.BOLD),
-                ft.Text("Tipo de pessoa", size=14),
-                grupo_tipo_pessoa,
-                self.nome,
-                ft.Container(ref=self.documento_container, content=self.campo_documento),
-                self.campos_dinamicos,
-                self.telefone,
-                ft.Row(
-                    spacing=10,
-                    controls=[
-                        ft.Container(expand=2, content=self.cep),
-                        ft.Container(expand=1, content=self.numero_endereco),
-                    ]
-                ),
-                self.email,
-                self.senha,
-                ft.Row([
-                    BotaoPrimario("Cadastrar", lambda e: e.page.run_task(self.on_cadastrar_click, e)),
-                    BotaoSecundario("Voltar", lambda e: self.on_voltar_login() if self.on_voltar_login else None)
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                self.notificador.get_snackbar()
-            ]
+        layout = ft.Container(
+            width=500,
+            padding=30,
+            bgcolor=CORES["fundo"],
+            border_radius=16,
+            shadow=ft.BoxShadow(blur_radius=20, color="#00000022", offset=ft.Offset(3, 3)),
+            content=ft.Column(
+                spacing=20,
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    ft.Row([
+                        ft.Icon(name=ft.Icons.APP_REGISTRATION, size=30, color=CORES["primaria"]),
+                        ft.Text("Cadastro de Cliente", style=ESTILOS_TEXTO["titulo"])
+                    ], alignment=ft.MainAxisAlignment.CENTER),
+
+                    ft.Text("Tipo de pessoa", style=ESTILOS_TEXTO["subtitulo"]),
+                    grupo_tipo_pessoa,
+
+                    self.nome,
+                    ft.Container(ref=self.documento_container, content=self.campo_documento),
+                    self.campos_dinamicos,
+                    self.telefone,
+
+                    ft.Row(
+                        spacing=10,
+                        controls=[
+                            ft.Container(expand=2, content=self.cep),
+                            ft.Container(expand=1, content=self.numero_endereco),
+                        ]
+                    ),
+                    self.email,
+                    self.senha,
+
+                    ft.Row([
+                        BotaoPrimario("Cadastrar", lambda e: e.page.run_task(self.on_cadastrar_click, e)),
+                        BotaoSecundario("Voltar", lambda e: self.on_voltar_login() if self.on_voltar_login else None)
+                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+
+                    self.notificador.get_snackbar()
+                ]
+            )
         )
 
         return ft.Container(
             alignment=ft.alignment.center,
             expand=True,
+            bgcolor=CORES["secundaria"],
             content=layout
         )
 
     def atualizar_campos_visiveis(self, e):
-        """
-        Altera os campos visíveis com base no tipo de pessoa (física/jurídica).
-        Também limpa todos os valores atuais.
-        """
         tipo = self.tipo_pessoa_ref.current.value if self.tipo_pessoa_ref.current else "fisica"
 
-        # Limpa valores de todos os campos
         self.nome.value = ""
         self.campo_documento.value = ""
         self.telefone.value = ""
@@ -129,7 +119,6 @@ class TelaCadastro:
         self.nascimento.value = ""
         self.nome_fantasia.value = ""
 
-        # Atualiza campos visíveis com base no tipo
         if tipo == "fisica":
             self.nome.atualizar_para_pessoa_fisica()
             self.campo_documento = CampoCPF()
@@ -142,7 +131,7 @@ class TelaCadastro:
             self.campos_dinamicos.controls.clear()
             self.campos_dinamicos.controls.append(self.nome_fantasia)
             self.campos_dinamicos.controls.append(
-                ft.Text("(Opcional)", size=12, italic=True, color=ft.Colors.GREY)
+                ft.Text("(Opcional)", size=12, italic=True, color=CORES["texto"])
             )
 
         self.documento_container.current.content = self.campo_documento
@@ -153,14 +142,7 @@ class TelaCadastro:
             e.page.update()
 
     def coletar_dados(self) -> dict:
-        """
-        Coleta os dados preenchidos nos campos e retorna em um dicionário.
-
-        Returns:
-            dict: Dados extraídos dos campos.
-        """
         tipo = self.tipo_pessoa_ref.current.value
-
         dados = {
             "tipo": tipo,
             "nome": self.nome.value,
@@ -181,13 +163,6 @@ class TelaCadastro:
         return dados
 
     async def on_cadastrar_click(self, e):
-        """
-        Ação executada ao clicar no botão 'Cadastrar'.
-        Realiza a chamada assíncrona ao controller e exibe a notificação.
-
-        Args:
-            e: Evento de clique (Flet).
-        """
         page = e.page
         dados = self.coletar_dados()
 

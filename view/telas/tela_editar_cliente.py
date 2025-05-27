@@ -1,7 +1,8 @@
-# arquivo: view/telas/tela_editar_cliente.py
-
 import flet as ft
 from view.components.mensagens import Notificador
+from dao.cliente_dao import ClienteDAO
+from view.components.identidade_visual import CORES, ESTILOS_TEXTO
+
 
 class TelaEditarCliente:
     def __init__(self, cliente):
@@ -14,42 +15,98 @@ class TelaEditarCliente:
         self.view = self.criar_view()
 
     def criar_view(self) -> ft.Container:
-        return ft.Container(
-            padding=30,
-            alignment=ft.alignment.top_center,
-            expand=True,
+        layout = ft.Container(
+            width=500,
+            padding=25,
+            bgcolor=CORES["fundo"],
+            border_radius=16,
+            shadow=ft.BoxShadow(blur_radius=20, color="#00000022", offset=ft.Offset(3, 3)),
             content=ft.Column(
-                width=450,
                 spacing=20,
                 controls=[
-                    ft.Text("Alterar Dados do Cliente", size=22, weight=ft.FontWeight.BOLD),
-                    ft.TextField(ref=self.email_field, label="Email", value=self.cliente.pessoa.get_email()),
-                    ft.TextField(ref=self.telefone_field, label="Telefone", value=self.cliente.pessoa.get_telefone()),
+                    ft.Row([
+                        ft.Icon(name=ft.Icons.EDIT, size=28, color=CORES["primaria"]),
+                        ft.Text("Alterar Dados do Cliente", style=ESTILOS_TEXTO["titulo"])
+                    ], alignment=ft.MainAxisAlignment.CENTER),
+
+                    ft.TextField(
+                        ref=self.email_field,
+                        label="Email",
+                        value=self.cliente.pessoa.get_email()
+                    ),
+                    ft.TextField(
+                        ref=self.telefone_field,
+                        label="Telefone",
+                        value=self.cliente.pessoa.get_telefone()
+                    ),
+
                     ft.Divider(),
-                    ft.TextField(ref=self.senha_atual_field, label="Senha atual", password=True),
-                    ft.TextField(ref=self.nova_senha_field, label="Nova senha", password=True),
-                    ft.ElevatedButton("Salvar alterações", on_click=self.salvar_dados),
+                    ft.Text(
+                        "Para confirmar as alterações, digite sua senha atual:",
+                        size=12,
+                        italic=True,
+                        color=CORES["texto"]
+                    ),
+                    ft.TextField(
+                        ref=self.senha_atual_field,
+                        label="Senha atual",
+                        password=True,
+                        can_reveal_password=True
+                    ),
+                    ft.TextField(
+                        ref=self.nova_senha_field,
+                        label="Nova senha (preencha se quiser trocar)",
+                        password=True,
+                        can_reveal_password=True
+                    ),
+
+                    ft.ElevatedButton(
+                        "Salvar alterações",
+                        on_click=self.salvar_dados,
+                        bgcolor=CORES["primaria"],
+                        color=CORES["icone_sidebar"]
+                    ),
                     self.notificador.get_snackbar()
                 ]
             )
         )
 
+        return ft.Container(
+            alignment=ft.alignment.top_center,
+            expand=True,
+            bgcolor=CORES["secundaria"],
+            padding=30,
+            content=layout
+        )
+
     def salvar_dados(self, e):
+        page = e.page
+        email = self.email_field.current.value.strip()
+        telefone = self.telefone_field.current.value.strip()
+        senha_atual = self.senha_atual_field.current.value.strip()
+        nova_senha = self.nova_senha_field.current.value.strip()
+
+        if not senha_atual:
+            self.notificador.erro(page, "Digite sua senha atual para confirmar as alterações.")
+            return
+
+        if not self.cliente.verificar_senha(senha_atual):
+            self.notificador.erro(page, "Senha atual incorreta.")
+            return
+
         try:
-            # Atualiza email e telefone
-            self.cliente.pessoa.set_email(self.email_field.current.value)
-            self.cliente.pessoa.set_telefone(self.telefone_field.current.value)
+            self.cliente.pessoa.set_email(email)
+            self.cliente.pessoa.set_telefone(telefone)
 
-            # Atualiza senha (se preenchida)
-            senha_atual = self.senha_atual_field.current.value.strip()
-            nova_senha = self.nova_senha_field.current.value.strip()
-
-            if senha_atual and nova_senha:
+            if nova_senha:
                 self.cliente.alterar_senha(senha_atual, nova_senha)
 
-            from dao.cliente_dao import ClienteDAO
             ClienteDAO().atualizar_objeto(self.cliente)
 
-            self.notificador.sucesso(e.page, "Dados atualizados com sucesso!")
+            self.senha_atual_field.current.value = ""
+            self.nova_senha_field.current.value = ""
+            page.update()
+
+            self.notificador.sucesso(page, "Dados atualizados com sucesso!")
         except Exception as err:
-            self.notificador.erro(e.page, str(err))
+            self.notificador.erro(page, str(err))

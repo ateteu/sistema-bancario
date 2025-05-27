@@ -1,47 +1,41 @@
+# arquivo: view/telas/tela_usuario.py
+
 import flet as ft
 from view.telas.tela_perfil import TelaPerfil
 from view.telas.tela_pagamento import TelaPagamento
 from view.telas.tela_extrato import TelaExtrato
-from controller.perfil_controller import PerfilController  # ✅ Importado para recarregar cliente
+from controller.perfil_controller import PerfilController
 
 
 class TelaUsuario:
-    def __init__(self, banco, cliente, on_logout, subrota: str = None):
+    def __init__(self, banco, cliente, on_logout, subrota: str = None, resetar: bool = False):
+        print(f"[🧼 TelaUsuario] resetar = {resetar}")
         self.banco = banco
         self.cliente = cliente
         self.on_logout = on_logout
         self.subrota = subrota or "perfil"
+        self.resetar = resetar  # ✅ novo parâmetro
         self.conteudo_ref = ft.Ref[ft.Container]()
         self.view = self.criar_view()
-
-        # 🚀 Garante que a sub-tela será carregada logo após instanciar
         self.carregar_tela(self.subrota)
 
-    def criar_view(self) -> ft.View:
-        view = ft.View(
-            route=f"/painel/{self.cliente.pessoa.get_numero_documento()}",
-            controls=[
-                ft.Row(
-                    expand=True,
-                    controls=[
-                        self.criar_sidebar(),
-                        ft.Container(
-                            ref=self.conteudo_ref,
-                            expand=True,
-                            padding=30,
-                            content=ft.Text("Bem-vindo ao sistema bancário", size=20)
-                        )
-                    ]
-                )
-            ]
+    def criar_view(self) -> ft.Container:
+        return ft.Container(
+            alignment=ft.alignment.center,
+            expand=True,
+            content=ft.Row(
+                expand=True,
+                controls=[
+                    self.criar_sidebar(),
+                    ft.Container(
+                        ref=self.conteudo_ref,
+                        expand=True,
+                        padding=30,
+                        content=ft.Text("Bem-vindo ao sistema bancário", size=20)
+                    )
+                ]
+            )
         )
-
-        def apos_renderizacao(e):
-            print("[DEBUG] on_view_init executado com subrota =", self.subrota)
-            self.carregar_tela(self.subrota, e)
-
-        view.on_view_init = apos_renderizacao
-        return view
 
     def criar_sidebar(self) -> ft.Container:
         return ft.Container(
@@ -67,7 +61,6 @@ class TelaUsuario:
     def carregar_tela(self, rota: str, e=None):
         print("[DEBUG] carregar_tela chamado com rota:", rota)
 
-        # ✅ Sempre recarrega o cliente atualizado do JSON
         cliente_atualizado = PerfilController.buscar_cliente_por_documento(self.cliente.numero_documento)
         if cliente_atualizado:
             self.cliente = cliente_atualizado
@@ -81,7 +74,12 @@ class TelaUsuario:
                 tela = TelaExtrato(self.cliente)
             case "criar_conta":
                 from view.telas.tela_criar_conta import TelaCriarConta
+                if self.resetar:
+                    print("[🧼 Resetar está True → Criando nova TelaCriarConta forçada]")
+                else:
+                    print("[🧼 Resetar está False → Carregando tela normalmente]")
                 tela = TelaCriarConta(self.cliente)
+
             case "gerenciar_contas":
                 from view.telas.tela_gerenciar_contas import TelaGerenciarContas
                 tela = TelaGerenciarContas(self.cliente)
@@ -89,9 +87,9 @@ class TelaUsuario:
                 from view.telas.tela_editar_cliente import TelaEditarCliente
                 tela = TelaEditarCliente(self.cliente)
             case _:
-                tela = ft.Text("Tela não encontrada.")
+                tela = None
 
-        self.conteudo_ref.current.content = tela.view
+        self.conteudo_ref.current.content = tela.view if tela else ft.Text("Tela não encontrada.")
 
         if e and e.page:
             e.page.update()

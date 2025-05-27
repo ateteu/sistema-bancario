@@ -1,9 +1,11 @@
 import flet as ft
 import asyncio
+
 from view.components.campos import CampoCPF, CampoCNPJ, CampoSenha
 from view.components.botoes import BotaoPrimario, BotaoSecundario
 from view.components.mensagens import Notificador
 from controller.auth_controller import AuthController
+from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
 class TelaLogin:
@@ -32,25 +34,47 @@ class TelaLogin:
             )
         )
 
-        return ft.Container(
-            alignment=ft.alignment.center,
-            expand=True,
+        layout = ft.Container(
+            width=420,
+            padding=30,
+            bgcolor=CORES["fundo"],
+            border_radius=16,
+            shadow=ft.BoxShadow(
+                blur_radius=20,
+                color="#00000022",
+                spread_radius=2,
+                offset=ft.Offset(3, 3)
+            ),
             content=ft.Column(
-                width=400,
+                spacing=20,
                 alignment=ft.MainAxisAlignment.CENTER,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=20,
                 controls=[
-                    ft.Text("Acesso ao sistema bancário", size=22, weight=ft.FontWeight.BOLD),
-                    ft.Text("Tipo de documento", size=14),
+                    ft.Row([
+                        ft.Icon(name=ft.Icons.LOCK_OUTLINE, size=32, color=CORES["primaria"]),
+                        ft.Text("Acesso ao sistema bancário", style=ESTILOS_TEXTO["titulo"])
+                    ], alignment=ft.MainAxisAlignment.CENTER),
+
+                    ft.Text("Tipo de documento", style=ESTILOS_TEXTO["subtitulo"]),
                     grupo_tipo,
                     ft.Container(ref=self.documento_container, content=self.campo_documento),
                     self.campo_senha,
-                    BotaoPrimario("Entrar", on_click=lambda e: page.run_task(self.on_login_click, e)),
-                    BotaoSecundario("Criar conta", on_click=lambda e: self.on_ir_cadastro()),
+
+                    ft.Row([
+                        BotaoPrimario("Entrar", on_click=lambda e: page.run_task(self.on_login_click, e)),
+                        BotaoSecundario("Criar conta", on_click=lambda e: self.on_ir_cadastro())
+                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+
                     self.notificador.get_snackbar()
                 ]
             )
+        )
+
+        return ft.Container(
+            alignment=ft.alignment.center,
+            expand=True,
+            bgcolor=CORES["secundaria"],
+            content=layout
         )
 
     def trocar_campo_documento(self, e):
@@ -63,7 +87,6 @@ class TelaLogin:
         e.control.disabled = True
         e.page.update()
 
-        # 🔄 Spinner de carregamento
         spinner = ft.ProgressRing()
         e.page.overlay.append(spinner)
         e.page.update()
@@ -73,7 +96,6 @@ class TelaLogin:
 
         resultado = AuthController.login(documento, senha)
 
-        # 🔁 Remove o spinner
         e.page.overlay.clear()
         e.page.update()
 
@@ -83,8 +105,6 @@ class TelaLogin:
             e.page.update()
             return
 
-        # Pequeno atraso para sensação de transição suave
         await asyncio.sleep(0.2)
-
         if self.on_login_sucesso:
             self.on_login_sucesso(resultado["usuario_id"])

@@ -1,9 +1,11 @@
 import flet as ft
+import uuid
 from view.components.campos import CampoValor, CampoTextoPadrao, CampoCPF, CampoCNPJ
 from view.components.mensagens import Notificador
 from controller.pagamento_controller import PagamentoController
 from controller.conta_controller import ContaController
-from controller.perfil_controller import PerfilController  # ✅ Substituição aqui
+from controller.perfil_controller import PerfilController
+from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
 class TelaPagamento:
@@ -29,7 +31,7 @@ class TelaPagamento:
         self.campo_valor = CampoValor()
         self.campo_desc = CampoTextoPadrao(label="Descrição", hint="Opcional")
         self.campo_senha = ft.TextField(label="Sua senha", password=True, can_reveal_password=True, width=300)
-        self.nome_destinatario_text = ft.Text("", size=14, italic=True)
+        self.nome_destinatario_text = ft.Text("", size=14, italic=True, color=CORES["texto"])
 
         self.conta_ref = ft.Ref[ft.Dropdown]()
         self.saldo_text = ft.Text("", size=14, italic=True)
@@ -60,37 +62,47 @@ class TelaPagamento:
             on_change=self.alternar_campo_chave
         )
 
-        return ft.Container(
-            alignment=ft.alignment.top_center,
-            padding=30,
-            expand=True,
+        conteudo = ft.Container(
+            width=500,
+            padding=25,
+            bgcolor=CORES["fundo"],
+            border_radius=16,
+            shadow=ft.BoxShadow(blur_radius=20, color="#00000022", offset=ft.Offset(3, 3)),
             content=ft.Column(
-                width=450,
-                spacing=20,
+                spacing=18,
                 scroll=ft.ScrollMode.AUTO,
                 controls=[
                     ft.Row([
-                        ft.Icon(name=ft.Icons.PAYMENTS, size=28),
-                        ft.Text("Transferência entre contas", size=22, weight=ft.FontWeight.BOLD),
+                        ft.Icon(name=ft.Icons.PAYMENTS_OUTLINED, size=28, color=CORES["primaria"]),
+                        ft.Text("Transferência entre contas", style=ESTILOS_TEXTO["titulo"])
                     ], alignment=ft.MainAxisAlignment.CENTER),
+
                     dropdown_conta,
                     self.saldo_text,
                     self.tipo_conta_text,
                     self.limite_text,
+
                     self.dropdown_tipo,
                     self.container_chave,
                     self.nome_destinatario_text,
                     self.dropdown_conta_destino,
+
                     self.campo_valor,
                     self.campo_desc,
                     self.campo_senha,
-                    ft.Container(
-                        bgcolor=ft.Colors.TRANSPARENT,
-                        content=ft.ElevatedButton("Confirmar pagamento", on_click=self.realizar_pagamento)
-                    ),
+
+                    ft.ElevatedButton("Confirmar pagamento", on_click=self.realizar_pagamento),
                     self.notificador.get_snackbar()
                 ]
             )
+        )
+
+        return ft.Container(
+            alignment=ft.alignment.top_center,
+            expand=True,
+            bgcolor=CORES["secundaria"],
+            padding=30,
+            content=conteudo
         )
 
     def alternar_campo_chave(self, e):
@@ -119,7 +131,7 @@ class TelaPagamento:
             e.page.update()
             return
 
-        cliente = PerfilController.buscar_cliente_por_documento(doc)  # ✅ Substituição aqui
+        cliente = PerfilController.buscar_cliente_por_documento(doc)
         if not cliente:
             self.nome_destinatario_text.value = "❌ Destinatário não encontrado."
         else:
@@ -152,8 +164,8 @@ class TelaPagamento:
             else:
                 saldo, conta = resultado
                 self.saldo_text.value = f"💰 Saldo disponível: R$ {saldo:.2f}"
-                self.tipo_conta_text.value = f"Tipo da conta: {conta.__class__.__name__}"
-                self.limite_text.value = f"🔒 Limite de transferência: R$ {conta.limite_transferencia:.2f}"
+                self.tipo_conta_text.value = f"🏷 Tipo da conta: {conta.__class__.__name__}"
+                self.limite_text.value = f"🔒 Limite: R$ {conta.limite_transferencia:.2f}"
 
         e.page.update()
 
@@ -205,16 +217,31 @@ class TelaPagamento:
         if resultado["sucesso"]:
             self.notificador.sucesso(page, resultado["mensagem"])
             self.atualizar_saldo(e)
-            self.campo_senha.value = ""
-            self.campo_valor.limpar()
-            self.campo_desc.value = ""
-            self.destinatario_confirmado = False
-            self.nome_destinatario_text.value = ""
-            self.campo_doc.value = ""
-            self.dropdown_conta_destino.opacity = 0
-            self.dropdown_conta_destino.disabled = True
-            self.dropdown_conta_destino.options = []
+            self.resetar_campos()
         else:
             self.notificador.erro(page, "\n".join(resultado["erros"]))
 
         page.update()
+
+    def resetar_campos(self):
+        self.campo_senha.value = ""
+        self.campo_valor.value = ""
+        self.campo_valor.update()
+
+        self.campo_desc.value = ""
+        self.nome_destinatario_text.value = ""
+        self.campo_doc.value = ""
+
+        self.tipo_chave.current.value = None
+        self.tipo_chave.current.key = str(uuid.uuid4())
+        self.tipo_chave.current.update()
+
+        self.dropdown_conta_destino.options = []
+        self.dropdown_conta_destino.opacity = 0
+        self.dropdown_conta_destino.disabled = True
+        self.conta_destino_ref.current.value = None
+        self.dropdown_conta_destino.update()
+
+        self.container_chave.content = ft.Column([])
+        self.container_chave.update()
+        self.destinatario_confirmado = False

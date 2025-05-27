@@ -175,21 +175,38 @@ class CampoTelefone(CampoTextoPadrao):
 class CampoValor(CampoTextoPadrao):
     """Campo para entrada de valores monetários com validação de formato."""
     def __init__(self):
-        super().__init__(label="Valor", hint="Ex: 100.00", keyboard_type="number", icon=ICONES_CAMPOS["valor"])
+        super().__init__(
+            label="Valor",
+            hint="Digite um valor, ex: 100.00",
+            keyboard_type="number",
+            icon=ICONES_CAMPOS["valor"]
+        )
 
     def validar(self) -> bool:
-        try:
-            valor = float(self.value.replace(",", "."))
-            if valor <= 0:
-                raise ValueError
-            self._limpar_erro()
-            return True
-        except:
-            self._mostrar_erro("Valor inválido.")
+        valor = self.value.strip()
+
+        if not valor:
+            self._mostrar_erro("Valor é obrigatório.")
             return False
 
+        if "." not in valor:
+            self._mostrar_erro("Formato de dinheiro inválido. Use ponto como separador decimal.")
+            return False
+
+        try:
+            numero = float(valor)
+            if numero <= 0:
+                self._mostrar_erro("O valor deve ser maior que zero.")
+                return False
+        except ValueError:
+            self._mostrar_erro("Valor inválido. Use apenas números com ponto.")
+            return False
+
+        self._limpar_erro()
+        return True
+
     def get_valor(self) -> float:
-        return float(self.value.replace(",", "."))
+        return float(self.value.strip())
 
     def _mostrar_erro(self, mensagem: str):
         self.error_text = mensagem
@@ -200,6 +217,7 @@ class CampoValor(CampoTextoPadrao):
         self.error_text = ""
         self.border_color = ft.Colors.BLUE_300
         self.update()
+
 
 
 class CampoDataNascimento(CampoTextoPadrao):
