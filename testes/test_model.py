@@ -1,21 +1,26 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock 
 from datetime import datetime
+
 
 from model.pessoa_fisica import PessoaFisica
 from model.pessoa_juridica import PessoaJuridica
-from utils.constantes import (
-    TAXA_MANUTENCAO_CCORRENTE,
-    RENDIMENTO_MENSAL_CPOUPANCA,
-    LIMITE_TRANSFERENCIA_CCORRENTE,
-    LIMITE_TRANSFERENCIA_CPOUPANCA
-)
+from model.cliente import Cliente
+from model.conta_corrente import ContaCorrente
+from model.conta_poupanca import ContaPoupanca
+from model.exceptions import ContaInativaError # não diretamente testado em Cliente, mas é uma dependência de Conta
+
+# Constantes que podem ser usadas nos testes
+from utils.constantes import TAXA_MANUTENCAO_CCORRENTE, RENDIMENTO_MENSAL_CPOUPANCA,LIMITE_TRANSFERENCIA_CCORRENTE,LIMITE_TRANSFERENCIA_CPOUPANCA
+
+
+
 
 class TestPessoa(unittest.TestCase):
     def setUp(self):
         """
         ***************************************** Setup dos Testes *************************************************************
-        O setUp prepara o ambiente para cada teste da classe e foi utilizado ao longo da maioria das nossas classes de testes.
+        O setUp prepara o ambiente para cada teste da classe e foi utilizado ao longo da maioria da classes de testes do grupo
 
         Aqui, ele cria instâncias de objetos necessários, como PessoaFisica e Cliente, e inicializa atributos comuns 
         para evitar repetição de código em cada teste.
@@ -74,6 +79,7 @@ class TestPessoa(unittest.TestCase):
         """
         /************************ Teste 1 ****************************
         Verifica criação de PessoaFisica com todos os atributos básicos.
+
         Teste para garantir o armazenamento correto dos dados iniciais.
         ****************************************************************/
         """
@@ -184,6 +190,132 @@ class TestPessoa(unittest.TestCase):
                 telefone="31912345678",
                 data_nascimento="01/01/2000"
             )
+
+# --- Testes para Cliente
+class TestCliente(unittest.TestCase):
+
+    # Mock para a API de busca de endereço que é chamada no construtor de Pessoa
+    @patch('utils.api.API.buscar_endereco_por_cep', return_value="Rua Teste, 100 - Bairro Mock, Cidade Mock - MC, 12345-678")
+    def setUp(self, mock_buscar_endereco_api):
+        # Criando uma instância REAL de PessoaFisica
+        self.dados_pessoa_fisica = {
+            "nome": "Usuario Teste",
+            "email": "usuario@teste.com",
+            "numero_documento": "11122233344",
+            "cep": "30100100",
+            "numero_endereco": "100",
+            "endereco": "Rua dos Testes, 100", 
+            "telefone": "31912345678",
+            "data_nascimento": "01/01/1990"
+        }
+        self.pessoa_real = PessoaFisica(**self.dados_pessoa_fisica)
+
+        self.senha_correta = "Senha@Forte123"
+        self.cliente = Cliente(pessoa=self.pessoa_real, senha=self.senha_correta)
+        self.mock_buscar_endereco_api = mock_buscar_endereco_api 
+
+    def test_cliente_criacao(self):
+        """
+        /************************ Teste 1 ****************************
+         Testa a criação de um Cliente e a associação correta com uma Pessoa.
+        *************************************************************/"""
+        self.assertEqual(self.cliente.pessoa, self.pessoa_real)
+        self.assertEqual(self.cliente.numero_documento, self.dados_pessoa_fisica["numero_documento"])
+        self.assertTrue(self.cliente.verificar_senha(self.senha_correta))
+    
+        self.mock_buscar_endereco_api.assert_called_once_with(
+            self.dados_pessoa_fisica["cep"], self.dados_pessoa_fisica["numero_endereco"]
+        )
+
+
+    def test_cliente_verificar_senha_incorreta(self):
+        """
+        /************************ Teste 2 ****************************
+        Testa a verificação de senha com valor incorreto.
+        
+        Importante para a segurança do sistema, impedindo acessos indevidos.
+        *************************************************************/"""
+        self.assertFalse(self.cliente.verificar_senha("senhaErrada123"))
+
+    def test_cliente_alterar_senha_sucesso(self):
+        """
+        /************************ Teste 3 ****************************
+        Testa a alteração de senha com sucesso.
+
+        Garante que o usuário consiga mudar sua senha de forma segura
+        *************************************************************/
+        """
+        nova_senha = "NovaSenha@456"
+        with patch('utils.validadores.validar_cliente.ValidarCliente.senha') as mock_validar_senha:
+            self.cliente.alterar_senha(self.senha_correta, nova_senha)
+            mock_validar_senha.assert_called_once_with(nova_senha) 
+            self.assertTrue(self.cliente.verificar_senha(nova_senha))
+
+    def test_cliente_alterar_senha_atual_incorreta(self):
+        """
+        /************************ Teste 4 ****************************
+        Testa se o erro é levantado ao tentar alterar a senha com a senha atual errada.
+
+        Permite testar se funciona o impedimento que uma senha seja trocada por alguém sem autenticação correta.
+        *************************************************************/
+        """
+        with self.assertRaisesRegex(ValueError, "Senha atual incorreta."):
+            self.cliente.alterar_senha("senhaAtualErrada", "NovaSenha@456")
+
+    @patch('utils.validadores.validar_cliente.ValidarCliente.senha', side_effect=ValueError("Nova senha eh fraca"))
+    def test_cliente_alterar_senha_nova_invalida(self, mock_validar_senha_com_erro):
+        """
+        /************************ Teste 5 ****************************
+        Testa se erro é levantado ao tentar alterar a senha para uma senha nova inválida.
+        *************************************************************/
+        """
+        with self.assertRaisesRegex(ValueError, "Nova senha eh fraca"):
+            self.cliente.alterar_senha(self.senha_correta, "fraca123")
+        mock_validar_senha_com_erro.assert_called_once_with("fraca123")
+
+
+    def test_cliente_possui_conta(self):
+        """
+        /************************ Teste 6 ****************************
+        Testa se o método possui_conta retorna True apenas quando o cliente realmente tem contas.
+
+        Teste que permite ver o controle de cadastro e para a lógica da interface.
+        *************************************************************/
+        """
+        self.assertFalse(self.cliente.possui_conta()) # 
+
+        with patch('utils.validadores.validar_conta.ValidarConta.todos_campos', return_value=[]) as mock_validar_todos_campos_conta:
+            conta_real_para_teste = ContaCorrente(numero="9999")
+        self.cliente.contas = [conta_real_para_teste] 
+        self.assertTrue(self.cliente.possui_conta())
+
+
+    def test_cliente_criacao_tipo_pessoa_invalido(self):
+        """
+        /************************ Teste 7 ****************************
+        Testa se TypeError é levantado quando o parâmetro 'pessoa' não é do tipo esperado.
+        *************************************************************/
+        """
+
+        with self.assertRaisesRegex(TypeError, "O parâmetro 'pessoa' deve ser um objeto da classe Pessoa."):
+            Cliente(pessoa="nao_eh_pessoa_obj", senha="123")
+
+    def test_cliente_criacao_tipo_conta_invalido(self):
+        """
+        /************************ Teste 8 ****************************
+        Testa se TypeError é levantado quando algum item em 'contas' não é do tipo Conta.
+
+        Importante para garantir integridade dos dados.
+         *************************************************************/
+        """
+
+        with patch('utils.validadores.validar_conta.ValidarConta.todos_campos', return_value=[]):
+            conta_valida_real = ContaCorrente(numero="8888")
+
+        with self.assertRaisesRegex(TypeError, "Todos os itens em 'contas' devem ser objetos da classe Conta."):
+            Cliente(pessoa=self.pessoa_real, senha="123", contas=[conta_valida_real, "nao_eh_conta_obj"])
+
+
 
 if __name__ == '__main__':
     unittest.main(argv=['first-arg-is-ignored'], exit=False)
