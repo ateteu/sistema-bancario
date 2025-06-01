@@ -539,8 +539,7 @@ class TestContasBancarias(unittest.TestCase):
         self.assertIn("Número da conta muito curto", str(cm.exception))
        
 
-if __name__ == '__main__':
-    unittest.main(argv=['first-arg-is-ignored'], exit=False)
+
 
 
 
