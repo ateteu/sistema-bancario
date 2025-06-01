@@ -220,3 +220,72 @@ class TestPessoaMapper(unittest.TestCase):
         self.assertEqual(dict_pessoa["tipo"], TIPO_PJURIDICA)
         self.assertNotIn("nome_fantasia", dict_pessoa)
 
+#Testes ContaMapper
+class TestContaMapper(unittest.TestCase):
+
+    def test_from_dict_conta_corrente_sucesso(self):
+        """
+        /************************ Teste 1 ****************************
+        Testa a conversão de dict para ContaCorrente.
+
+        Teste para validar mapeamento correto de atributos e estado.
+        *****************************************************************/
+        """
+        dados_cc = {
+            "tipo": TIPO_CCORRENTE,
+            "numero": "1001",
+            "saldo": 150.75,
+            "historico": ["Deposito inicial"],
+            "ativa": True
+        }
+
+        with patch('utils.validadores.validar_conta.ValidarConta.todos_campos', return_value=[]):
+            conta = ContaMapper.from_dict(dados_cc)
+
+        self.assertIsInstance(conta, ContaCorrente)
+        self.assertEqual(conta.get_numero_conta(), "1001")
+        self.assertEqual(conta.get_saldo(), 150.75)
+        self.assertEqual(conta.get_historico(), ["Deposito inicial"])
+        self.assertTrue(conta.get_estado_da_conta())
+
+    def test_from_dict_conta_poupanca_sucesso(self):
+        """
+        /************************ Teste 2 ****************************
+        Testa a conversão de dict para ContaPoupanca.
+
+        Teste para garantir a criação correta com saldo e estado desejados.
+        *****************************************************************/
+        """
+        dados_cp = {
+            "tipo": TIPO_CPOUPANCA,
+            "numero": "2002",
+            "saldo": 1000.00,
+            "historico": [],
+            "ativa": False
+        }
+
+        with patch('utils.validadores.validar_conta.ValidarConta.todos_campos', return_value=[]):
+            conta = ContaMapper.from_dict(dados_cp)
+
+        self.assertIsInstance(conta, ContaPoupanca)
+        self.assertEqual(conta.get_numero_conta(), "2002")
+        self.assertEqual(conta.get_saldo(), 1000.00)
+        self.assertFalse(conta.get_estado_da_conta())
+
+    def test_from_dict_conta_campo_obrigatorio_faltando(self):
+        """
+        /************************ Teste 3 ****************************
+        Testa ValueError ao faltar campo obrigatório no dict de conta.
+        
+        Teste para verificarr o levantamento de erros
+        *****************************************************************/
+        """
+        dados_sem_numero = {
+            "tipo": TIPO_CCORRENTE,
+            "saldo": 100.0,
+            "historico": [],
+            "ativa": True
+        }
+
+        
+
