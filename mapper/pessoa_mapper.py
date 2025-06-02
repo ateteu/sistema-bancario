@@ -26,7 +26,7 @@ class PessoaMapper:
                 numero_documento=dados["numero_documento"],
                 cep=dados["cep"],
                 numero_endereco=dados["numero_endereco"],
-                endereco=dados["endereco"],
+                endereco=dados.get("endereco", ""),
                 telefone=dados["telefone"],
                 data_nascimento=dados["data_nascimento"]
             )

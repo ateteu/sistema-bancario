@@ -49,6 +49,7 @@ class TelaCadastro:
 
     def criar_view(self) -> ft.Container:
         """Constrói a interface visual completa da tela de cadastro."""
+
         grupo_tipo_pessoa = ft.RadioGroup(
             ref=self.tipo_pessoa_ref,
             value="fisica",
@@ -62,48 +63,51 @@ class TelaCadastro:
             )
         )
 
+        conteudo_principal = ft.Column(
+            spacing=20,
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            scroll="auto",
+            controls=[
+                ft.Row([
+                    ft.Icon(name=ft.Icons.APP_REGISTRATION, size=30, color=CORES["primaria"]),
+                    ft.Text("Cadastro de Cliente", style=ESTILOS_TEXTO["titulo"])
+                ], alignment=ft.MainAxisAlignment.CENTER),
+
+                ft.Text("Tipo de pessoa", style=ESTILOS_TEXTO["subtitulo"]),
+                grupo_tipo_pessoa,
+
+                self.nome,
+                ft.Container(ref=self.documento_container, content=self.campo_documento),
+                self.campos_dinamicos,
+                self.telefone,
+
+                ft.Row(
+                    spacing=10,
+                    controls=[
+                        ft.Container(expand=2, content=self.cep),
+                        ft.Container(expand=1, content=self.numero_endereco),
+                    ]
+                ),
+                self.email,
+                self.senha,
+
+                ft.Row([
+                    BotaoPrimario("Cadastrar", lambda e: e.page.run_task(self.on_cadastrar_click, e)),
+                    BotaoSecundario("Voltar", lambda e: self.on_voltar_login() if self.on_voltar_login else None)
+                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+
+                self.notificador.get_snackbar()
+            ]
+        )
+
         layout = ft.Container(
             width=500,
             padding=30,
             bgcolor=CORES["fundo"],
             border_radius=16,
             shadow=ft.BoxShadow(blur_radius=20, color="#00000022", offset=ft.Offset(3, 3)),
-            content=ft.Column(
-                spacing=20,
-                alignment=ft.MainAxisAlignment.CENTER,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                controls=[
-                    ft.Row([
-                        ft.Icon(name=ft.Icons.APP_REGISTRATION, size=30, color=CORES["primaria"]),
-                        ft.Text("Cadastro de Cliente", style=ESTILOS_TEXTO["titulo"])
-                    ], alignment=ft.MainAxisAlignment.CENTER),
-
-                    ft.Text("Tipo de pessoa", style=ESTILOS_TEXTO["subtitulo"]),
-                    grupo_tipo_pessoa,
-
-                    self.nome,
-                    ft.Container(ref=self.documento_container, content=self.campo_documento),
-                    self.campos_dinamicos,
-                    self.telefone,
-
-                    ft.Row(
-                        spacing=10,
-                        controls=[
-                            ft.Container(expand=2, content=self.cep),
-                            ft.Container(expand=1, content=self.numero_endereco),
-                        ]
-                    ),
-                    self.email,
-                    self.senha,
-
-                    ft.Row([
-                        BotaoPrimario("Cadastrar", lambda e: e.page.run_task(self.on_cadastrar_click, e)),
-                        BotaoSecundario("Voltar", lambda e: self.on_voltar_login() if self.on_voltar_login else None)
-                    ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-
-                    self.notificador.get_snackbar()
-                ]
-            )
+            content=conteudo_principal
         )
 
         return ft.Container(
@@ -112,6 +116,7 @@ class TelaCadastro:
             bgcolor=CORES["secundaria"],
             content=layout
         )
+
 
     def atualizar_campos_visiveis(self, e):
         """Atualiza dinamicamente os campos com base no tipo de pessoa selecionado."""

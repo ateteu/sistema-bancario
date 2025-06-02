@@ -7,7 +7,7 @@ from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 class TelaExtrato:
     """
-    Tela responsável por exibir o extrato e saldo das contas ativas do cliente.
+    Tela responsável por exibir o extrato das contas ativas do cliente.
     """
 
     def __init__(self, cliente):
@@ -15,12 +15,6 @@ class TelaExtrato:
         self.notificador = Notificador()
 
         self.dropdown_ref = ft.Ref[ft.Dropdown]()
-        self.saldo_text = ft.Text(
-            "Selecione uma conta para ver o saldo.",
-            style=ESTILOS_TEXTO["normal"],
-            italic=True
-        )
-
         self.lista_extrato = ft.Column(
             [],
             spacing=8,
@@ -29,7 +23,7 @@ class TelaExtrato:
         )
 
         self.view = self.criar_view()
-
+        
     def criar_view(self) -> ft.Container:
         """Cria a interface completa da tela de extrato."""
         opcoes_contas = [
@@ -66,14 +60,25 @@ class TelaExtrato:
                         )
                     ], alignment=ft.MainAxisAlignment.CENTER),
 
-                    dropdown_conta,
-                    CartaoResumo("Saldo atual", [self.saldo_text]),
-                    CartaoResumo("Últimas transações", [
-                        ft.Container(
-                            content=self.lista_extrato,
-                            height=300
+                    ft.Row([dropdown_conta], alignment=ft.MainAxisAlignment.CENTER),
+
+                    ft.Container(
+                        expand=True,
+                        alignment=ft.alignment.center,
+                        content=CartaoResumo(
+                            titulo="Últimas transações",
+                            conteudo=[
+                                ft.Container(
+                                    content=self.lista_extrato,
+                                    expand=True
+                                )
+                            ],
+                            expand=True,
+                            padding=0,
+                            sombra=False
                         )
-                    ]),
+                    ),
+
                     self.notificador.get_snackbar()
                 ]
             )
@@ -87,8 +92,9 @@ class TelaExtrato:
             content=conteudo
         )
 
+
     def atualizar_extrato(self, e):
-        """Atualiza saldo e extrato da conta selecionada."""
+        """Atualiza o extrato da conta selecionada."""
         numero = self.dropdown_ref.current.value
 
         if not numero:
@@ -101,13 +107,11 @@ class TelaExtrato:
             self.notificador.erro(e.page, erro)
             return
 
-        saldo, conta = resultado
+        _, conta = resultado
         historico = conta.get_historico()
 
-        self.saldo_text.value = f"💰 Saldo disponível: R$ {saldo:.2f}"
         self.lista_extrato.controls.clear()
 
-        # Filtra apenas transações relevantes para exibição no extrato
         transacoes_validas = [
             item for item in historico
             if "Recebido" in item or "Transferência de" in item

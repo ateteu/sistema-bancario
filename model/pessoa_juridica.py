@@ -31,7 +31,7 @@ class PessoaJuridica(Pessoa):
         if erros:
             raise ValueError("\n".join(erros))
 
-        super().__init__(nome, email, numero_documento, cep, numero_endereco, telefone)
+        super().__init__(nome, email, numero_documento, cep, numero_endereco, telefone, endereco)
         self._nome_fantasia = nome_fantasia
 
     def __str__(self) -> str:

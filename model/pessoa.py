@@ -19,7 +19,8 @@ class Pessoa(ABC):
         numero_documento: str,
         cep: str,
         numero_endereco: str,
-        telefone: str
+        telefone: str,
+        endereco: str = None 
     ) -> None:
         """
         Inicializa uma instância de Pessoa com os dados fornecidos.
@@ -37,7 +38,7 @@ class Pessoa(ABC):
         self._cep = cep
         self._numero_endereco = numero_endereco
         self._telefone = telefone
-
+        self._endereco = endereco
         self._atualizar_endereco()
 
     @abstractmethod
@@ -97,11 +98,9 @@ class Pessoa(ABC):
         """
         Consulta a API externa e atualiza o endereço completo da pessoa.
 
-        Nota:
-            O endereço é resolvido apenas uma vez por instância.
+        Otimizado para evitar chamada se o endereço já estiver preenchido.
         """
-        if getattr(self, "_endereco_resolvido", False):
-            return
+        if hasattr(self, "_endereco") and self._endereco:
+            return  # Já carregado via JSON, não precisa consultar API
 
         self._endereco = API.buscar_endereco_por_cep(self._cep, self._numero_endereco)
-        self._endereco_resolvido = True

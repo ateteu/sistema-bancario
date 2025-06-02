@@ -17,7 +17,7 @@ class TelaPerfil:
 
     def criar_view(self) -> ft.Container:
         """Gera a interface visual principal da tela de perfil."""
-        
+
         cliente_atualizado = PerfilController.buscar_cliente_por_documento(self.cliente.numero_documento)
         if cliente_atualizado:
             self.cliente = cliente_atualizado
@@ -73,15 +73,47 @@ class TelaPerfil:
             linha_multilinha(ft.Icons.LOCATION_ON_OUTLINED, "Endereço:", dados['endereco'])
         )
 
-        contas_ativas = [
-            linha_info(
-                ft.Icons.ACCOUNT_BALANCE,
-                f"{conta.__class__.__name__} • Nº {conta.get_numero_conta()} • Saldo: R$ {conta.get_saldo():.2f}"
+        contas_ativas = []
+
+        def criar_linha_conta(conta):
+            saldo_real = f"R$ {conta.get_saldo():.2f}"
+            saldo_oculto = "••••••"
+            texto_saldo = ft.Text(saldo_oculto, style=ESTILOS_TEXTO["normal"])
+            botao = ft.IconButton(icon=ft.Icons.VISIBILITY, tooltip="Mostrar/ocultar saldo")
+
+            def alternar_saldo(e):
+                if texto_saldo.value == saldo_oculto:
+                    texto_saldo.value = saldo_real
+                    botao.icon = ft.Icons.VISIBILITY_OFF
+                else:
+                    texto_saldo.value = saldo_oculto
+                    botao.icon = ft.Icons.VISIBILITY
+                e.page.update()
+
+            botao.on_click = alternar_saldo
+
+            return ft.Row(
+                spacing=10,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    ft.Icon(ft.Icons.ACCOUNT_BALANCE, size=20, color=CORES["primaria"]),
+                    ft.Text(
+                        f"{conta.__class__.__name__} • Nº {conta.get_numero_conta()}",
+                        style=ESTILOS_TEXTO["normal"]
+                    ),
+                    texto_saldo,
+                    botao
+                ]
             )
-            for conta in dados["contas"] if conta.get_estado_da_conta()
-        ] or [
-            ft.Text("❌ Nenhuma conta ativa encontrada.", italic=True, style=ESTILOS_TEXTO["normal"])
-        ]
+
+        for conta in dados["contas"]:
+            if conta.get_estado_da_conta():
+                contas_ativas.append(criar_linha_conta(conta))
+
+        if not contas_ativas:
+            contas_ativas = [
+                ft.Text("❌ Nenhuma conta ativa encontrada.", italic=True, style=ESTILOS_TEXTO["normal"])
+            ]
 
         return ft.Container(
             alignment=ft.alignment.top_center,

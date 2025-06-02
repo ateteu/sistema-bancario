@@ -4,42 +4,40 @@ from utils.validadores.validar_pessoa import ValidarPessoa as Validar
 class API():
     """
     Classe utilitária responsável por consultar e compor endereços a partir de CEPs,
-    utilizando a API pública ViaCEP.
+    utilizando a API pública ViaCEP, com cache local para evitar múltiplas requisições.
     """
 
+    _cache_cep = {}  # Cache em memória por execução
+
+    @staticmethod
     def buscar_endereco_por_cep(cep: str, numero: str) -> str:
         """
         Consulta o endereço completo a partir de um CEP e número do imóvel,
-        utilizando a API pública ViaCEP.
-
-        Args:
-            cep (str): CEP brasileiro, com ou sem formatação (serão considerados apenas os dígitos).
-            numero (str): Número do imóvel a ser incluído na composição do endereço.
-
-        Returns:
-            str: Endereço formatado no padrão: "logradouro, número - bairro, localidade - UF, CEP".
-
-        Raises:
-            ValueError: Se o CEP for inválido ou não encontrado.
-            ValueError: Se o número do endereço for inválido.
-            ValueError: Se houver erro na consulta.
+        utilizando a API pública ViaCEP. Usa cache local para evitar múltiplas chamadas repetidas.
         """
         Validar.cep(cep)
         Validar.numero_endereco(numero)
 
-        url = f"https://viacep.com.br/ws/{cep}/json/"
-        response = requests.get(url)
+        cep_numerico = ''.join(filter(str.isdigit, cep))  # Apenas os dígitos
 
-        if response.status_code != 200:
-            raise ValueError("Erro ao buscar o endereço. Tente novamente mais tarde.")
+        if cep_numerico in API._cache_cep:
+            data = API._cache_cep[cep_numerico]
+        else:
+            url = f"https://viacep.com.br/ws/{cep_numerico}/json/"
+            response = requests.get(url)
 
-        data = response.json()
-        if "erro" in data:
-            raise ValueError("CEP não encontrado. Verifique se está digitado corretamente.")
+            if response.status_code != 200:
+                raise ValueError("Erro ao buscar o endereço. Tente novamente mais tarde.")
+
+            data = response.json()
+            if "erro" in data:
+                raise ValueError("CEP não encontrado. Verifique se está digitado corretamente.")
+
+            API._cache_cep[cep_numerico] = data  # Armazena no cache
 
         logradouro = data["logradouro"]
         bairro     = data["bairro"]
         localidade = data["localidade"]
         uf         = data["uf"]
 
-        return f"{logradouro}, {numero} - {bairro}, {localidade} - {uf}, {cep}"
+        return f"{logradouro}, {numero} - {bairro}, {localidade} - {uf}, {cep_numerico}"

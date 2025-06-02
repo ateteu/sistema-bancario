@@ -8,20 +8,30 @@ class CartaoResumo(ft.Container):
     Usado para agrupar dados como saldo, extrato, perfil, etc.
     """
 
-    def __init__(self, titulo: str, conteudo: list[ft.Control], cor_fundo: str = ft.Colors.WHITE):
+    def __init__(
+        self,
+        titulo: str,
+        conteudo: list[ft.Control],
+        cor_fundo: str = ft.Colors.WHITE,
+        expand: bool = False,
+        padding: int = 20,
+        sombra: bool = True
+    ):
         super().__init__(
             bgcolor=cor_fundo,
-            padding=20,
+            padding=padding,
             border_radius=10,
+            expand=expand,
             shadow=ft.BoxShadow(
                 spread_radius=1,
                 blur_radius=4,
                 color=ft.Colors.GREY_400,
                 offset=ft.Offset(2, 2),
-            ),
+            ) if sombra else None,
             content=ft.Column(
                 controls=[ft.Text(titulo, size=16, weight=ft.FontWeight.BOLD)] + conteudo,
-                spacing=8
+                spacing=8,
+                expand=True  # permite o conteúdo crescer dentro do cartão
             )
         )
 

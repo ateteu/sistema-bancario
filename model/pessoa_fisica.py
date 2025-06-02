@@ -32,7 +32,7 @@ class PessoaFisica(Pessoa):
         if erros:
             raise ValueError("\n".join(erros))
 
-        super().__init__(nome, email, numero_documento, cep, numero_endereco, telefone)
+        super().__init__(nome, email, numero_documento, cep, numero_endereco, telefone, endereco)
 
         self._data_nascimento = (
             datetime.strptime(data_nascimento, "%d/%m/%Y")

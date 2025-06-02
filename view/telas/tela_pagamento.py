@@ -75,7 +75,6 @@ class TelaPagamento:
             shadow=ft.BoxShadow(blur_radius=20, color="#00000022", offset=ft.Offset(3, 3)),
             content=ft.Column(
                 spacing=18,
-                scroll=ft.ScrollMode.AUTO,
                 controls=[
                     ft.Row([
                         ft.Icon(name=ft.Icons.PAYMENTS_OUTLINED, size=28, color=CORES["primaria"]),
@@ -102,13 +101,19 @@ class TelaPagamento:
             )
         )
 
+
         return ft.Container(
             alignment=ft.alignment.top_center,
             expand=True,
             bgcolor=CORES["secundaria"],
             padding=30,
-            content=conteudo
+            content=ft.Column(
+                scroll=ft.ScrollMode.AUTO,
+                controls=[conteudo]
+            )
         )
+
+
 
     def alternar_campo_chave(self, e):
         """Alterna entre os campos CPF e CNPJ conforme tipo selecionado."""

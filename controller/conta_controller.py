@@ -142,21 +142,15 @@ class ContaController:
 
         return {"sucesso": True, "mensagem": f"Conta {numero_conta} reativada com sucesso."}
 
+
     @staticmethod
     def contas_ativas_para_dropdown(cliente):
-        """
-        Retorna as contas ativas formatadas para uso em campos de seleção (dropdown).
-
-        Args:
-            cliente: Objeto cliente.
-
-        Returns:
-            list[str]: Lista de números de contas ativas.
-        """
+        cliente_atualizado = ClienteDAO().buscar_por_id(cliente.pessoa.get_numero_documento())
         return [
             str(conta.get_numero_conta())
-            for conta in cliente.contas if conta.get_estado_da_conta()
+            for conta in cliente_atualizado.contas if conta.get_estado_da_conta()
         ]
+
 
     @staticmethod
     def obter_info_destinatario(numero_conta: int) -> str:
