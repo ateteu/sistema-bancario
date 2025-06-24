@@ -1,4 +1,5 @@
 from dao.cliente_dao import ClienteDAO
+from dao.pessoa_dao import PessoaDAO 
 from model.pessoa_fisica import PessoaFisica
 from model.cliente import Cliente
 from utils.logger import logger
@@ -32,6 +33,7 @@ class PerfilController:
         Atualiza os dados persistidos de um cliente.
         """
         ClienteDAO().atualizar_objeto(cliente)
+        PessoaDAO().atualizar_objeto(cliente.pessoa)
 
     @staticmethod
     def obter_dados_perfil(documento: str) -> dict:

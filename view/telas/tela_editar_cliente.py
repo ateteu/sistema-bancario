@@ -1,6 +1,7 @@
 import flet as ft
 from view.components.mensagens import Notificador
 from dao.cliente_dao import ClienteDAO
+from dao.pessoa_dao import PessoaDAO
 from view.components.identidade_visual import CORES, ESTILOS_TEXTO
 
 
@@ -113,6 +114,7 @@ class TelaEditarCliente:
                 self.cliente.alterar_senha(senha_atual, nova_senha)
 
             ClienteDAO().atualizar_objeto(self.cliente)
+            PessoaDAO().atualizar_objeto(self.cliente.pessoa)
 
             # Limpa os campos de senha após atualização
             self.senha_atual_field.current.value = ""

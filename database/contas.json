@@ -1,374 +1,85 @@
 [
-  {
-    "numero": "1001",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1002",
-    "saldo": 5278.16,
-    "historico": [
-      "[2025-06-01 18:10:00] Depósito inicial de R$ 5278.16"
-    ],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1003",
-    "saldo": 1885.165,
-    "historico": [
-      "[2025-06-01 18:12:00] Transferência de R$ 3770.33 para conta 1006",
-      "[2025-06-01 18:14:00] Recebido R$ 1885.16 da conta 1006"
-    ],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1004",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1005",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1006",
-    "saldo": 6627.85,
-    "historico": [
-      "[2025-06-01 18:10:00] Depósito inicial de R$ 6627.85"
-    ],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1007",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1008",
-    "saldo": 425.14,
-    "historico": [
-      "[2025-06-01 18:12:00] Transferência de R$ 850.28 para conta 1036",
-      "[2025-06-01 18:14:00] Recebido R$ 425.14 da conta 1036"
-    ],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1009",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1010",
-    "saldo": 3671.675,
-    "historico": [
-      "[2025-06-01 18:12:00] Transferência de R$ 7343.35 para conta 1003",
-      "[2025-06-01 18:14:00] Recebido R$ 3671.68 da conta 1003"
-    ],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1011",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1012",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1013",
-    "saldo": 0.0,
-    "historico": [
-      "[2025-05-27 18:00:00] Conta encerrada"
-    ],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1014",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1015",
-    "saldo": 5304.66,
-    "historico": [
-      "[2025-06-01 18:12:00] Transferência de R$ 10609.32 para conta 1036",
-      "[2025-06-01 18:14:00] Recebido R$ 5304.66 da conta 1036"
-    ],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1016",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1017",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1018",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1019",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1020",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1021",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1022",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1023",
-    "saldo": 8066.05,
-    "historico": [
-      "[2025-05-27 18:00:00] Conta encerrada",
-      "[2025-06-01 18:10:00] Depósito inicial de R$ 8066.05"
-    ],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1024",
-    "saldo": 7903.47,
-    "historico": [
-      "[2025-06-01 18:12:00] Transferência de R$ 15806.94 para conta 1042",
-      "[2025-06-01 18:14:00] Recebido R$ 7903.47 da conta 1042"
-    ],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1025",
-    "saldo": 4673.69,
-    "historico": [
-      "[2025-05-27 18:00:00] Conta encerrada",
-      "[2025-06-01 18:12:00] Transferência de R$ 9347.38 para conta 1022",
-      "[2025-06-01 18:14:00] Recebido R$ 4673.69 da conta 1022"
-    ],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1026",
-    "saldo": 8877.575,
-    "historico": [
-      "[2025-06-01 18:12:00] Transferência de R$ 17755.15 para conta 1022",
-      "[2025-06-01 18:14:00] Recebido R$ 8877.58 da conta 1022"
-    ],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1027",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1028",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1029",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1030",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1031",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1032",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1033",
-    "saldo": 9750.48,
-    "historico": [
-      "[2025-06-01 18:12:00] Transferência de R$ 19500.96 para conta 1042",
-      "[2025-06-01 18:14:00] Recebido R$ 9750.48 da conta 1042"
-    ],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1034",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1035",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1036",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1037",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1038",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1039",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1040",
-    "saldo": 8298.93,
-    "historico": [
-      "[2025-06-01 18:10:00] Depósito inicial de R$ 8298.93"
-    ],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1041",
-    "saldo": 16588.95,
-    "historico": [
-      "[2025-05-27 18:00:00] Conta encerrada",
-      "[2025-06-01 18:10:00] Depósito inicial de R$ 16588.95"
-    ],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1042",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1043",
-    "saldo": 675.56,
-    "historico": [
-      "[2025-06-01 18:10:00] Depósito inicial de R$ 675.56"
-    ],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1044",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1045",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "corrente"
-  },
-  {
-    "numero": "1046",
-    "saldo": 0.0,
-    "historico": [],
-    "ativa": true,
-    "tipo": "poupanca"
-  },
-  {
-    "numero": "1047",
-    "saldo": 0.0,
-    "historico": [
-      "[2025-05-27 18:00:00] Conta encerrada"
-    ],
-    "ativa": true,
-    "tipo": "corrente"
-  }
+    {
+        "numero": "1001",
+        "saldo": 9999902.0,
+        "historico": [
+            "[2025-06-24 17:54:39] Transfer\u00eancia de R$ 88.00 para conta 1002",
+            "[2025-06-24 17:54:49] Conta encerrada"
+        ],
+        "ativa": false,
+        "tipo": "corrente"
+    },
+    {
+        "numero": "1002",
+        "saldo": 88.0,
+        "historico": [
+            "[2025-06-24 17:54:39] Recebido R$ 88.00 da conta 1001"
+        ],
+        "ativa": true,
+        "tipo": "poupanca"
+    },
+    {
+        "numero": "1003",
+        "saldo": 890.01,
+        "historico": [
+            "[2025-06-24 18:18:41] Transfer\u00eancia de R$ 99.99 para conta 1004"
+        ],
+        "ativa": true,
+        "tipo": "poupanca"
+    },
+    {
+        "numero": "1004",
+        "saldo": 2660.74,
+        "historico": [
+            "[2025-06-24 18:10:00] Dep\u00f3sito inicial de R$ 2560.75",
+            "[2025-06-24 18:18:41] Recebido R$ 99.99 da conta 1003"
+        ],
+        "ativa": true,
+        "tipo": "corrente"
+    },
+    {
+        "numero": "1005",
+        "saldo": 132.5,
+        "historico": [
+            "[2025-06-24 18:11:00] Dep\u00f3sito inicial de R$ 132.50"
+        ],
+        "ativa": true,
+        "tipo": "poupanca"
+    },
+    {
+        "numero": "1006",
+        "saldo": 5780.0,
+        "historico": [
+            "[2025-06-24 18:12:00] Dep\u00f3sito inicial de R$ 5780.00"
+        ],
+        "ativa": true,
+        "tipo": "corrente"
+    },
+    {
+        "numero": "1007",
+        "saldo": 875.0,
+        "historico": [
+            "[2025-06-24 18:13:00] Dep\u00f3sito inicial de R$ 875.00"
+        ],
+        "ativa": true,
+        "tipo": "poupanca"
+    },
+    {
+        "numero": "1008",
+        "saldo": 1420.35,
+        "historico": [
+            "[2025-06-24 18:14:00] Dep\u00f3sito inicial de R$ 1420.35"
+        ],
+        "ativa": true,
+        "tipo": "corrente"
+    },
+    {
+        "numero": "1009",
+        "saldo": 200.0,
+        "historico": [
+            "[2025-06-24 18:15:00] Dep\u00f3sito inicial de R$ 200.00"
+        ],
+        "ativa": true,
+        "tipo": "poupanca"
+    }
 ]

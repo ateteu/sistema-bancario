@@ -100,7 +100,4 @@ class Pessoa(ABC):
 
         Otimizado para evitar chamada se o endereço já estiver preenchido.
         """
-        if hasattr(self, "_endereco") and self._endereco:
-            return  # Já carregado via JSON, não precisa consultar API
-
         self._endereco = API.buscar_endereco_por_cep(self._cep, self._numero_endereco)
